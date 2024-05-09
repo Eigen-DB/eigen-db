@@ -1,14 +1,18 @@
 package vectors
 
-type vector struct {
+type Vector struct {
 	id         uint32
 	components []float32
 }
 
-func (v *vector) insert() error {
-	return writeVectorToMemory(v)
+func (v *Vector) Insert() error {
+	return writeVector(v)
 }
 
-func (v *vector) search(k uint32) []*vector {
-	return make([]*vector, 0)
+func (v *Vector) Delete() error {
+	return deleteVector(v.id)
+}
+
+func (v *Vector) Search(k uint32) []*Vector {
+	return make([]*Vector, 0)
 }

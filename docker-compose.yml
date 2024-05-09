@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  eigen_db:
+    build: .
+    ports:
+      - "8080:8080"
