@@ -1,11 +1,7 @@
 package vector_io
 
 import (
-	"bytes"
-	"eigen_db/constants"
-	"encoding/gob"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/evan176/hnswgo"
@@ -20,46 +16,11 @@ type vectorStore struct {
 
 var vectorStoreInstance *vectorStore // Where all vectors are stored in memory at runtime
 
-func (store *vectorStore) PersistToDisk() error {
-	buf := new(bytes.Buffer)
-	encoder := gob.NewEncoder(buf)
-	err := encoder.Encode(store)
-	if err != nil {
-		return err
-	}
-	serializedData := buf.Bytes()
-
-	return os.WriteFile(constants.DB_PERSIST_PATH, serializedData, constants.DB_PERSIST_CHMOD)
-}
-
-func (store *vectorStore) LoadPersistedVectors() error {
-	serializedVectors, err := os.ReadFile(constants.DB_PERSIST_PATH)
-	if err != nil {
-		return err
-	}
-	buf := bytes.NewBuffer(serializedVectors)
-	decoder := gob.NewDecoder(buf)
-	err = decoder.Decode(store)
-	if err != nil {
-		return err
-	}
-
-	for id, v := range store.StoredVectors { // load deserialized stored vectors into the vector space
-		store.vectorSpace.AddPoint(v.Components, id)
-	}
-
-	return nil
-}
-
 func (store *vectorStore) writeVector(v *Vector) {
+	v.Id = vectorStoreInstance.LatestId + 1
+	vectorStoreInstance.LatestId++
 	store.vectorSpace.AddPoint(v.Components, v.Id)
 	store.StoredVectors[v.Id] = v
-}
-
-func (space *vectorStore) deleteVector(vector *Vector) { // TODO
-	// swap element at 'vector' and last element of the slice, and shrink the slice by 1, deleting the last element.
-	// PROBLEM: this will make the vector IDs no longer ordered which will mess up the code that generates a vector ID when creating a new vector.
-	// solution: keep the latest vector ID as a field in the vectorStore struct.
 }
 
 func InstantiateVectorStore(usePersistence bool, dim uint32, similarityMetric SimilarityMetric, spaceSize uint32, M uint32, efConstruction uint32) {
@@ -75,26 +36,6 @@ func InstantiateVectorStore(usePersistence bool, dim uint32, similarityMetric Si
 			fmt.Println("Loaded persisted vectors in memory.")
 		}
 	}
-}
-
-func StartPersistenceLoop() error {
-	if _, err := os.Stat(constants.DB_PERSIST_PATH); os.IsNotExist(err) {
-		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil {
-			return err
-		}
-	}
-
-	go func() {
-		for {
-			err := vectorStoreInstance.PersistToDisk()
-			if err != nil {
-				fmt.Printf("Failed to persist data to disk: %s\n", err)
-			}
-			time.Sleep(time.Second * 5)
-		}
-	}()
-
-	return nil
 }
 
 func SimilaritySearch(queryVectorId VectorId, k uint32) []VectorId {
