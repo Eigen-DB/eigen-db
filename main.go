@@ -17,6 +17,8 @@ func setupAPIRouter() *gin.Engine {
 	r.GET("/ping", root.Ping)
 	r.POST("/set-config", root.SetConfig)
 	vectors.POST("/insert", vector.InsertVector)
+	vectors.POST("/bulk-insert", vector.BulkInsertVector)
+	vectors.POST("/search", vector.Search)
 
 	return r
 }
@@ -28,7 +30,7 @@ func startAPI(addr string) error {
 }
 
 func setupDB() {
-	vector_io.InstantiateVectorStore()
+	vector_io.InstantiateVectorStore(enablePersistence, 2, vector_io.EUCLIDEAN, 10000, 32, 400) // use real params
 }
 
 func main() {

@@ -1,10 +1,13 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	vio "eigen_db/vector_io"
+
+	"github.com/gin-gonic/gin"
+)
 
 type requestBody struct {
-	similarityAlgorithm string
-	dimensions          uint32
+	config vio.VectorSpaceConfig
 }
 
 func SetConfig(c *gin.Context) {
