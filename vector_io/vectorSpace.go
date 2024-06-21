@@ -97,16 +97,6 @@ func StartPersistenceLoop() error {
 	return nil
 }
 
-// GETTERS
-
-func GetVectorStoreConfig() VectorSpaceConfig {
-	return vectorStoreInstance.Config
-}
-
-func GetVector(id VectorId) *Vector {
-	return vectorStoreInstance.StoredVectors[id]
-}
-
 func SimilaritySearch(queryVectorId VectorId, k uint32) []VectorId {
 	// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
 	// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
@@ -122,4 +112,14 @@ func SimilaritySearch(queryVectorId VectorId, k uint32) []VectorId {
 		}
 	}
 	return idsExcludingQuery
+}
+
+// GETTERS
+
+func GetVectorStoreConfig() VectorSpaceConfig {
+	return vectorStoreInstance.Config
+}
+
+func GetVector(id VectorId) *Vector {
+	return vectorStoreInstance.StoredVectors[id]
 }
