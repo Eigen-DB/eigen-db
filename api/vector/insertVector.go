@@ -1,15 +1,17 @@
 package api
 
 import (
-	vio "eigen_db/vector_io"
+	"eigen_db/vector_io"
 	"encoding/json"
 	"io"
+
+	t "eigen_db/types"
 
 	"github.com/gin-gonic/gin"
 )
 
 type insertRequestBody struct {
-	Components vio.VectorComponents `json:"components"`
+	Components t.VectorComponents `json:"components"`
 }
 
 func InsertVector(c *gin.Context) {
@@ -23,7 +25,7 @@ func InsertVector(c *gin.Context) {
 	if err != nil {
 		c.Error(err)
 	}
-	v := vio.NewVector(body.Components)
+	v := vector_io.NewVector(body.Components)
 	v.Insert()
 
 	c.String(200, "Vector successfully inserted.")

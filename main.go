@@ -3,12 +3,12 @@ package main
 import (
 	root "eigen_db/api/root"
 	vector "eigen_db/api/vector"
+	"eigen_db/cfg"
 	"eigen_db/vector_io"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
-
-const enablePersistence = true // turn this on to enable the 5 second persistence loop
 
 func setupAPIRouter() *gin.Engine {
 	r := gin.Default()
@@ -29,20 +29,28 @@ func startAPI(addr string) error {
 	return err
 }
 
-func setupDB() {
-	vector_io.InstantiateVectorStore(enablePersistence, 2, vector_io.EUCLIDEAN, 10000, 32, 400) // use real params
+func setupDB(config *cfg.Config) {
+	params := config.HNSWParams
+	vector_io.InstantiateVectorStore(
+		params.Dimensions,
+		params.SimilarityMetric,
+		params.SpaceSize,
+		params.M,
+		params.EfConstruction,
+	)
 }
 
 func main() {
-	setupDB()
+	cfg.UpdateConfig() // parses config.yml into memory
+	config := cfg.GetConfig()
 
-	if enablePersistence {
-		if err := vector_io.StartPersistenceLoop(); err != nil {
-			panic(err)
-		}
+	setupDB(config)
+
+	if err := vector_io.StartPersistenceLoop(config); err != nil {
+		panic(err)
 	}
 
-	if err := startAPI("0.0.0.0:8080"); err != nil {
+	if err := startAPI(fmt.Sprintf("%s:%d", config.API.Address, config.API.Port)); err != nil {
 		panic(err)
 	}
 }

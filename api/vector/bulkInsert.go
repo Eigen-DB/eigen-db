@@ -1,7 +1,8 @@
 package api
 
 import (
-	vio "eigen_db/vector_io"
+	t "eigen_db/types"
+	"eigen_db/vector_io"
 	"encoding/json"
 	"io"
 
@@ -9,7 +10,7 @@ import (
 )
 
 type bulkInsertRequestBody struct {
-	SetOfComponents []vio.VectorComponents `json:"setOfComponents"`
+	SetOfComponents []t.VectorComponents `json:"setOfComponents"`
 }
 
 func BulkInsertVector(c *gin.Context) {
@@ -24,9 +25,9 @@ func BulkInsertVector(c *gin.Context) {
 		c.Error(err)
 	}
 
-	var v *vio.Vector
+	var v *vector_io.Vector
 	for _, c := range body.SetOfComponents {
-		v = vio.NewVector(c)
+		v = vector_io.NewVector(c)
 		v.Insert()
 	}
 

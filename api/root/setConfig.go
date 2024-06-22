@@ -1,13 +1,13 @@
 package api
 
 import (
-	vio "eigen_db/vector_io"
+	"eigen_db/cfg"
 
 	"github.com/gin-gonic/gin"
 )
 
 type requestBody struct {
-	config vio.VectorSpaceConfig
+	config cfg.Config
 }
 
 func SetConfig(c *gin.Context) {

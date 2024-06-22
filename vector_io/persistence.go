@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"eigen_db/cfg"
 )
 
 func (store *vectorStore) PersistToDisk() error {
@@ -40,7 +42,7 @@ func (store *vectorStore) LoadPersistedVectors() error {
 	return nil
 }
 
-func StartPersistenceLoop() error {
+func StartPersistenceLoop(config *cfg.Config) error {
 	if _, err := os.Stat(constants.DB_PERSIST_PATH); os.IsNotExist(err) {
 		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil {
 			return err
@@ -53,7 +55,8 @@ func StartPersistenceLoop() error {
 			if err != nil {
 				fmt.Printf("Failed to persist data to disk: %s\n", err)
 			}
-			time.Sleep(time.Second * 5)
+
+			time.Sleep(config.Persistence.TimeIntervalSecs)
 		}
 	}()
 
