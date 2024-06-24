@@ -1,4 +1,4 @@
-package api
+package root_endpoints
 
 import "github.com/gin-gonic/gin"
 

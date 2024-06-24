@@ -12,7 +12,7 @@ import (
 
 type Config struct {
 	Persistence struct {
-		TimeIntervalSecs time.Duration `yaml:"timeIntervalSecs"`
+		TimeInterval time.Duration `yaml:"timeInterval"`
 	} `yaml:"persistence"`
 	API struct {
 		Port    uint32 `yaml:"port"`
@@ -27,9 +27,17 @@ type Config struct {
 	} `yaml:"hnswParams"`
 }
 
-var config *Config = new(Config)
+var config *Config
 
-func UpdateConfig() error {
+func NewConfig() {
+	config = new(Config)
+}
+
+func GetConfig() *Config {
+	return config
+}
+
+func (c *Config) LoadConfig() error {
 	f, err := os.Open(constants.CONFIG_PATH)
 	if err != nil {
 		return err
@@ -44,6 +52,36 @@ func UpdateConfig() error {
 	return nil
 }
 
-func GetConfig() *Config {
-	return config
+// Config SETTERS
+
+func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) {
+	c.Persistence.TimeInterval = timeInterval
+}
+
+func (c *Config) SetAPIPort(port uint32) {
+	c.API.Port = port
+}
+
+func (c *Config) SetAPIAddress(address string) {
+	c.API.Address = address
+}
+
+func (c *Config) SetHNSWParamsDimensions(dimensions uint32) {
+	c.HNSWParams.Dimensions = dimensions
+}
+
+func (c *Config) SetHNSWParamsSimilarityMetric(similarityMetric t.SimilarityMetric) {
+	c.HNSWParams.SimilarityMetric = similarityMetric
+}
+
+func (c *Config) SetHNSWParamsSpaceSize(spaceSize uint32) {
+	c.HNSWParams.SpaceSize = spaceSize
+}
+
+func (c *Config) SetHNSWParamsM(M uint32) {
+	c.HNSWParams.M = M
+}
+
+func (c *Config) SetHNSWParamsEfConstruction(efConstruction uint32) {
+	c.HNSWParams.EfConstruction = efConstruction
 }

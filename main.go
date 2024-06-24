@@ -1,8 +1,8 @@
 package main
 
 import (
-	root "eigen_db/api/root"
-	vector "eigen_db/api/vector"
+	root_endpoints "eigen_db/api/root"
+	vector_endpoints "eigen_db/api/vector"
 	"eigen_db/cfg"
 	"eigen_db/vector_io"
 	"fmt"
@@ -14,11 +14,11 @@ func setupAPIRouter() *gin.Engine {
 	r := gin.Default()
 	vectors := r.Group("/vector")
 
-	r.GET("/ping", root.Ping)
-	r.POST("/set-config", root.SetConfig)
-	vectors.POST("/insert", vector.InsertVector)
-	vectors.POST("/bulk-insert", vector.BulkInsertVector)
-	vectors.POST("/search", vector.Search)
+	r.GET("/ping", root_endpoints.Ping)
+	r.POST("/set-config", root_endpoints.SetConfig)
+	vectors.POST("/insert", vector_endpoints.InsertVector)
+	vectors.POST("/bulk-insert", vector_endpoints.BulkInsertVector)
+	vectors.POST("/search", vector_endpoints.Search)
 
 	return r
 }
@@ -41,8 +41,9 @@ func setupDB(config *cfg.Config) {
 }
 
 func main() {
-	cfg.UpdateConfig() // parses config.yml into memory
-	config := cfg.GetConfig()
+	cfg.NewConfig()           // creates a empty Config struct in memory
+	config := cfg.GetConfig() // get pointer to Config in memory
+	config.LoadConfig()       // load config from config.yml into the Config struct in memory
 
 	setupDB(config)
 

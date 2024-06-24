@@ -1,4 +1,4 @@
-package api
+package vector_endpoints
 
 import (
 	"eigen_db/vector_io"

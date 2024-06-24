@@ -1,17 +1,25 @@
-package api
+package root_endpoints
 
 import (
-	"eigen_db/cfg"
-
 	"github.com/gin-gonic/gin"
 )
 
-type requestBody struct {
-	config cfg.Config
+type setConfigRequestBody struct {
+	FieldName    string `json:"fieldName"`
+	UpdatedValue any    `json:"updatedValue"`
 }
 
 func SetConfig(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"fu": "bar",
-	})
+	//bodyBytes, err := io.ReadAll(c.Request.Body)
+	//if err != nil {
+	//	c.Error(err)
+	//}
+	//
+	//body := &setConfigRequestBody{}
+	//err = json.Unmarshal(bodyBytes, body)
+	//if err != nil {
+	//	c.Error(err)
+	//}
+
+	c.String(200, "Work in progress... The lead dev is sleeping (zzz)...")
 }
