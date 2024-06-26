@@ -11,7 +11,9 @@ func (v *Vector) Insert() {
 	vectorStoreInstance.writeVector(v)
 }
 
-func NewVector(components t.VectorComponents) *Vector {
+type VectorFactory struct{}
+
+func (factory *VectorFactory) NewVector(components t.VectorComponents) IVector {
 	v := &Vector{}
 	v.Components = components
 	return v

@@ -3,6 +3,7 @@ package api
 import (
 	root_endpoints "eigen_db/api/root"
 	vector_endpoints "eigen_db/api/vector"
+	"eigen_db/vector_io"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,8 +14,8 @@ func setupRouter() *gin.Engine {
 
 	r.GET("/ping", root_endpoints.Ping)
 	r.PUT("/update-config", root_endpoints.UpdateConfig)
-	vectors.PUT("/insert", vector_endpoints.InsertVector)
-	vectors.PUT("/bulk-insert", vector_endpoints.BulkInsertVector)
+	vectors.PUT("/insert", vector_endpoints.Insert(&vector_io.VectorFactory{}))
+	vectors.PUT("/bulk-insert", vector_endpoints.BulkInsert(&vector_io.VectorFactory{}))
 	vectors.GET("/search", vector_endpoints.Search)
 
 	return r
