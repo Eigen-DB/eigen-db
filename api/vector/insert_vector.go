@@ -1,4 +1,4 @@
-package vector_endpoints
+package vector
 
 import (
 	"eigen_db/vector_io"
@@ -25,6 +25,7 @@ func InsertVector(c *gin.Context) {
 	if err != nil {
 		c.Error(err)
 	}
+
 	v := vector_io.NewVector(body.Components)
 	v.Insert()
 

@@ -24,9 +24,16 @@ func (store *vectorStore) writeVector(v *Vector) {
 	store.StoredVectors[v.Id] = v
 }
 
-func InstantiateVectorStore(dim uint32, similarityMetric t.SimilarityMetric, spaceSize uint32, M uint32, efConstruction uint32) {
+func instantiateVectorStore(dim uint32, similarityMetric t.SimilarityMetric, spaceSize uint32, M uint32, efConstruction uint32) {
 	vectorStoreInstance = &vectorStore{}
-	vectorStoreInstance.vectorSpace = hnswgo.New(int(dim), int(M), int(efConstruction), int(time.Now().Unix()), spaceSize, similarityMetric)
+	vectorStoreInstance.vectorSpace = hnswgo.New(
+		int(dim),
+		int(M),
+		int(efConstruction),
+		int(time.Now().Unix()),
+		spaceSize,
+		similarityMetric,
+	)
 	vectorStoreInstance.StoredVectors = make(map[uint32]*Vector)
 
 	err := vectorStoreInstance.LoadPersistedVectors()

@@ -1,4 +1,4 @@
-package vector_endpoints
+package vector
 
 import (
 	t "eigen_db/types"

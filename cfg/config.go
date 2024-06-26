@@ -1,7 +1,6 @@
 package cfg
 
 import (
-	"eigen_db/constants"
 	"os"
 	"time"
 
@@ -37,8 +36,8 @@ func GetConfig() *Config {
 	return config
 }
 
-func (c *Config) LoadConfig() error {
-	f, err := os.Open(constants.CONFIG_PATH)
+func (c *Config) LoadConfig(configPath string) error {
+	f, err := os.Open(configPath)
 	if err != nil {
 		return err
 	}
@@ -52,7 +51,39 @@ func (c *Config) LoadConfig() error {
 	return nil
 }
 
-// Config SETTERS
+// Config GETTERS & SETTERS
+
+func (c *Config) GetPersistenceTimeInterval() time.Duration {
+	return c.Persistence.TimeInterval
+}
+
+func (c *Config) GetAPIPort() uint32 {
+	return c.API.Port
+}
+
+func (c *Config) GetAPIAddress() string {
+	return c.API.Address
+}
+
+func (c *Config) GetHNSWParamsDimensions() uint32 {
+	return c.HNSWParams.Dimensions
+}
+
+func (c *Config) GetHNSWParamsSimilarityMetric() t.SimilarityMetric {
+	return c.HNSWParams.SimilarityMetric
+}
+
+func (c *Config) GetHNSWParamsSpaceSize() uint32 {
+	return c.HNSWParams.SpaceSize
+}
+
+func (c *Config) GetHNSWParamsM() uint32 {
+	return c.HNSWParams.M
+}
+
+func (c *Config) GetHNSWParamsEfConstruction() uint32 {
+	return c.HNSWParams.EfConstruction
+}
 
 func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) {
 	c.Persistence.TimeInterval = timeInterval
