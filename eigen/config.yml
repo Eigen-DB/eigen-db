@@ -1,0 +1,11 @@
+persistence:
+  timeInterval: 3s
+api:
+  port: 8080
+  address: 0.0.0.0
+hnswParams:
+  dimensions: 2
+  similarityMetric: euclidean
+  vectorSpaceSize: 10000
+  M: 32
+  efConstruction: 400

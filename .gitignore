@@ -1,3 +1,2 @@
 eigen_db
-eigen/
-api/vector/insert_vector_test.go
+eigen/vector_space.vec

@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type setConfigRequestBody struct {
+type updateConfigRequestBody struct {
 	FieldName    string `json:"fieldName"`
 	UpdatedValue any    `json:"updatedValue"`
 }
