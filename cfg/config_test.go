@@ -2,10 +2,10 @@ package cfg
 
 import (
 	"eigen_db/constants"
-	"fmt"
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 )
 
@@ -15,68 +15,26 @@ func cleanup() error {
 	return os.Remove(CUSTOM_CONFIG_PATH)
 }
 
-func areAllValuesLoaded(c *Config) error {
-	if c.GetPersistenceTimeInterval() == 0 {
-		return fmt.Errorf("Persistence Time Interval is not set (yaml: persistence.timeInterval)")
-	}
-	if c.GetAPIPort() == 0 {
-		return fmt.Errorf("API Port is not set (yaml: api.port)")
-	}
-	if c.GetAPIAddress() == "" {
-		return fmt.Errorf("API Address is not set (yaml: api.address)")
-	}
-	if c.GetHNSWParamsDimensions() == 0 {
-		return fmt.Errorf("HNSWParams Dimensions is not set (yaml: hnswParams.dimensions)")
-	}
-	if c.GetHNSWParamsSimilarityMetric() == "" {
-		return fmt.Errorf("HNSWParams Similarity Metric is not set (yaml: hnswParams.similarityMetric)")
-	}
-	if c.GetHNSWParamsSpaceSize() == 0 {
-		return fmt.Errorf("HNSWParams Space Size is not set (yaml: hnswParams.vectorSpaceSize)")
-	}
-	if c.GetHNSWParamsM() == 0 {
-		return fmt.Errorf("HNSWParams M is not set (yaml: hnswParams.M)")
-	}
-	if c.GetHNSWParamsEfConstruction() == 0 {
-		return fmt.Errorf("HNSWParams Ef Construction is not set (yaml: hnswParams.efConstruction)")
-	}
-	return nil
+func areAllValuesLoaded(t *testing.T, c *Config) {
+	assert.NotEqual(t, c.GetPersistenceTimeInterval(), 0, "Persistence Time Interval is not set (yaml: persistence.timeInterval)")
+	assert.NotEqual(t, c.GetAPIPort(), 0, "API Port is not set (yaml: api.port)")
+	assert.NotEqual(t, c.GetAPIAddress(), "", "API Address is not set (yaml: api.address)")
+	assert.NotEqual(t, c.GetHNSWParamsDimensions(), 0, "HNSWParams Dimensions is not set (yaml: hnswParams.dimensions)")
+	assert.NotEqual(t, c.GetHNSWParamsSimilarityMetric(), "", "HNSWParams Similarity Metric is not set (yaml: hnswParams.similarityMetric)")
+	assert.NotEqual(t, c.GetHNSWParamsSpaceSize(), 0, "HNSWParams Space Size is not set (yaml: hnswParams.vectorSpaceSize)")
+	assert.NotEqual(t, c.GetHNSWParamsM(), 0, "HNSWParams M is not set (yaml: hnswParams.M)")
+	assert.NotEqual(t, c.GetHNSWParamsEfConstruction(), 0, "HNSWParams Ef Construction is not set (yaml: hnswParams.efConstruction)")
 }
 
-func areConfigsIdentical(c1 *Config, c2 *Config) error {
-	if c1.GetPersistenceTimeInterval() != c2.GetPersistenceTimeInterval() {
-		return fmt.Errorf("PersistenceTimeInterval values do not match. configInMem: %v, customConfigStruct: %v", c2.GetPersistenceTimeInterval(), c1.GetPersistenceTimeInterval())
-	}
-
-	if c1.GetAPIPort() != c2.GetAPIPort() {
-		return fmt.Errorf("APIPort values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIPort(), c1.GetAPIPort())
-	}
-
-	if c1.GetAPIAddress() != c2.GetAPIAddress() {
-		return fmt.Errorf("APIAddress values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIAddress(), c1.GetAPIAddress())
-	}
-
-	if c1.GetHNSWParamsDimensions() != c2.GetHNSWParamsDimensions() {
-		return fmt.Errorf("HNSWParamsDimensions values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsDimensions(), c1.GetHNSWParamsDimensions())
-	}
-
-	if c1.GetHNSWParamsSimilarityMetric() != c2.GetHNSWParamsSimilarityMetric() {
-		return fmt.Errorf("HNSWParamsSimilarityMetric values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsSimilarityMetric(), c1.GetHNSWParamsSimilarityMetric())
-	}
-
-	if c1.GetHNSWParamsSpaceSize() != c2.GetHNSWParamsSpaceSize() {
-		return fmt.Errorf("HNSWParamsSpaceSize values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsSpaceSize(), c1.GetHNSWParamsSpaceSize())
-	}
-
-	if c1.GetHNSWParamsM() != c2.GetHNSWParamsM() {
-		return fmt.Errorf("HNSWParamsM values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsM(), c1.GetHNSWParamsM())
-	}
-
-	if c1.GetHNSWParamsEfConstruction() != c2.GetHNSWParamsEfConstruction() {
-		return fmt.Errorf("HNSWParamsEfConstruction values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsEfConstruction(), c1.GetHNSWParamsEfConstruction())
-	}
-
-	return nil
+func areConfigsIdentical(t *testing.T, c1 *Config, c2 *Config) {
+	assert.Equal(t, c1.GetPersistenceTimeInterval(), c2.GetPersistenceTimeInterval(), "PersistenceTimeInterval values do not match. configInMem: %v, customConfigStruct: %v", c2.GetPersistenceTimeInterval(), c1.GetPersistenceTimeInterval())
+	assert.Equal(t, c1.GetAPIPort(), c2.GetAPIPort(), "APIPort values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIPort(), c1.GetAPIPort())
+	assert.Equal(t, c1.GetAPIAddress(), c2.GetAPIAddress(), "APIAddress values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIAddress(), c1.GetAPIAddress())
+	assert.Equal(t, c1.GetHNSWParamsDimensions(), c2.GetHNSWParamsDimensions(), "HNSWParamsDimensions values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsDimensions(), c1.GetHNSWParamsDimensions())
+	assert.Equal(t, c1.GetHNSWParamsSimilarityMetric(), c2.GetHNSWParamsSimilarityMetric(), "HNSWParamsSimilarityMetric values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsSimilarityMetric(), c1.GetHNSWParamsSimilarityMetric())
+	assert.Equal(t, c1.GetHNSWParamsSpaceSize(), c2.GetHNSWParamsSpaceSize(), "HNSWParamsSpaceSize values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsSpaceSize(), c1.GetHNSWParamsSpaceSize())
+	assert.Equal(t, c1.GetHNSWParamsM(), c2.GetHNSWParamsM(), "HNSWParamsM values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsM(), c1.GetHNSWParamsM())
+	assert.Equal(t, c1.GetHNSWParamsEfConstruction(), c2.GetHNSWParamsEfConstruction(), "HNSWParamsEfConstruction values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsEfConstruction(), c1.GetHNSWParamsEfConstruction())
 }
 
 func TestLoadConfig(t *testing.T) {
@@ -103,9 +61,7 @@ hnswParams:
 	}
 
 	configInMem := GetConfig()
-	if err := areAllValuesLoaded(configInMem); err != nil {
-		t.Errorf(err.Error())
-	}
+	areAllValuesLoaded(t, configInMem)
 
 	// check that both Config structs are identical in values
 	customConfigStruct := &Config{}
@@ -113,9 +69,7 @@ hnswParams:
 		t.Errorf("Error parsing custom config: %s", err.Error())
 	}
 
-	if err := areConfigsIdentical(customConfigStruct, configInMem); err != nil {
-		t.Errorf(err.Error())
-	}
+	areConfigsIdentical(t, customConfigStruct, configInMem)
 
 	cleanup()
 }

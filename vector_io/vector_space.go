@@ -17,11 +17,33 @@ type vectorStore struct {
 	LatestId      t.VectorId
 }
 
+type VectorSearcher struct{}
+
 func (store *vectorStore) writeVector(v *Vector) {
 	v.Id = vectorStoreInstance.LatestId + 1
 	vectorStoreInstance.LatestId++
 	store.vectorSpace.AddPoint(v.Components, v.Id)
 	store.StoredVectors[v.Id] = v
+}
+
+func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k uint32) ([]t.VectorId, error) {
+	// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
+	// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
+	// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
+
+	queryVector, err := GetVector(queryVectorId)
+	if err != nil {
+		return nil, err
+	}
+	ids, _ := vectorStoreInstance.vectorSpace.SearchKNN(queryVector.Components, int(k)+1) // returns ids of resulting vectors and the vectors' distances from the query vector
+
+	idsExcludingQuery := make([]t.VectorId, 0)
+	for _, id := range ids {
+		if id != queryVectorId {
+			idsExcludingQuery = append(idsExcludingQuery, id)
+		}
+	}
+	return idsExcludingQuery, nil
 }
 
 func instantiateVectorStore(dim uint32, similarityMetric t.SimilarityMetric, spaceSize uint32, M uint32, efConstruction uint32) {
@@ -44,23 +66,10 @@ func instantiateVectorStore(dim uint32, similarityMetric t.SimilarityMetric, spa
 	}
 }
 
-func SimilaritySearch(queryVectorId t.VectorId, k uint32) []t.VectorId {
-	// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
-	// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
-	// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
-
-	queryVector := GetVector(queryVectorId)
-	ids, _ := vectorStoreInstance.vectorSpace.SearchKNN(queryVector.Components, int(k)+1) // returns ids of resulting vectors and the vectors' distances from the query vector
-
-	idsExcludingQuery := make([]t.VectorId, 0)
-	for _, id := range ids {
-		if id != queryVectorId {
-			idsExcludingQuery = append(idsExcludingQuery, id)
-		}
+func GetVector(id t.VectorId) (*Vector, error) {
+	vector := vectorStoreInstance.StoredVectors[id] // if id does not exist in StoredVectors, it returns a nil pointer
+	if vector != nil {
+		return vectorStoreInstance.StoredVectors[id], nil
 	}
-	return idsExcludingQuery
-}
-
-func GetVector(id t.VectorId) *Vector {
-	return vectorStoreInstance.StoredVectors[id]
+	return nil, fmt.Errorf("there is no vector with id %d in the vector space", id)
 }
