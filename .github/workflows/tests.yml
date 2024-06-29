@@ -21,4 +21,4 @@ jobs:
       run: go mod download
 
     - name: Run tests
-      run: go test ./...
+      run: ./run_tests.sh
