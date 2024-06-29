@@ -32,7 +32,7 @@ func BulkInsert(vectorFactory vector_io.IVectorFactory) func(*gin.Context) {
 			vectorsInserted++
 		}
 
-		response := fmt.Sprintf("%d/%d vectors successfully insertedx.", vectorsInserted, len(body.SetOfComponents))
+		response := fmt.Sprintf("%d/%d vectors successfully inserted.", vectorsInserted, len(body.SetOfComponents))
 		c.String(http.StatusOK, response) // later handle returning any vectors that were skipped to the client
 	}
 }
