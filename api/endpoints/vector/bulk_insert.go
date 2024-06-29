@@ -25,14 +25,14 @@ func BulkInsert(vectorFactory vector_io.IVectorFactory) func(*gin.Context) {
 		for i, components := range body.SetOfComponents {
 			v, err := vectorFactory.NewVector(components)
 			if err != nil {
-				c.Error(fmt.Errorf("vector %d was skipped as it had the wrong dimensionalityx", i))
+				c.Error(fmt.Errorf("vector %d was skipped as it had the wrong dimensionality", i))
 				continue
 			}
 			v.Insert()
 			vectorsInserted++
 		}
 
-		response := fmt.Sprintf("%d/%d vectors successfully inserted.", vectorsInserted, len(body.SetOfComponents))
+		response := fmt.Sprintf("%d/%d vectors successfully insertedx.", vectorsInserted, len(body.SetOfComponents))
 		c.String(http.StatusOK, response) // later handle returning any vectors that were skipped to the client
 	}
 }
