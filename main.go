@@ -1,5 +1,10 @@
 package main
 
+/*
+#cgo LDFLAGS: -L./lib -lhnsw
+*/
+import "C"
+
 import (
 	"eigen_db/api"
 	"eigen_db/cfg"
