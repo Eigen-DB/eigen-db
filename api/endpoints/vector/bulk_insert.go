@@ -25,7 +25,7 @@ func BulkInsert(vectorFactory vector_io.IVectorFactory) func(*gin.Context) {
 		for i, components := range body.SetOfComponents {
 			v, err := vectorFactory.NewVector(components)
 			if err != nil {
-				c.Error(fmt.Errorf("vector %d was skipped as it had the wrong dimensionality", i))
+				c.Error(fmt.Errorf("vector %d was skipped as it had the wrong dimensionalityx", i))
 				continue
 			}
 			v.Insert()
