@@ -10,7 +10,7 @@ import (
 )
 
 type insertRequestBody struct {
-	Components t.VectorComponents `json:"components" binding:"required"`
+	Components []t.VectorComponent `json:"components" binding:"required"`
 }
 
 func Insert(vectorFactory vector_io.IVectorFactory) func(*gin.Context) {

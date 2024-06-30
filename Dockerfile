@@ -1,13 +1,13 @@
-FROM golang:latest
+FROM golang:1.20
 
-WORKDIR /go/src/app
+WORKDIR /app
 
 COPY . .
 
-RUN go get 
+RUN go mod download
 
 RUN go build
 
 EXPOSE 8080
 
-CMD ["/go/src/app/eigen_db"]
+CMD ["./eigen_db"]

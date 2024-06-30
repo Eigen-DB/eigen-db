@@ -36,7 +36,7 @@ func (store *vectorStore) LoadPersistedVectors() error {
 	}
 
 	for id, v := range store.StoredVectors { // load deserialized stored vectors into the vector space
-		store.vectorSpace.AddPoint(v.Components, id)
+		store.vectorSpace.AddPoint(v.Components, uint32(id))
 	}
 
 	return nil

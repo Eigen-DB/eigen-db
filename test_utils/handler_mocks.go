@@ -18,7 +18,7 @@ type MockVector struct{}
 
 type MockVectorSearcher struct{}
 
-func (factory *MockVectorFactory) NewVector(components types.VectorComponents) (vector_io.IVector, error) {
+func (factory *MockVectorFactory) NewVector(components []types.VectorComponent) (vector_io.IVector, error) {
 	NewVectorInvocations++
 	if len(components) == factory.Dimensions {
 		return &MockVector{}, nil
@@ -30,7 +30,7 @@ func (vector *MockVector) Insert() {
 	InsertInvocations++
 }
 
-func (searcher *MockVectorSearcher) SimilaritySearch(queryVectorId types.VectorId, k uint32) ([]types.VectorId, error) {
+func (searcher *MockVectorSearcher) SimilaritySearch(queryVectorId types.VectorId, k int) ([]types.VectorId, error) {
 	SimilaritySearchInvocations++
 	return []types.VectorId{1, 2, 3}, nil
 }

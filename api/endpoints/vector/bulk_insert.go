@@ -10,7 +10,7 @@ import (
 )
 
 type bulkInsertRequestBody struct {
-	SetOfComponents []t.VectorComponents `json:"setOfComponents" binding:"required"`
+	SetOfComponents [][]t.VectorComponent `json:"setOfComponents" binding:"required"`
 }
 
 func BulkInsert(vectorFactory vector_io.IVectorFactory) func(*gin.Context) {

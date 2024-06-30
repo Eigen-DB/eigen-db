@@ -12,7 +12,7 @@ import (
 
 type searchRequestBody struct {
 	QueryVectorId t.VectorId `json:"queryVectorId" binding:"required"`
-	K             uint32     `json:"k" binding:"required"`
+	K             int        `json:"k" binding:"required"`
 }
 
 func Search(searcher vector_io.IVectorSearcher) func(*gin.Context) {

@@ -17,8 +17,8 @@ func TestSearch(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	body := searchRequestBody{
-		QueryVectorId: uint32(1),
-		K:             uint32(5),
+		QueryVectorId: 1,
+		K:             5,
 	}
 	bodyJSON, err := json.Marshal(body)
 	if err != nil {

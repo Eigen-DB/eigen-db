@@ -4,8 +4,8 @@ import (
 	"github.com/evan176/hnswgo"
 )
 
-type VectorId = uint32
-type VectorComponents = []float32
+type VectorId = int
+type VectorComponent = float32
 type VectorSpace = *hnswgo.HNSW
 
 // Config types

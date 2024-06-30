@@ -3,7 +3,7 @@ package vector_io
 import t "eigen_db/types"
 
 type IVectorFactory interface {
-	NewVector(t.VectorComponents) (IVector, error)
+	NewVector([]t.VectorComponent) (IVector, error)
 }
 
 type IVector interface {
@@ -11,5 +11,5 @@ type IVector interface {
 }
 
 type IVectorSearcher interface {
-	SimilaritySearch(t.VectorId, uint32) ([]t.VectorId, error)
+	SimilaritySearch(t.VectorId, int) ([]t.VectorId, error)
 }
