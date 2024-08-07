@@ -4,7 +4,6 @@ package main
 #cgo LDFLAGS: -L./lib -lhnsw
 */
 import "C"
-
 import (
 	"eigen_db/api"
 	"eigen_db/cfg"
@@ -14,9 +13,9 @@ import (
 )
 
 func main() {
-	cfg.NewConfig()                          // creates a empty Config struct in memory
-	config := cfg.GetConfig()                // get pointer to Config in memory
-	config.LoadConfig(constants.CONFIG_PATH) // load config from config.yml into the Config struct in memory
+	cfg.NewConfig()                              // creates a empty Config struct in memory
+	config := (&cfg.ConfigFactory{}).GetConfig() // get pointer to Config in memory
+	config.LoadConfig(constants.CONFIG_PATH)     // load config from config.yml into the Config struct in memory
 
 	vector_io.SetupDB(config)
 
@@ -24,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := api.StartAPI(fmt.Sprintf("%s:%d", config.API.Address, config.API.Port)); err != nil {
+	if err := api.StartAPI(fmt.Sprintf("%s:%d", config.GetAPIAddress(), config.GetAPIPort())); err != nil {
 		panic(err)
 	}
 }

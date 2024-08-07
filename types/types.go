@@ -1,6 +1,8 @@
 package types
 
 import (
+	"errors"
+
 	"github.com/evan176/hnswgo"
 )
 
@@ -16,3 +18,16 @@ const (
 	EUCLIDEAN     SimilarityMetric = "euclidean"
 	INNER_PRODUCT SimilarityMetric = "ip"
 )
+
+func ParseSimilarityMetric(value string) (SimilarityMetric, error) {
+	switch value {
+	case COSINE:
+		return COSINE, nil
+	case EUCLIDEAN:
+		return EUCLIDEAN, nil
+	case INNER_PRODUCT:
+		return INNER_PRODUCT, nil
+	default:
+		return "", errors.New("invalid similarity metric")
+	}
+}

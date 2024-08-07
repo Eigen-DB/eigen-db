@@ -46,14 +46,14 @@ func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int
 	return idsExcludingQuery, nil
 }
 
-func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize int, M int, efConstruction int) {
+func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) {
 	vectorStoreInstance = &vectorStore{}
 	vectorStoreInstance.vectorSpace = hnswgo.New(
-		int(dim),
-		int(M),
-		int(efConstruction),
+		dim,
+		M,
+		efConstruction,
 		int(time.Now().Unix()),
-		uint32(spaceSize),
+		spaceSize,
 		similarityMetric,
 	)
 	vectorStoreInstance.StoredVectors = make(map[int]*Vector)

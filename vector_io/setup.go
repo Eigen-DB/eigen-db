@@ -2,13 +2,12 @@ package vector_io
 
 import "eigen_db/cfg"
 
-func SetupDB(config *cfg.Config) {
-	params := config.HNSWParams
+func SetupDB(config cfg.IConfig) {
 	instantiateVectorStore(
-		params.Dimensions,
-		params.SimilarityMetric,
-		params.SpaceSize,
-		params.M,
-		params.EfConstruction,
+		config.GetHNSWParamsDimensions(),
+		config.GetHNSWParamsSimilarityMetric(),
+		config.GetHNSWParamsSpaceSize(),
+		config.GetHNSWParamsM(),
+		config.GetHNSWParamsEfConstruction(),
 	)
 }

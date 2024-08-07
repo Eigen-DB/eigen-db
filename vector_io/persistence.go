@@ -42,7 +42,7 @@ func (store *vectorStore) LoadPersistedVectors() error {
 	return nil
 }
 
-func StartPersistenceLoop(config *cfg.Config) error {
+func StartPersistenceLoop(config cfg.IConfig) error {
 	if _, err := os.Stat(constants.DB_PERSIST_PATH); os.IsNotExist(err) {
 		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil {
 			return err
@@ -52,11 +52,12 @@ func StartPersistenceLoop(config *cfg.Config) error {
 	go func() {
 		for {
 			err := vectorStoreInstance.PersistToDisk()
+			//fmt.Println("Persisted vectors")
 			if err != nil {
 				fmt.Printf("Failed to persist data to disk: %s\n", err)
 			}
 
-			time.Sleep(cfg.GetConfig().Persistence.TimeInterval)
+			time.Sleep((&cfg.ConfigFactory{}).GetConfig().GetPersistenceTimeInterval())
 		}
 	}()
 

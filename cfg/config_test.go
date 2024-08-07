@@ -15,7 +15,7 @@ func cleanup() error {
 	return os.Remove(CUSTOM_CONFIG_PATH)
 }
 
-func areAllValuesLoaded(t *testing.T, c *Config) {
+func areAllValuesLoaded(t *testing.T, c IConfig) {
 	assert.NotEqual(t, c.GetPersistenceTimeInterval(), 0, "Persistence Time Interval is not set (yaml: persistence.timeInterval)")
 	assert.NotEqual(t, c.GetAPIPort(), 0, "API Port is not set (yaml: api.port)")
 	assert.NotEqual(t, c.GetAPIAddress(), "", "API Address is not set (yaml: api.address)")
@@ -26,7 +26,7 @@ func areAllValuesLoaded(t *testing.T, c *Config) {
 	assert.NotEqual(t, c.GetHNSWParamsEfConstruction(), 0, "HNSWParams Ef Construction is not set (yaml: hnswParams.efConstruction)")
 }
 
-func areConfigsIdentical(t *testing.T, c1 *Config, c2 *Config) {
+func areConfigsIdentical(t *testing.T, c1 IConfig, c2 IConfig) {
 	assert.Equal(t, c1.GetPersistenceTimeInterval(), c2.GetPersistenceTimeInterval(), "PersistenceTimeInterval values do not match. configInMem: %v, customConfigStruct: %v", c2.GetPersistenceTimeInterval(), c1.GetPersistenceTimeInterval())
 	assert.Equal(t, c1.GetAPIPort(), c2.GetAPIPort(), "APIPort values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIPort(), c1.GetAPIPort())
 	assert.Equal(t, c1.GetAPIAddress(), c2.GetAPIAddress(), "APIAddress values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIAddress(), c1.GetAPIAddress())
@@ -56,11 +56,11 @@ hnswParams:
 		t.Errorf("Error creating custom config file: %s", err.Error())
 	}
 
-	if err := GetConfig().LoadConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
+	if err := (&ConfigFactory{}).GetConfig().LoadConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
 		t.Errorf("Error when loading config into memory: %s", err.Error())
 	}
 
-	configInMem := GetConfig()
+	configInMem := (&ConfigFactory{}).GetConfig()
 	areAllValuesLoaded(t, configInMem)
 
 	// check that both Config structs are identical in values
@@ -73,3 +73,5 @@ hnswParams:
 
 	cleanup()
 }
+
+// Write test for WriteToDisk method
