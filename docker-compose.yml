@@ -11,24 +11,17 @@ services:
       - REDIS_HOST=redis
     depends_on: 
      - redis
-    networks:
-      - internal
+    restart: always
 
   redis:
     image: redis:latest
     ports: 
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
-    restart: on-failure # for production use, set to "always"
-    networks:
-      - internal # still listening on 0.0.0.0, must listen on the docker network interface
+    restart: always
 
 
 volumes:
   eigen_db:
   redis_data:
-
-networks:
-  internal:
-    driver: bridge
