@@ -7,6 +7,28 @@ services:
       - "8080:8080"
     volumes:
       - eigen_db:/app/eigen
+    environment:
+      - REDIS_HOST=redis
+    depends_on: 
+     - redis
+    networks:
+      - internal
+
+  redis:
+    image: redis:latest
+    ports: 
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: on-failure # for production use, set to "always"
+    networks:
+      - internal # still listening on 0.0.0.0, must listen on the docker network interface
+
 
 volumes:
   eigen_db:
+  redis_data:
+
+networks:
+  internal:
+    driver: bridge

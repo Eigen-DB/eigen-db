@@ -10,4 +10,4 @@ RUN go build
 
 EXPOSE 8080
 
-CMD ["./eigen_db"]
+CMD ["/bin/sh", "-c", "/app/eigen_db --redis-host redis"]

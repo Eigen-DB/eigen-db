@@ -1,25 +1,28 @@
 package api
 
 import (
+	"context"
 	"eigen_db/api/endpoints/health_check"
 	"eigen_db/api/endpoints/update_config/api"
 	"eigen_db/api/endpoints/update_config/hnsw_params"
 	"eigen_db/api/endpoints/update_config/persistence"
 	"eigen_db/api/endpoints/vector"
+	"eigen_db/api/middleware"
 	"eigen_db/cfg"
 	"eigen_db/vector_io"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
-func setupRouter() *gin.Engine {
+func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
 	config := (&cfg.ConfigFactory{}).GetConfig()
 
 	r := gin.Default()
 
-	vectors := r.Group("/vector")
+	vectors := r.Group("/vector", middleware.AuthMiddleware(ctx, redisClient))
+	updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware(ctx, redisClient))
 
-	updateConfigRoot := r.Group("/update-config")
 	updatePersistence := updateConfigRoot.Group("/persistence")
 	updateApi := updateConfigRoot.Group("/api")
 	updateHnswParams := updateConfigRoot.Group("/hnsw-params")
@@ -47,8 +50,8 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
-func StartAPI(addr string) error {
-	r := setupRouter()
+func StartAPI(ctx context.Context, addr string, redisClient *redis.Client) error {
+	r := setupRouter(ctx, redisClient)
 	err := r.Run(addr)
 	return err
 }
