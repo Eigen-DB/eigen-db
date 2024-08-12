@@ -9,6 +9,7 @@ services:
       - eigen_db:/app/eigen
     environment:
       - REDIS_HOST=redis
+      - GIN_MODE=release
     depends_on: 
      - redis
     restart: always

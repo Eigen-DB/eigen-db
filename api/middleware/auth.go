@@ -15,18 +15,21 @@ func AuthMiddleware(ctx context.Context, redisClient *redis.Client) gin.HandlerF
 		apiKey := c.Request.Header.Get("X-Eigen-API-Key")
 		if apiKey == "" {
 			c.String(http.StatusUnauthorized, "No API key provided.")
+			c.Abort()
 			return
 		}
 
 		val, err := redisClient.Get(ctx, "apiKey").Result()
 		if err != nil {
 			c.Status(http.StatusInternalServerError)
+			c.Abort()
 			fmt.Println(err.Error())
 			return
 		}
 
-		if val != apiKey { // bug in compairison
+		if val != apiKey {
 			c.String(http.StatusUnauthorized, "Invalid API key.")
+			c.Abort()
 			return
 		}
 	}
