@@ -15,13 +15,8 @@ func Health(c *gin.Context) {
 
 	// check Redis connection
 	ctx := context.Background()
-	redisClient, err := redis_utils.GetConnection(ctx)
+	_, err := redis_utils.GetConnection(ctx)
 	if err != nil {
-		fmt.Println(err.Error())
-		status_code = http.StatusInternalServerError
-		status = "unhealthy"
-	}
-	if err = redis_utils.CheckConnection(ctx, redisClient); err != nil {
 		fmt.Println(err.Error())
 		status_code = http.StatusInternalServerError
 		status = "unhealthy"
