@@ -44,7 +44,7 @@ func (store *vectorStore) LoadPersistedVectors() error {
 
 func StartPersistenceLoop(config cfg.IConfig) error {
 	if _, err := os.Stat(constants.DB_PERSIST_PATH); os.IsNotExist(err) {
-		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil {
+		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil { // perm should maybe be switched to 600 instead of 400
 			return err
 		}
 	}
