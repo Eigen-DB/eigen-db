@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -26,7 +27,11 @@ func GetConnection(ctx context.Context) (*redis.Client, error) {
 }
 
 func CheckConnection(ctx context.Context, client *redis.Client) error {
-	if _, err := client.Ping(ctx).Result(); err != nil {
+	timeout := time.Second * 3 // 3 secs timeout
+	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	if _, err := client.Ping(timeoutCtx).Result(); err != nil {
 		return err
 	}
 	return nil
