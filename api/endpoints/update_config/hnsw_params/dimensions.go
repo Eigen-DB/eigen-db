@@ -13,6 +13,9 @@ type updateDimBody struct {
 
 func UpdateDimensions(config cfg.IConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
+		c.String(http.StatusOK, "Work in progesss.") // changing the vector space's dimensionality would invalidate all vectors stored within it. ill figure this one out later.
+		return
+
 		var body updateDimBody
 		if err := c.ShouldBindJSON(&body); err != nil {
 			c.Status(http.StatusBadRequest)
