@@ -1,6 +1,6 @@
 # Eigen DB
 
-### The blazingly fast in-memory vector database
+### The blazingly fast in-memory vector database 🚀
 
 Payload to `/vector/bulk-insert` to create test data (must use 2D vector space) and a [visual](https://www.desmos.com/calculator/pjjei9akcx):
 
