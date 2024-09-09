@@ -6,7 +6,7 @@ import (
 
 	t "eigen_db/types"
 
-	"github.com/evan176/hnswgo"
+	"github.com/Eigen-DB/hnswgo"
 )
 
 var vectorStoreInstance *vectorStore // Where all vectors are stored in memory at runtime

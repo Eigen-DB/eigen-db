@@ -3,7 +3,7 @@ package types
 import (
 	"errors"
 
-	"github.com/evan176/hnswgo"
+	"github.com/Eigen-DB/hnswgo"
 )
 
 type VectorId = int
