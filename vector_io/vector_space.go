@@ -19,6 +19,14 @@ type vectorStore struct {
 
 type VectorSearcher struct{}
 
+func getVector(id t.VectorId) (*Vector, error) {
+	vector := vectorStoreInstance.StoredVectors[id] // if id does not exist in StoredVectors, it returns a nil pointer
+	if vector != nil {
+		return vectorStoreInstance.StoredVectors[id], nil
+	}
+	return nil, fmt.Errorf("there is no vector with id %d in the vector space", id)
+}
+
 func (store *vectorStore) writeVector(v *Vector) {
 	v.Id = vectorStoreInstance.LatestId + 1
 	vectorStoreInstance.LatestId++
@@ -31,7 +39,7 @@ func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int
 	// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
 	// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
 
-	queryVector, err := GetVector(queryVectorId)
+	queryVector, err := getVector(queryVectorId)
 	if err != nil {
 		return nil, err
 	}
@@ -64,12 +72,4 @@ func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 	} else {
 		fmt.Println("Loaded persisted vectors in memory.")
 	}
-}
-
-func GetVector(id t.VectorId) (*Vector, error) {
-	vector := vectorStoreInstance.StoredVectors[id] // if id does not exist in StoredVectors, it returns a nil pointer
-	if vector != nil {
-		return vectorStoreInstance.StoredVectors[id], nil
-	}
-	return nil, fmt.Errorf("there is no vector with id %d in the vector space", id)
 }
