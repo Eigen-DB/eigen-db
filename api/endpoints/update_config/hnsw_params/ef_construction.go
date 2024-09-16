@@ -19,7 +19,7 @@ func UpdateEfConstruction(config cfg.IConfig) func(*gin.Context) {
 			return
 		}
 
-		config.SetHNSWParamsEfConstruction(body.UpdatedEfConst)
+		_ = config.SetHNSWParamsEfConstruction(body.UpdatedEfConst) // handle error
 		c.String(http.StatusOK, "EF Construction paramater updated. Please restart the database for it to take effect.")
 	}
 }

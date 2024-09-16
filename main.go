@@ -1,6 +1,7 @@
 package main
 
 /*
+#cgo CXXFLAGS: -std=c++11
 #cgo LDFLAGS: -L./lib -lhnsw
 */
 import "C"
@@ -41,9 +42,12 @@ func main() {
 	flag.StringVar(&redisPass, "redis-pass", "", "Redis server password (default \"\")")
 	flag.Parse()
 
-	cfg.NewConfig()                              // creates a empty Config struct in memory
-	config := (&cfg.ConfigFactory{}).GetConfig() // get pointer to Config in memory
-	config.LoadConfig(constants.CONFIG_PATH)     // load config from config.yml into the Config struct in memory
+	cfg.NewConfig()                                 // creates a empty Config struct in memory
+	config := (&cfg.ConfigFactory{}).GetConfig()    // get pointer to Config in memory
+	err := config.LoadConfig(constants.CONFIG_PATH) // load config from config.yml into the Config struct in memory
+	if err != nil {
+		panic(err)
+	}
 
 	vector_io.SetupDB(config)
 
@@ -63,7 +67,7 @@ func main() {
 	}
 	fmt.Printf("API KEY: %s\n", apiKey)
 
-	if err := vector_io.StartPersistenceLoop(config); err != nil {
+	if err := vector_io.StartPersistenceLoop(); err != nil {
 		panic(err)
 	}
 

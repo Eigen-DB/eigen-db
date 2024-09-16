@@ -36,13 +36,13 @@ func (store *vectorStore) LoadPersistedVectors() error {
 	}
 
 	for id, v := range store.StoredVectors { // load deserialized stored vectors into the vector space
-		store.vectorSpace.AddPoint(v.Components, uint32(id))
+		store.vectorSpace.InsertVector(v.Components, uint32(id))
 	}
 
 	return nil
 }
 
-func StartPersistenceLoop(config cfg.IConfig) error {
+func StartPersistenceLoop() error {
 	if _, err := os.Stat(constants.DB_PERSIST_PATH); os.IsNotExist(err) {
 		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil { // perm should maybe be switched to 600 instead of 400
 			return err

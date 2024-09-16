@@ -19,7 +19,7 @@ func UpdateAddress(config cfg.IConfig) func(*gin.Context) {
 			return
 		}
 
-		config.SetAPIAddress(body.UpdatedAddress)
+		_ = config.SetAPIAddress(body.UpdatedAddress) // handle error
 		c.String(http.StatusOK, "API address updated. Please restart the database for it to take effect.")
 	}
 }

@@ -19,7 +19,7 @@ func UpdateM(config cfg.IConfig) func(*gin.Context) {
 			return
 		}
 
-		config.SetHNSWParamsM(body.UpdatedM)
+		_ = config.SetHNSWParamsM(body.UpdatedM) // handle error
 		c.String(http.StatusOK, "M paramater updated. Please restart the database for it to take effect.")
 	}
 }

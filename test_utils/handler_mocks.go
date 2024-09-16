@@ -114,36 +114,44 @@ func (c *MockConfig) GetHNSWParamsEfConstruction() int {
 	return 0
 }
 
-func (c *MockConfig) SetPersistenceTimeInterval(timeInterval time.Duration) {
+func (c *MockConfig) SetPersistenceTimeInterval(timeInterval time.Duration) error {
 	c.TimeIntervalSetInvokes++
+	return nil
 }
 
-func (c *MockConfig) SetAPIPort(port int) {
+func (c *MockConfig) SetAPIPort(port int) error {
 	c.APIPortSetInvokes++
+	return nil
 }
 
-func (c *MockConfig) SetAPIAddress(address string) {
+func (c *MockConfig) SetAPIAddress(address string) error {
 	c.APIAddressSetInvokes++
+	return nil
 }
 
-func (c *MockConfig) SetHNSWParamsDimensions(dimensions int) {
+func (c *MockConfig) SetHNSWParamsDimensions(dimensions int) error {
 	c.HNSWParamsDimensionsSetInvokes++
+	return nil
 }
 
-func (c *MockConfig) SetHNSWParamsSimilarityMetric(similarityMetric types.SimilarityMetric) {
+func (c *MockConfig) SetHNSWParamsSimilarityMetric(similarityMetric types.SimilarityMetric) error {
 	c.HNSWParamsSimilarityMetricSetInvokes++
+	return nil
 }
 
-func (c *MockConfig) SetHNSWParamsSpaceSize(spaceSize uint32) {
+func (c *MockConfig) SetHNSWParamsSpaceSize(spaceSize uint32) error {
 	c.HNSWParamsSpaceSizeSetInvokes++
+	return nil
 }
 
-func (c *MockConfig) SetHNSWParamsM(M int) {
+func (c *MockConfig) SetHNSWParamsM(M int) error {
 	c.HNSWParamsMSetInvokes++
+	return nil
 }
 
-func (c *MockConfig) SetHNSWParamsEfConstruction(efConstruction int) {
+func (c *MockConfig) SetHNSWParamsEfConstruction(efConstruction int) error {
 	c.HNSWParamsEfConstructionSetInvokes++
+	return nil
 }
 
 func Cleanup() {

@@ -19,7 +19,7 @@ func UpdatePort(config cfg.IConfig) func(*gin.Context) {
 			return
 		}
 
-		config.SetAPIPort(body.UpdatedPort)
+		_ = config.SetAPIPort(body.UpdatedPort) // handle error
 		c.String(http.StatusOK, "API port updated. Please restart the database for it to take effect.")
 	}
 }

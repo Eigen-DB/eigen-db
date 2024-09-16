@@ -26,7 +26,7 @@ func UpdateSimilarityMetric(config cfg.IConfig) func(*gin.Context) {
 			return
 		}
 
-		config.SetHNSWParamsSimilarityMetric(metric)
+		_ = config.SetHNSWParamsSimilarityMetric(metric) // handle error
 		c.String(http.StatusOK, "Vector similarity metric updated. Please restart the database for it to take effect.")
 	}
 }

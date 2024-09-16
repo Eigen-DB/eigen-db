@@ -20,7 +20,7 @@ func UpdateTimeInterval(config cfg.IConfig) func(*gin.Context) {
 			return
 		}
 
-		config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9))
+		_ = config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9)) // handle error
 		c.String(http.StatusOK, "Time interval updated.")
 	}
 }

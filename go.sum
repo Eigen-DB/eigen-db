@@ -1,5 +1,7 @@
 github.com/Eigen-DB/hnswgo v0.0.0-20220622031020-39253a76f9e4 h1:b1WsjC9vQMGQ7fjDLOsELYOqAGArFJEA7LOVxcim0F0=
 github.com/Eigen-DB/hnswgo v0.0.0-20220622031020-39253a76f9e4/go.mod h1:d8EbwGwcQNxBatDx34li7N9hv23SMDJ/j0OKsim4rl4=
+github.com/Eigen-DB/hnswgo v1.0.0 h1:mGPK2D/b/Q6epcbgo2AKip0n46dWM2TmbboMZIlKVbg=
+github.com/Eigen-DB/hnswgo v1.0.0/go.mod h1:inerBTAyDPrMKkx7da1apBjPwprN8TFSioXpEcVnS5g=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
 github.com/bsm/gomega v1.27.10 h1:yeMWxP2pV2fG3FgAODIY8EiRE3dy0aeFYt4l7wh6yKA=
 github.com/bytedance/sonic v1.11.6 h1:oUp34TzMlL+OY1OUWxHqsdkgC/Zfc85zGqw9siXjrc0=

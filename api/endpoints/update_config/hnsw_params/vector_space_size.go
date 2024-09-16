@@ -19,7 +19,7 @@ func UpdateSpaceSize(config cfg.IConfig) func(*gin.Context) {
 			return
 		}
 
-		config.SetHNSWParamsSpaceSize(body.UpdatedSize)
+		_ = config.SetHNSWParamsSpaceSize(body.UpdatedSize) // handle error
 		c.String(http.StatusOK, "Vector space size updated. Please restart the database for it to take effect.")
 	}
 }

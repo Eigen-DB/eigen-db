@@ -71,7 +71,10 @@ hnswParams:
 
 	areConfigsIdentical(t, customConfigStruct, configInMem)
 
-	cleanup()
+	err := cleanup()
+	if err != nil {
+		t.Errorf("Error cleaning up: %s", err.Error())
+	}
 }
 
 // Write test for WriteToDisk method

@@ -18,14 +18,14 @@ type IConfig interface {
 	GetHNSWParamsM() int
 	GetHNSWParamsEfConstruction() int
 
-	SetPersistenceTimeInterval(time.Duration)
-	SetAPIPort(int)
-	SetAPIAddress(string)
-	SetHNSWParamsDimensions(int)
-	SetHNSWParamsSimilarityMetric(t.SimilarityMetric)
-	SetHNSWParamsSpaceSize(uint32)
-	SetHNSWParamsM(int)
-	SetHNSWParamsEfConstruction(int)
+	SetPersistenceTimeInterval(time.Duration) error
+	SetAPIPort(int) error
+	SetAPIAddress(string) error
+	SetHNSWParamsDimensions(int) error
+	SetHNSWParamsSimilarityMetric(t.SimilarityMetric) error
+	SetHNSWParamsSpaceSize(uint32) error
+	SetHNSWParamsM(int) error
+	SetHNSWParamsEfConstruction(int) error
 }
 
 type IConfigFactory interface {
