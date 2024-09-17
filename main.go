@@ -1,9 +1,5 @@
 package main
 
-/*
-#cgo LDFLAGS: -L./lib -lhnsw
-*/
-import "C"
 import (
 	"context"
 	"eigen_db/api"
@@ -45,7 +41,9 @@ func main() {
 	config := (&cfg.ConfigFactory{}).GetConfig() // get pointer to Config in memory
 	config.LoadConfig(constants.CONFIG_PATH)     // load config from config.yml into the Config struct in memory
 
-	vector_io.SetupDB(config)
+	if err := vector_io.SetupDB(config); err != nil {
+		panic(err)
+	}
 
 	ctx := context.Background()
 	os.Setenv("REDIS_HOST", redisHost)

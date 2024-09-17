@@ -12,7 +12,7 @@ import (
 var vectorStoreInstance *vectorStore // Where all vectors are stored in memory at runtime
 
 type vectorStore struct {
-	StoredVectors map[t.VectorId]*Vector
+	StoredVectors map[t.VectorId]*Vector // this is bad
 	vectorSpace   t.VectorSpace
 	LatestId      t.VectorId
 }
@@ -27,11 +27,15 @@ func getVector(id t.VectorId) (*Vector, error) {
 	return nil, fmt.Errorf("there is no vector with id %d in the vector space", id)
 }
 
-func (store *vectorStore) writeVector(v *Vector) {
+func (store *vectorStore) writeVector(v *Vector) error {
 	v.Id = vectorStoreInstance.LatestId + 1
 	vectorStoreInstance.LatestId++
-	store.vectorSpace.AddPoint(v.Components, uint32(v.Id))
+	err := store.vectorSpace.InsertVector(v.Components, uint32(v.Id))
+	if err != nil {
+		return err
+	}
 	store.StoredVectors[v.Id] = v
+	return nil
 }
 
 func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
@@ -43,7 +47,11 @@ func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int
 	if err != nil {
 		return nil, err
 	}
-	ids, _ := vectorStoreInstance.vectorSpace.SearchKNN(queryVector.Components, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
+
+	ids, _, err := vectorStoreInstance.vectorSpace.SearchKNN(queryVector.Components, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
+	if err != nil {
+		return nil, err
+	}
 
 	idsExcludingQuery := make([]t.VectorId, 0)
 	for _, id := range ids {
@@ -54,9 +62,9 @@ func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int
 	return idsExcludingQuery, nil
 }
 
-func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) {
+func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) error {
 	vectorStoreInstance = &vectorStore{}
-	vectorStoreInstance.vectorSpace = hnswgo.New(
+	index, err := hnswgo.New(
 		dim,
 		M,
 		efConstruction,
@@ -64,12 +72,17 @@ func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 		spaceSize,
 		similarityMetric,
 	)
+	if err != nil {
+		return err
+	}
+
+	vectorStoreInstance.vectorSpace = index
 	vectorStoreInstance.StoredVectors = make(map[int]*Vector)
 
-	err := vectorStoreInstance.LoadPersistedVectors()
-	if err != nil {
+	if err = vectorStoreInstance.LoadPersistedVectors(); err != nil {
 		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
 	} else {
 		fmt.Println("Loaded persisted vectors in memory.")
 	}
+	return nil
 }
