@@ -1,4 +1,4 @@
-# Eigen DB
+# EigenDB
 
 ### The blazingly fast in-memory vector database 🚀
 
