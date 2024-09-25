@@ -1,6 +1,7 @@
 package hnsw_params
 
 import (
+	"eigen_db/api/utils"
 	"eigen_db/cfg"
 	"eigen_db/types"
 	"net/http"
@@ -15,18 +16,29 @@ type updateSimMetricBody struct {
 func UpdateSimilarityMetric(config cfg.IConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateSimMetricBody
-		if err := c.ShouldBindJSON(&body); err != nil {
-			c.Status(http.StatusBadRequest)
+		if err := utils.ValidateBody(c, &body); err != nil {
 			return
 		}
 
 		metric, err := types.ParseSimilarityMetric(body.UpdatedMetric)
 		if err != nil {
-			c.String(http.StatusBadRequest, err.Error())
+			utils.SendResponse(
+				c,
+				http.StatusBadRequest,
+				"Something went wrong when trying to update the similarity metric.",
+				nil,
+				utils.CreateError("INVALID_SIMILARITY_METRIC", err.Error()),
+			)
 			return
 		}
 
 		config.SetHNSWParamsSimilarityMetric(metric)
-		c.String(http.StatusOK, "Vector similarity metric updated. Please restart the database for it to take effect.")
+		utils.SendResponse(
+			c,
+			http.StatusOK,
+			"Vector similarity metric updated. Please restart the database for it to take effect.",
+			nil,
+			nil,
+		)
 	}
 }

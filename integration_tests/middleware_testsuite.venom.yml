@@ -1,0 +1,52 @@
+name: API Middleware Test Suite
+
+vars:
+  url: http://localhost:8080
+
+testcases:
+- name: Authenticated request using valid API key
+  steps:
+  - type: http
+    method: POST
+    url: "{{.url}}/update-config/api/address"
+    body: > 
+      {"updatedAddress": "127.0.0.1"}
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "API address updated. Please restart the database for it to take effect."
+    - result.bodyjson.status ShouldEqual 200
+
+- name: Unauthenticated request using invalid API key
+  steps:
+  - type: http
+    method: POST
+    url: "{{.url}}/update-config/api/address"
+    body: > 
+      {"updatedAddress": "127.0.0.1"}
+    headers:
+      X-Eigen-API-Key: "12345"
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 401
+    - result.bodyjson.message ShouldEqual "Invalid API key."
+    - result.bodyjson.status ShouldEqual 401
+    - result.bodyjson.error.code ShouldEqual INVALID_API_KEY
+    - result.bodyjson.error.description ShouldEqual "The API key you provided is invalid."
+
+- name: No header
+  steps:
+  - type: http
+    method: POST
+    url: "{{.url}}/update-config/api/address"
+    body: > 
+      {"updatedAddress": "127.0.0.1"}
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 401
+    - result.bodyjson.message ShouldEqual "No API key provided."
+    - result.bodyjson.status ShouldEqual 401
+    - result.bodyjson.error.code ShouldEqual NO_API_KEY_PROVIDED
+    - result.bodyjson.error.description ShouldEqual "A valid API key is required to access this endpoint."

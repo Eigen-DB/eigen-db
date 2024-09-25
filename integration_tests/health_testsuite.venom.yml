@@ -1,0 +1,16 @@
+name: Health Test Suite
+
+vars:
+  url: http://localhost:8080
+
+testcases:
+- name: Test health check
+  steps:
+  - type: http
+    method: GET
+    url: "{{.url}}/health"
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual healthy
+    - result.bodyjson.status ShouldEqual 200

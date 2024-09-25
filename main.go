@@ -13,33 +13,58 @@ import (
 )
 
 func displayAsciiArt() { // because it looks cool
-	fmt.Println(`
-███████╗██╗ ██████╗ ███████╗███╗   ██╗██████╗ ██████╗ 
-██╔════╝██║██╔════╝ ██╔════╝████╗  ██║██╔══██╗██╔══██╗
-█████╗  ██║██║  ███╗█████╗  ██╔██╗ ██║██║  ██║██████╔╝
-██╔══╝  ██║██║   ██║██╔══╝  ██║╚██╗██║██║  ██║██╔══██╗
-███████╗██║╚██████╔╝███████╗██║ ╚████║██████╔╝██████╔╝
-╚══════╝╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚═════╝ ╚═════╝ 			
+	fmt.Println(`                                                                                                                                                  
+	@@@@@@,                                                           
+	@@@@@@@@@@@@&                                                     
+	        @@@@@@@@                                                  
+	            @@@@@@,                                               
+	               @@@@@                                              
+	                 @@@@@                                            
+	                  @@@@@                                           
+	                   .@@@@@                                         
+	                     @@@@@                                        
+	                      /@@@@#                                      
+	                        @@@@@                                     
+	                         %@@@@*                                   
+	                  @@@@@    @@@@@                                  
+	                @@@@@@      @@@@@.                                
+	    @@&      @@@@@@.          @@@@@                               
+	   ,@@@@   @@@@@@              @@@@@                              
+	   @@@@.@@@@@@.                  @@@@@                            
+	  @@@@@@@@@@                      ,@@@@@@                         
+	  @@@@@@@@@@@@@@.                    @@@@@@@@,                    
+	 @@@@@@@@@@@@@@                         *@@@@@@@@@@@@             
+	%@@@@                                          &@@@@@                                                               
 	`)
 }
 
 func main() {
-	displayAsciiArt()
-
 	var apiKey string
 	var redisHost string
 	var redisPort string
 	var redisPass string
+	var noBanner bool
 
 	flag.StringVar(&apiKey, "api-key", "", "EigenDB API key")
-	flag.StringVar(&redisHost, "redis-host", "127.0.0.1", "Redis server host IP")
-	flag.StringVar(&redisPort, "redis-port", "6379", "Redis server host port")
-	flag.StringVar(&redisPass, "redis-pass", "", "Redis server password (default \"\")")
+	flag.StringVar(&redisHost, "redis-host", "127.0.0.1", "Redis server host IP (default: 127.0.0.1)")
+	flag.StringVar(&redisPort, "redis-port", "6379", "Redis server host port (default: 6379)")
+	flag.StringVar(&redisPass, "redis-pass", "", "Redis server password (default: \"\")")
+	flag.BoolVar(&noBanner, "no-banner", false, "Remove the ASCII banner at startup (default: false)")
 	flag.Parse()
+
+	if !noBanner {
+		displayAsciiArt()
+	}
 
 	cfg.NewConfig()                              // creates a empty Config struct in memory
 	config := (&cfg.ConfigFactory{}).GetConfig() // get pointer to Config in memory
 	config.LoadConfig(constants.CONFIG_PATH)     // load config from config.yml into the Config struct in memory
+
+	if os.Getenv("TEST_MODE") == "1" {
+		fmt.Println("*** EigenDB running in TEST MODE, making the API key = \"test\". If this was not intentional, please run EigenDB in standard mode. ***")
+		apiKey = "test"
+		config.SetHNSWParamsDimensions(2) // setting dimensions to 2 for the tests
+	}
 
 	if err := vector_io.SetupDB(config); err != nil {
 		panic(err)

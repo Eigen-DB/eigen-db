@@ -2,41 +2,44 @@ package health_check
 
 import (
 	"context"
+	"eigen_db/api/utils"
 	"eigen_db/redis_utils"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-var status_code int
-var status string
-
-func markAsUnhealthy(err error) {
-	status_code = http.StatusInternalServerError
-	status = "unhealthy"
-	fmt.Println(err.Error())
-}
-
 func Health(c *gin.Context) {
-	status_code = http.StatusOK
-	status = "healthy"
-
 	// check Redis connection
 	ctx := context.Background()
 	redisClient, err := redis_utils.GetConnection(ctx)
-	defer func() {
-		if redisClient != nil { // if connection fails, redisClient = nil -> redisClient.Close() causes nil pointer dereference
-			if err := redisClient.Close(); err != nil {
-				markAsUnhealthy(err)
-			}
-		}
-	}()
 	if err != nil {
-		markAsUnhealthy(err)
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"unhealthy",
+			nil,
+			utils.CreateError("ERROR_CONNECTING_TO_REDIS", err.Error()),
+		)
+		return
+	} else {
+		if err := redisClient.Close(); err != nil {
+			utils.SendResponse(
+				c,
+				http.StatusInternalServerError,
+				"unhealthy",
+				nil,
+				utils.CreateError("ERROR_CLOSING_REDIS_TEST_CONNECTION", err.Error()),
+			)
+			return
+		}
 	}
 
-	c.JSON(status_code, gin.H{
-		"status": status,
-	})
+	utils.SendResponse(
+		c,
+		http.StatusOK,
+		"healthy",
+		nil,
+		nil,
+	)
 }

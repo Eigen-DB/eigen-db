@@ -12,7 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func GetConnection(ctx context.Context) (*redis.Client, error) {
+func GetConnection(ctx context.Context) (*redis.Client, error) { // if connection fails, it returned client is nil
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
 		Password: os.Getenv("REDIS_PASS"),
@@ -42,17 +42,20 @@ func SetupAPIKey(ctx context.Context, client *redis.Client, apiKey string) (stri
 		return "", err
 	}
 
-	if _, err := client.Get(ctx, constants.REDIS_API_KEY_NAME).Result(); err != nil { // key does not exist
-		keyBytes := make([]byte, 32)
-		if _, err := rand.Read(keyBytes); err != nil {
-			return "", err
-		}
-		apiKey = hex.EncodeToString(keyBytes)
-	}
-
-	if apiKey != "" {
+	if apiKey != "" { // if we are explicitly setting a custom key
 		if status := client.Set(ctx, "apiKey", apiKey, 0); status.Err() != nil {
 			return "", status.Err()
+		}
+	} else { // no custom key
+		if _, err := client.Get(ctx, constants.REDIS_API_KEY_NAME).Result(); err != nil { // redis key does not exist, generate one
+			keyBytes := make([]byte, 32)
+			if _, err := rand.Read(keyBytes); err != nil {
+				return "", err
+			}
+			apiKey = hex.EncodeToString(keyBytes)
+			if status := client.Set(ctx, "apiKey", apiKey, 0); status.Err() != nil {
+				return "", status.Err()
+			}
 		}
 	}
 

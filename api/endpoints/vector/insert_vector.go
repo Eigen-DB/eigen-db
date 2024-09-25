@@ -1,6 +1,7 @@
 package vector
 
 import (
+	"eigen_db/api/utils"
 	"eigen_db/vector_io"
 	"net/http"
 
@@ -16,18 +17,39 @@ type insertRequestBody struct {
 func Insert(vectorFactory vector_io.IVectorFactory) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body insertRequestBody
-		if err := c.ShouldBindJSON(&body); err != nil {
-			c.Status(http.StatusBadRequest)
+		if err := utils.ValidateBody(c, &body); err != nil {
 			return
 		}
 
 		v, err := vectorFactory.NewVector(body.Components)
 		if err != nil {
-			c.String(http.StatusBadRequest, "vector provided had the wrong dimensionality")
+			utils.SendResponse(
+				c,
+				http.StatusBadRequest,
+				"The vector you provided is invalid.",
+				nil,
+				utils.CreateError("INVALID_VECTOR_PROVIDED", err.Error()),
+			)
 			return
 		}
-		v.Insert() // causes nil pointer deference bug when empty body
 
-		c.String(200, "Vector successfully inserted.")
+		if err := v.Insert(); err != nil { // causes nil pointer deference bug when empty body
+			utils.SendResponse(
+				c,
+				http.StatusInternalServerError,
+				"An error occured when inserting your vector.",
+				nil,
+				utils.CreateError("CANNOT_INSERT_VECTOR", err.Error()),
+			)
+			return
+		}
+
+		utils.SendResponse(
+			c,
+			http.StatusOK,
+			"Vector successfully inserted.",
+			nil,
+			nil,
+		)
 	}
 }

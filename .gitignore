@@ -1,2 +1,4 @@
 eigen_db
 eigen/vector_space.vec
+integration_tests/*.log
+integration_tests/logs/
