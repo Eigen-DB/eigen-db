@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"eigen_db/api/utils"
 	"eigen_db/cfg"
 	"net/http"
 	"time"
@@ -9,18 +10,23 @@ import (
 )
 
 type updateTimeIntervalBody struct {
-	UpdatedValueSecs float32 `json:"updatedValueSecs" binding:"required"`
+	UpdatedValueSecs float32 `json:"updatedValueSecs" binding:"required,gt=0"`
 }
 
 func UpdateTimeInterval(config cfg.IConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateTimeIntervalBody
-		if err := c.ShouldBindJSON(&body); err != nil {
-			c.Status(http.StatusBadRequest)
+		if err := utils.ValidateBody(c, &body); err != nil {
 			return
 		}
 
 		config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9))
-		c.String(http.StatusOK, "Time interval updated.")
+		utils.SendResponse(
+			c,
+			http.StatusOK,
+			"Time interval updated.",
+			nil,
+			nil,
+		)
 	}
 }

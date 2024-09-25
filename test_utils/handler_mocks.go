@@ -51,8 +51,9 @@ func (factory *MockVectorFactory) NewVector(components []types.VectorComponent) 
 	return nil, fmt.Errorf("provided a %d-dimensional vector while the vector space is %d-dimensional", len(components), factory.Dimensions)
 }
 
-func (vector *MockVector) Insert() {
+func (vector *MockVector) Insert() error {
 	InsertInvocations++
+	return nil
 }
 
 func (searcher *MockVectorSearcher) SimilaritySearch(queryVectorId types.VectorId, k int) ([]types.VectorId, error) {

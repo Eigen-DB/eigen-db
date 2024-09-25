@@ -48,6 +48,8 @@ func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int
 		return nil, err
 	}
 
+	// BUG: when k = index max size, because you search for the k+1 nearest-neighbors, it returns an error from hnswgo saying 1 <= k <= index max size.
+	// Potential solution: perform the k+1 operation in hnswgo and not by the user of the library
 	ids, _, err := vectorStoreInstance.vectorSpace.SearchKNN(queryVector.Components, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
 	if err != nil {
 		return nil, err

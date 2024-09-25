@@ -1,6 +1,7 @@
 package api
 
 import (
+	"eigen_db/api/utils"
 	"eigen_db/cfg"
 	"net/http"
 
@@ -14,12 +15,17 @@ type updateAddressBody struct {
 func UpdateAddress(config cfg.IConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateAddressBody
-		if err := c.ShouldBindJSON(&body); err != nil {
-			c.Status(http.StatusBadRequest)
+		if err := utils.ValidateBody(c, &body); err != nil {
 			return
 		}
 
 		config.SetAPIAddress(body.UpdatedAddress)
-		c.String(http.StatusOK, "API address updated. Please restart the database for it to take effect.")
+		utils.SendResponse(
+			c,
+			http.StatusOK,
+			"API address updated. Please restart the database for it to take effect.",
+			nil,
+			nil,
+		)
 	}
 }

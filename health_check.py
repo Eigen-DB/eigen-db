@@ -11,7 +11,7 @@ def health_check() -> None:
     data = json.loads(response.read().decode())
     conn.close()
 
-    if response.status == 200 and data["status"] == "healthy":
+    if response.status == 200 and data["message"] == "healthy":
         exit(0)
     else:
         exit(1)

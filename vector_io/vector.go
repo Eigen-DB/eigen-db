@@ -11,8 +11,8 @@ type Vector struct {
 	Components []t.VectorComponent `json:"components"`
 }
 
-func (v *Vector) Insert() {
-	vectorStoreInstance.writeVector(v)
+func (v *Vector) Insert() error {
+	return vectorStoreInstance.writeVector(v)
 }
 
 type VectorFactory struct{}

@@ -7,7 +7,7 @@ type IVectorFactory interface {
 }
 
 type IVector interface {
-	Insert()
+	Insert() error
 }
 
 type IVectorSearcher interface {
