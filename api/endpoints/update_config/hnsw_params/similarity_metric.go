@@ -13,7 +13,7 @@ type updateSimMetricBody struct {
 	UpdatedMetric types.SimilarityMetric `json:"updatedMetric" binding:"required"`
 }
 
-func UpdateSimilarityMetric(config cfg.IConfig) func(*gin.Context) {
+func UpdateSimilarityMetric(config *cfg.Config) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateSimMetricBody
 		if err := utils.ValidateBody(c, &body); err != nil {

@@ -29,13 +29,13 @@ type Config struct {
 
 type ConfigFactory struct{}
 
-var config *Config
+var config *Config // the config that lives in memory
 
-func NewConfig() {
+func InstantiateConfig() {
 	config = new(Config)
 }
 
-func (f *ConfigFactory) GetConfig() IConfig {
+func (f *ConfigFactory) GetConfig() *Config {
 	return config
 }
 

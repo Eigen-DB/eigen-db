@@ -56,7 +56,7 @@ func main() {
 		displayAsciiArt()
 	}
 
-	cfg.NewConfig()                              // creates a empty Config struct in memory
+	cfg.InstantiateConfig()                      // creates a empty Config struct in memory
 	config := (&cfg.ConfigFactory{}).GetConfig() // get pointer to Config in memory
 	config.LoadConfig(constants.CONFIG_PATH)     // load config from config.yml into the Config struct in memory
 

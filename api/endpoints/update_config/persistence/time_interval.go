@@ -13,7 +13,7 @@ type updateTimeIntervalBody struct {
 	UpdatedValueSecs float32 `json:"updatedValueSecs" binding:"required,gt=0"`
 }
 
-func UpdateTimeInterval(config cfg.IConfig) func(*gin.Context) {
+func UpdateTimeInterval(config *cfg.Config) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateTimeIntervalBody
 		if err := utils.ValidateBody(c, &body); err != nil {

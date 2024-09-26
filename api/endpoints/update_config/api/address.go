@@ -12,7 +12,7 @@ type updateAddressBody struct {
 	UpdatedAddress string `json:"updatedAddress" binding:"required"`
 }
 
-func UpdateAddress(config cfg.IConfig) func(*gin.Context) {
+func UpdateAddress(config *cfg.Config) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateAddressBody
 		if err := utils.ValidateBody(c, &body); err != nil {

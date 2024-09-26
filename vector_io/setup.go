@@ -2,7 +2,7 @@ package vector_io
 
 import "eigen_db/cfg"
 
-func SetupDB(config cfg.IConfig) error {
+func SetupDB(config *cfg.Config) error {
 	err := instantiateVectorStore(
 		config.GetHNSWParamsDimensions(),
 		config.GetHNSWParamsSimilarityMetric(),

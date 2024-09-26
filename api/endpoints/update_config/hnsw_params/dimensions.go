@@ -12,7 +12,7 @@ import (
 //	UpdatedDimensions int `json:"updatedDimensions" binding:"required"`
 //}
 
-func UpdateDimensions(config cfg.IConfig) func(*gin.Context) {
+func UpdateDimensions(config *cfg.Config) func(*gin.Context) {
 	return func(c *gin.Context) {
 		utils.SendResponse(
 			c,

@@ -12,7 +12,7 @@ type updatePortBody struct {
 	UpdatedPort int `json:"updatedPort" binding:"required"`
 }
 
-func UpdatePort(config cfg.IConfig) func(*gin.Context) {
+func UpdatePort(config *cfg.Config) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updatePortBody
 		if err := utils.ValidateBody(c, &body); err != nil {

@@ -9,13 +9,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const CUSTOM_CONFIG_PATH string = "../" + constants.TESTING_TMP_FILES_PATH + "/custom_config.yml"
+const CUSTOM_CONFIG_PATH string = constants.TESTING_TMP_FILES_PATH + "/custom_config.yml"
 
 func cleanup() error {
 	return os.Remove(CUSTOM_CONFIG_PATH)
 }
 
-func areAllValuesLoaded(t *testing.T, c IConfig) {
+func areAllValuesLoaded(t *testing.T, c *Config) {
 	assert.NotEqual(t, c.GetPersistenceTimeInterval(), 0, "Persistence Time Interval is not set (yaml: persistence.timeInterval)")
 	assert.NotEqual(t, c.GetAPIPort(), 0, "API Port is not set (yaml: api.port)")
 	assert.NotEqual(t, c.GetAPIAddress(), "", "API Address is not set (yaml: api.address)")
@@ -26,7 +26,7 @@ func areAllValuesLoaded(t *testing.T, c IConfig) {
 	assert.NotEqual(t, c.GetHNSWParamsEfConstruction(), 0, "HNSWParams Ef Construction is not set (yaml: hnswParams.efConstruction)")
 }
 
-func areConfigsIdentical(t *testing.T, c1 IConfig, c2 IConfig) {
+func areConfigsIdentical(t *testing.T, c1 *Config, c2 *Config) {
 	assert.Equal(t, c1.GetPersistenceTimeInterval(), c2.GetPersistenceTimeInterval(), "PersistenceTimeInterval values do not match. configInMem: %v, customConfigStruct: %v", c2.GetPersistenceTimeInterval(), c1.GetPersistenceTimeInterval())
 	assert.Equal(t, c1.GetAPIPort(), c2.GetAPIPort(), "APIPort values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIPort(), c1.GetAPIPort())
 	assert.Equal(t, c1.GetAPIAddress(), c2.GetAPIAddress(), "APIAddress values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIAddress(), c1.GetAPIAddress())
@@ -38,7 +38,7 @@ func areConfigsIdentical(t *testing.T, c1 IConfig, c2 IConfig) {
 }
 
 func TestLoadConfig(t *testing.T) {
-	NewConfig() // load a fresh empty config into memory
+	InstantiateConfig() // load a fresh empty config into memory
 	customConfig := []byte(`
 persistence:
   timeInterval: 5s
