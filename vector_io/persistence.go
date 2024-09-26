@@ -61,7 +61,7 @@ func StartPersistenceLoop(config *cfg.Config) error {
 				fmt.Printf("Failed to persist data to disk: %s\n", err)
 			}
 
-			time.Sleep((cfg.GetConfig().GetPersistenceTimeInterval())
+			time.Sleep(cfg.GetConfig().GetPersistenceTimeInterval())
 		}
 	}()
 

@@ -4,6 +4,7 @@ if [[ $WORKFLOW == 1 ]]
 then
     DOCKER_COMPOSE=./docker-compose
     VENOM=./venom
+    BUILD=1
 else
     DOCKER_COMPOSE=docker-compose
     VENOM=venom
