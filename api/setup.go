@@ -16,7 +16,7 @@ import (
 )
 
 func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
-	config := (&cfg.ConfigFactory{}).GetConfig()
+	config := cfg.GetConfig()
 
 	r := gin.Default()
 

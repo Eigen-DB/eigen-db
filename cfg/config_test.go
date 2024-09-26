@@ -56,11 +56,11 @@ hnswParams:
 		t.Errorf("Error creating custom config file: %s", err.Error())
 	}
 
-	if err := (&ConfigFactory{}).GetConfig().LoadConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
+	if err := GetConfig().LoadConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
 		t.Errorf("Error when loading config into memory: %s", err.Error())
 	}
 
-	configInMem := (&ConfigFactory{}).GetConfig()
+	configInMem := GetConfig()
 	areAllValuesLoaded(t, configInMem)
 
 	// check that both Config structs are identical in values
@@ -74,4 +74,5 @@ hnswParams:
 	cleanup()
 }
 
+// Write test for LoadConfig with invalid path & invalid file perms
 // Write test for WriteToDisk method
