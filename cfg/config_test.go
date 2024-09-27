@@ -2,6 +2,7 @@ package cfg
 
 import (
 	"eigen_db/constants"
+	"errors"
 	"os"
 	"testing"
 
@@ -37,7 +38,7 @@ func areConfigsIdentical(t *testing.T, c1 *Config, c2 *Config) {
 	assert.Equal(t, c1.GetHNSWParamsEfConstruction(), c2.GetHNSWParamsEfConstruction(), "HNSWParamsEfConstruction values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsEfConstruction(), c1.GetHNSWParamsEfConstruction())
 }
 
-func TestLoadConfig(t *testing.T) {
+func TestLoadConfig_success(t *testing.T) {
 	InstantiateConfig() // load a fresh empty config into memory
 	customConfig := []byte(`
 persistence:
@@ -74,5 +75,26 @@ hnswParams:
 	cleanup()
 }
 
-// Write test for LoadConfig with invalid path & invalid file perms
-// Write test for WriteToDisk method
+func TestLoadConfig_invalid_path(t *testing.T) {
+	InstantiateConfig()
+	invalidPath := "/some/fake/path/config.yml"
+	if err := GetConfig().LoadConfig(invalidPath); err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			t.Errorf("The wrong error was produced when trying to load a config from an invalid path: %s", err.Error())
+		}
+	} else {
+		t.Errorf("No error was produced when trying to load a config from an invalid path.")
+	}
+}
+
+func TestLoadConfig_invalid_file_perms(t *testing.T) {
+	InstantiateConfig()
+	invalidPath := "/root/config.yml"
+	if err := GetConfig().LoadConfig(invalidPath); err != nil {
+		if !errors.Is(err, os.ErrPermission) {
+			t.Errorf("The wrong error was produced when trying to load a config with invalid permissions: %s", err.Error())
+		}
+	} else {
+		t.Errorf("No error was produced when trying to load a config with invalid permissions.")
+	}
+}

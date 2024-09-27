@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"eigen_db/constants"
+	"eigen_db/types"
 	t "eigen_db/types"
 
 	"github.com/Eigen-DB/hnswgo"
@@ -66,6 +67,11 @@ func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int
 }
 
 func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) error {
+	similarityMetric, err := types.ParseSimilarityMetric(similarityMetric)
+	if err != nil {
+		return err
+	}
+
 	vectorStoreInstance = &vectorStore{}
 	index, err := hnswgo.New(
 		dim,
