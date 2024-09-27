@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/Eigen-DB/hnswgo v1.0.0
+	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/gin-gonic/gin v1.10.0
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/stretchr/testify v1.9.0
@@ -12,7 +13,6 @@ require (
 
 require (
 	github.com/alicebob/gopher-json v0.0.0-20230218143504-906a9b012302 // indirect
-	github.com/alicebob/miniredis v2.5.0+incompatible // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
