@@ -12,7 +12,7 @@ type updateEfConstBody struct {
 	UpdatedEfConst int `json:"updatedEfConst" binding:"required,gt=0"`
 }
 
-func UpdateEfConstruction(config cfg.IConfig) func(*gin.Context) {
+func UpdateEfConstruction(config *cfg.Config) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateEfConstBody
 		if err := utils.ValidateBody(c, &body); err != nil {

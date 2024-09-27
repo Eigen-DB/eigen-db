@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"eigen_db/constants"
+	"eigen_db/types"
 	t "eigen_db/types"
 
 	"github.com/Eigen-DB/hnswgo"
@@ -65,6 +67,11 @@ func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int
 }
 
 func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) error {
+	similarityMetric, err := types.ParseSimilarityMetric(similarityMetric)
+	if err != nil {
+		return err
+	}
+
 	vectorStoreInstance = &vectorStore{}
 	index, err := hnswgo.New(
 		dim,
@@ -81,7 +88,7 @@ func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 	vectorStoreInstance.vectorSpace = index
 	vectorStoreInstance.StoredVectors = make(map[int]*Vector)
 
-	if err = vectorStoreInstance.LoadPersistedVectors(); err != nil {
+	if err = vectorStoreInstance.loadPersistedVectors(constants.DB_PERSIST_PATH); err != nil {
 		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
 	} else {
 		fmt.Println("Loaded persisted vectors in memory.")

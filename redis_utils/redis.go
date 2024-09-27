@@ -37,6 +37,9 @@ func CheckConnection(ctx context.Context, client *redis.Client) error {
 	return nil
 }
 
+// generates and writes API key to Redis.
+// If apiKey != "", the custom key is used as the API key.
+// If apiKey == "", a random API key is generated and overwrites any existing API key.
 func SetupAPIKey(ctx context.Context, client *redis.Client, apiKey string) (string, error) {
 	if err := CheckConnection(ctx, client); err != nil {
 		return "", err
@@ -47,15 +50,13 @@ func SetupAPIKey(ctx context.Context, client *redis.Client, apiKey string) (stri
 			return "", status.Err()
 		}
 	} else { // no custom key
-		if _, err := client.Get(ctx, constants.REDIS_API_KEY_NAME).Result(); err != nil { // redis key does not exist, generate one
-			keyBytes := make([]byte, 32)
-			if _, err := rand.Read(keyBytes); err != nil {
-				return "", err
-			}
-			apiKey = hex.EncodeToString(keyBytes)
-			if status := client.Set(ctx, "apiKey", apiKey, 0); status.Err() != nil {
-				return "", status.Err()
-			}
+		keyBytes := make([]byte, 32)
+		if _, err := rand.Read(keyBytes); err != nil {
+			return "", err
+		}
+		apiKey = hex.EncodeToString(keyBytes)
+		if status := client.Set(ctx, "apiKey", apiKey, 0); status.Err() != nil {
+			return "", status.Err()
 		}
 	}
 

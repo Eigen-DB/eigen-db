@@ -2,6 +2,7 @@ package cfg
 
 import (
 	"eigen_db/constants"
+	"errors"
 	"os"
 	"testing"
 
@@ -9,13 +10,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const CUSTOM_CONFIG_PATH string = "../" + constants.TESTING_TMP_FILES_PATH + "/custom_config.yml"
+const CUSTOM_CONFIG_PATH string = constants.TESTING_TMP_FILES_PATH + "/custom_config.yml"
 
 func cleanup() error {
 	return os.Remove(CUSTOM_CONFIG_PATH)
 }
 
-func areAllValuesLoaded(t *testing.T, c IConfig) {
+func areAllValuesLoaded(t *testing.T, c *Config) {
 	assert.NotEqual(t, c.GetPersistenceTimeInterval(), 0, "Persistence Time Interval is not set (yaml: persistence.timeInterval)")
 	assert.NotEqual(t, c.GetAPIPort(), 0, "API Port is not set (yaml: api.port)")
 	assert.NotEqual(t, c.GetAPIAddress(), "", "API Address is not set (yaml: api.address)")
@@ -26,7 +27,7 @@ func areAllValuesLoaded(t *testing.T, c IConfig) {
 	assert.NotEqual(t, c.GetHNSWParamsEfConstruction(), 0, "HNSWParams Ef Construction is not set (yaml: hnswParams.efConstruction)")
 }
 
-func areConfigsIdentical(t *testing.T, c1 IConfig, c2 IConfig) {
+func areConfigsIdentical(t *testing.T, c1 *Config, c2 *Config) {
 	assert.Equal(t, c1.GetPersistenceTimeInterval(), c2.GetPersistenceTimeInterval(), "PersistenceTimeInterval values do not match. configInMem: %v, customConfigStruct: %v", c2.GetPersistenceTimeInterval(), c1.GetPersistenceTimeInterval())
 	assert.Equal(t, c1.GetAPIPort(), c2.GetAPIPort(), "APIPort values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIPort(), c1.GetAPIPort())
 	assert.Equal(t, c1.GetAPIAddress(), c2.GetAPIAddress(), "APIAddress values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIAddress(), c1.GetAPIAddress())
@@ -37,8 +38,8 @@ func areConfigsIdentical(t *testing.T, c1 IConfig, c2 IConfig) {
 	assert.Equal(t, c1.GetHNSWParamsEfConstruction(), c2.GetHNSWParamsEfConstruction(), "HNSWParamsEfConstruction values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsEfConstruction(), c1.GetHNSWParamsEfConstruction())
 }
 
-func TestLoadConfig(t *testing.T) {
-	NewConfig() // load a fresh empty config into memory
+func TestLoadConfig_success(t *testing.T) {
+	InstantiateConfig() // load a fresh empty config into memory
 	customConfig := []byte(`
 persistence:
   timeInterval: 5s
@@ -56,11 +57,11 @@ hnswParams:
 		t.Errorf("Error creating custom config file: %s", err.Error())
 	}
 
-	if err := (&ConfigFactory{}).GetConfig().LoadConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
+	if err := GetConfig().LoadConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
 		t.Errorf("Error when loading config into memory: %s", err.Error())
 	}
 
-	configInMem := (&ConfigFactory{}).GetConfig()
+	configInMem := GetConfig()
 	areAllValuesLoaded(t, configInMem)
 
 	// check that both Config structs are identical in values
@@ -74,4 +75,26 @@ hnswParams:
 	cleanup()
 }
 
-// Write test for WriteToDisk method
+func TestLoadConfig_invalid_path(t *testing.T) {
+	InstantiateConfig()
+	invalidPath := "/some/fake/path/config.yml"
+	if err := GetConfig().LoadConfig(invalidPath); err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			t.Errorf("The wrong error was produced when trying to load a config from an invalid path: %s", err.Error())
+		}
+	} else {
+		t.Errorf("No error was produced when trying to load a config from an invalid path.")
+	}
+}
+
+func TestLoadConfig_invalid_file_perms(t *testing.T) {
+	InstantiateConfig()
+	invalidPath := "/root/config.yml"
+	if err := GetConfig().LoadConfig(invalidPath); err != nil {
+		if !errors.Is(err, os.ErrPermission) {
+			t.Errorf("The wrong error was produced when trying to load a config with invalid permissions: %s", err.Error())
+		}
+	} else {
+		t.Errorf("No error was produced when trying to load a config with invalid permissions.")
+	}
+}

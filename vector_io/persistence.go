@@ -1,5 +1,7 @@
 package vector_io
 
+// *** Potentially move this code to vector_space.go ***
+
 import (
 	"bytes"
 	"eigen_db/constants"
@@ -11,7 +13,7 @@ import (
 	"eigen_db/cfg"
 )
 
-func (store *vectorStore) PersistToDisk() error {
+func (store *vectorStore) persistToDisk(db_persist_path string) error {
 	buf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buf)
 	err := encoder.Encode(store)
@@ -20,11 +22,11 @@ func (store *vectorStore) PersistToDisk() error {
 	}
 	serializedData := buf.Bytes()
 
-	return os.WriteFile(constants.DB_PERSIST_PATH, serializedData, constants.DB_PERSIST_CHMOD)
+	return os.WriteFile(db_persist_path, serializedData, constants.DB_PERSIST_CHMOD)
 }
 
-func (store *vectorStore) LoadPersistedVectors() error {
-	serializedVectors, err := os.ReadFile(constants.DB_PERSIST_PATH)
+func (store *vectorStore) loadPersistedVectors(db_persist_path string) error {
+	serializedVectors, err := os.ReadFile(db_persist_path)
 	if err != nil {
 		return err
 	}
@@ -38,14 +40,14 @@ func (store *vectorStore) LoadPersistedVectors() error {
 	for id, v := range store.StoredVectors { // load deserialized stored vectors into the vector space
 		err := store.vectorSpace.InsertVector(v.Components, uint32(id))
 		if err != nil {
-			return err
+			return err // should probably panic since vectors are not properly loaded into memory
 		}
 	}
 
 	return nil
 }
 
-func StartPersistenceLoop(config cfg.IConfig) error {
+func StartPersistenceLoop(config *cfg.Config) error {
 	if _, err := os.Stat(constants.DB_PERSIST_PATH); os.IsNotExist(err) {
 		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil { // perm should maybe be switched to 600 instead of 400
 			return err
@@ -54,13 +56,12 @@ func StartPersistenceLoop(config cfg.IConfig) error {
 
 	go func() {
 		for {
-			err := vectorStoreInstance.PersistToDisk()
-			//fmt.Println("Persisted vectors")
+			err := vectorStoreInstance.persistToDisk(constants.DB_PERSIST_PATH)
 			if err != nil {
 				fmt.Printf("Failed to persist data to disk: %s\n", err)
 			}
 
-			time.Sleep((&cfg.ConfigFactory{}).GetConfig().GetPersistenceTimeInterval())
+			time.Sleep(cfg.GetConfig().GetPersistenceTimeInterval())
 		}
 	}()
 

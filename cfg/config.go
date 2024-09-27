@@ -27,15 +27,13 @@ type Config struct {
 	} `yaml:"hnswParams"`
 }
 
-type ConfigFactory struct{}
+var config *Config // the config that lives in memory
 
-var config *Config
-
-func NewConfig() {
+func InstantiateConfig() {
 	config = new(Config)
 }
 
-func (f *ConfigFactory) GetConfig() IConfig {
+func GetConfig() *Config {
 	return config
 }
 

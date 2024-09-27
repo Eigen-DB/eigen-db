@@ -12,7 +12,7 @@ type updateSpaceSizeBody struct {
 	UpdatedSize uint32 `json:"updatedSize" binding:"required"`
 }
 
-func UpdateSpaceSize(config cfg.IConfig) func(*gin.Context) {
+func UpdateSpaceSize(config *cfg.Config) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var body updateSpaceSizeBody
 		if err := utils.ValidateBody(c, &body); err != nil {

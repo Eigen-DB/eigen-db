@@ -18,7 +18,7 @@ func (v *Vector) Insert() error {
 type VectorFactory struct{}
 
 func (factory *VectorFactory) NewVector(components []t.VectorComponent) (IVector, error) {
-	dimensions := (&cfg.ConfigFactory{}).GetConfig().GetHNSWParamsDimensions()
+	dimensions := cfg.GetConfig().GetHNSWParamsDimensions()
 	if len(components) == int(dimensions) {
 		v := &Vector{}
 		v.Components = components
