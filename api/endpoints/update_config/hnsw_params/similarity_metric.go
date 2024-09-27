@@ -13,32 +13,31 @@ type updateSimMetricBody struct {
 	UpdatedMetric types.SimilarityMetric `json:"updatedMetric" binding:"required"`
 }
 
-func UpdateSimilarityMetric(config *cfg.Config) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var body updateSimMetricBody
-		if err := utils.ValidateBody(c, &body); err != nil {
-			return
-		}
+func UpdateSimilarityMetric(c *gin.Context) {
+	var body updateSimMetricBody
+	if err := utils.ValidateBody(c, &body); err != nil {
+		return
+	}
 
-		metric, err := types.ParseSimilarityMetric(body.UpdatedMetric)
-		if err != nil {
-			utils.SendResponse(
-				c,
-				http.StatusBadRequest,
-				"Something went wrong when trying to update the similarity metric.",
-				nil,
-				utils.CreateError("INVALID_SIMILARITY_METRIC", err.Error()),
-			)
-			return
-		}
-
-		config.SetHNSWParamsSimilarityMetric(metric)
+	metric, err := types.ParseSimilarityMetric(body.UpdatedMetric)
+	if err != nil {
 		utils.SendResponse(
 			c,
-			http.StatusOK,
-			"Vector similarity metric updated. Please restart the database for it to take effect.",
+			http.StatusBadRequest,
+			"Something went wrong when trying to update the similarity metric.",
 			nil,
-			nil,
+			utils.CreateError("INVALID_SIMILARITY_METRIC", err.Error()),
 		)
+		return
 	}
+
+	config := cfg.GetConfig()
+	config.SetHNSWParamsSimilarityMetric(metric)
+	utils.SendResponse(
+		c,
+		http.StatusOK,
+		"Vector similarity metric updated. Please restart the database for it to take effect.",
+		nil,
+		nil,
+	)
 }

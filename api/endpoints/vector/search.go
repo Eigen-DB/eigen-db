@@ -15,33 +15,31 @@ type searchRequestBody struct {
 	K             int        `json:"k" binding:"required,gt=0"`
 }
 
-func Search(searcher vector_io.IVectorSearcher) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var body searchRequestBody
-		if err := utils.ValidateBody(c, &body); err != nil {
-			return
-		}
+func Search(c *gin.Context) {
+	var body searchRequestBody
+	if err := utils.ValidateBody(c, &body); err != nil {
+		return
+	}
 
-		nnIds, err := searcher.SimilaritySearch(body.QueryVectorId, body.K)
-		if err != nil {
-			utils.SendResponse(
-				c,
-				http.StatusBadRequest,
-				"An error occured during the similarity search.",
-				nil,
-				utils.CreateError("SIMILARITY_SEARCH_ERROR", err.Error()),
-			)
-			return
-		}
-
+	nnIds, err := vector_io.SimilaritySearch(body.QueryVectorId, body.K)
+	if err != nil {
 		utils.SendResponse(
 			c,
-			http.StatusOK,
-			"Similarity search successfully performed.",
-			map[string]any{
-				"nearest_neighbor_ids": nnIds,
-			},
+			http.StatusBadRequest,
+			"An error occured during the similarity search.",
 			nil,
+			utils.CreateError("SIMILARITY_SEARCH_ERROR", err.Error()),
 		)
+		return
 	}
+
+	utils.SendResponse(
+		c,
+		http.StatusOK,
+		"Similarity search successfully performed.",
+		map[string]any{
+			"nearest_neighbor_ids": nnIds,
+		},
+		nil,
+	)
 }

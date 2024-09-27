@@ -12,20 +12,19 @@ type updateEfConstBody struct {
 	UpdatedEfConst int `json:"updatedEfConst" binding:"required,gt=0"`
 }
 
-func UpdateEfConstruction(config *cfg.Config) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var body updateEfConstBody
-		if err := utils.ValidateBody(c, &body); err != nil {
-			return
-		}
-
-		config.SetHNSWParamsEfConstruction(body.UpdatedEfConst)
-		utils.SendResponse(
-			c,
-			http.StatusOK,
-			"EF Construction paramater updated. Please restart the database for it to take effect.",
-			nil,
-			nil,
-		)
+func UpdateEfConstruction(c *gin.Context) {
+	var body updateEfConstBody
+	if err := utils.ValidateBody(c, &body); err != nil {
+		return
 	}
+
+	config := cfg.GetConfig()
+	config.SetHNSWParamsEfConstruction(body.UpdatedEfConst)
+	utils.SendResponse(
+		c,
+		http.StatusOK,
+		"EF Construction paramater updated. Please restart the database for it to take effect.",
+		nil,
+		nil,
+	)
 }

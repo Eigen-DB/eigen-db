@@ -12,20 +12,19 @@ type updateAddressBody struct {
 	UpdatedAddress string `json:"updatedAddress" binding:"required"`
 }
 
-func UpdateAddress(config *cfg.Config) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var body updateAddressBody
-		if err := utils.ValidateBody(c, &body); err != nil {
-			return
-		}
-
-		config.SetAPIAddress(body.UpdatedAddress)
-		utils.SendResponse(
-			c,
-			http.StatusOK,
-			"API address updated. Please restart the database for it to take effect.",
-			nil,
-			nil,
-		)
+func UpdateAddress(c *gin.Context) {
+	var body updateAddressBody
+	if err := utils.ValidateBody(c, &body); err != nil {
+		return
 	}
+
+	config := cfg.GetConfig()
+	config.SetAPIAddress(body.UpdatedAddress)
+	utils.SendResponse(
+		c,
+		http.StatusOK,
+		"API address updated. Please restart the database for it to take effect.",
+		nil,
+		nil,
+	)
 }
