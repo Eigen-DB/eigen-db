@@ -19,8 +19,6 @@ type vectorStore struct {
 	LatestId      t.VectorId
 }
 
-type VectorSearcher struct{}
-
 func getVector(id t.VectorId) (*Vector, error) {
 	vector := vectorStoreInstance.StoredVectors[id] // if id does not exist in StoredVectors, it returns a nil pointer
 	if vector != nil {
@@ -40,7 +38,7 @@ func (store *vectorStore) writeVector(v *Vector) error {
 	return nil
 }
 
-func (searcher *VectorSearcher) SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
+func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
 	// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
 	// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
 	// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
