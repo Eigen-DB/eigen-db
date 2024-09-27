@@ -32,7 +32,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	if err := v.Insert(); err != nil { // causes nil pointer deference bug when empty body
+	if err := vector_io.InsertVector(v); err != nil { // causes nil pointer deference bug when empty body
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

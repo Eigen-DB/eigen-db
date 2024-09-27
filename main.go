@@ -66,7 +66,13 @@ func main() {
 		config.SetHNSWParamsDimensions(2) // setting dimensions to 2 for the tests
 	}
 
-	if err := vector_io.SetupDB(config); err != nil {
+	if err := vector_io.InstantiateVectorStore(
+		config.GetHNSWParamsDimensions(),
+		config.GetHNSWParamsSimilarityMetric(),
+		config.GetHNSWParamsSpaceSize(),
+		config.GetHNSWParamsM(),
+		config.GetHNSWParamsEfConstruction(),
+	); err != nil {
 		panic(err)
 	}
 

@@ -5,32 +5,29 @@ import (
 	"time"
 
 	"eigen_db/constants"
-	"eigen_db/types"
 	t "eigen_db/types"
 
 	"github.com/Eigen-DB/hnswgo"
 )
 
-var vectorStoreInstance *vectorStore // Where all vectors are stored in memory at runtime
+var store *vectorStore // where all vectors are stored in memory at runtime
 
 type vectorStore struct {
 	StoredVectors map[t.VectorId]*Vector // this is bad
-	vectorSpace   t.VectorSpace
+	index         t.Index
 	LatestId      t.VectorId
 }
 
 func getVector(id t.VectorId) (*Vector, error) {
-	vector := vectorStoreInstance.StoredVectors[id] // if id does not exist in StoredVectors, it returns a nil pointer
+	vector := store.StoredVectors[id] // if id does not exist in StoredVectors, it returns a nil pointer
 	if vector != nil {
-		return vectorStoreInstance.StoredVectors[id], nil
+		return store.StoredVectors[id], nil
 	}
 	return nil, fmt.Errorf("there is no vector with id %d in the vector space", id)
 }
 
-func (store *vectorStore) writeVector(v *Vector) error {
-	v.Id = vectorStoreInstance.LatestId + 1
-	vectorStoreInstance.LatestId++
-	err := store.vectorSpace.InsertVector(v.Components, uint32(v.Id))
+func InsertVector(v *Vector) error {
+	err := store.index.InsertVector(v.Embedding, uint32(v.Id))
 	if err != nil {
 		return err
 	}
@@ -50,11 +47,12 @@ func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
 
 	// BUG: when k = index max size, because you search for the k+1 nearest-neighbors, it returns an error from hnswgo saying 1 <= k <= index max size.
 	// Potential solution: perform the k+1 operation in hnswgo and not by the user of the library
-	ids, _, err := vectorStoreInstance.vectorSpace.SearchKNN(queryVector.Components, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
+	ids, _, err := store.index.SearchKNN(queryVector.Embedding, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
 	if err != nil {
 		return nil, err
 	}
 
+	// might just need to pop the first or last neighbor if I can confirm that hnswgo will return the neighbors in order
 	idsExcludingQuery := make([]t.VectorId, 0)
 	for _, id := range ids {
 		if int(id) != queryVectorId {
@@ -64,13 +62,13 @@ func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
 	return idsExcludingQuery, nil
 }
 
-func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) error {
-	similarityMetric, err := types.ParseSimilarityMetric(similarityMetric)
+func InstantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) error {
+	similarityMetric, err := t.ParseSimilarityMetric(similarityMetric)
 	if err != nil {
 		return err
 	}
 
-	vectorStoreInstance = &vectorStore{}
+	store = &vectorStore{}
 	index, err := hnswgo.New(
 		dim,
 		M,
@@ -83,10 +81,10 @@ func instantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 		return err
 	}
 
-	vectorStoreInstance.vectorSpace = index
-	vectorStoreInstance.StoredVectors = make(map[int]*Vector)
+	store.index = index
+	store.StoredVectors = make(map[int]*Vector)
 
-	if err = vectorStoreInstance.loadPersistedVectors(constants.DB_PERSIST_PATH); err != nil {
+	if err = store.loadPersistedVectors(constants.DB_PERSIST_PATH); err != nil {
 		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
 	} else {
 		fmt.Println("Loaded persisted vectors in memory.")

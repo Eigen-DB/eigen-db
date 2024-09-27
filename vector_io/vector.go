@@ -7,20 +7,18 @@ import (
 )
 
 type Vector struct {
-	Id         t.VectorId          `json:"id"`
-	Components []t.VectorComponent `json:"components"`
+	Id        t.VectorId          `json:"id"`
+	Embedding []t.VectorComponent `json:"components"`
 }
 
-func (v *Vector) Insert() error {
-	return vectorStoreInstance.writeVector(v)
-}
-
-func NewVector(components []t.VectorComponent) (*Vector, error) {
+func NewVector(embedding []t.VectorComponent) (*Vector, error) {
 	dimensions := cfg.GetConfig().GetHNSWParamsDimensions()
-	if len(components) == int(dimensions) {
+	if len(embedding) == dimensions {
 		v := &Vector{}
-		v.Components = components
+		v.Embedding = embedding
+		v.Id = store.LatestId + 1
+		store.LatestId++
 		return v, nil
 	}
-	return nil, fmt.Errorf("provided a %d-dimensional vector while the vector space is %d-dimensional", len(components), dimensions)
+	return nil, fmt.Errorf("provided a %d-dimensional vector while the vector space is %d-dimensional", len(embedding), dimensions)
 }

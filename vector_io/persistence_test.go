@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Eigen-DB/hnswgo"
+	"github.com/stretchr/testify/assert"
 )
 
 var mockVectorStore = &vectorStore{}
@@ -40,11 +41,11 @@ func generateDummyVectorStore(t *testing.T) *vectorStore {
 	}
 	dummyStore := &vectorStore{
 		StoredVectors: map[int]*Vector{
-			1: {Id: 1, Components: []float32{1, 2}},
-			2: {Id: 2, Components: []float32{3, 4}},
-			3: {Id: 3, Components: []float32{5, 6}},
+			1: {Id: 1, Embedding: []float32{1, 2}},
+			2: {Id: 2, Embedding: []float32{3, 4}},
+			3: {Id: 3, Embedding: []float32{5, 6}},
 		},
-		vectorSpace: index,
+		index: index,
 	}
 	return dummyStore
 }
@@ -116,4 +117,25 @@ func TestLoadPersistedVectors_no_perms_for_path(t *testing.T) {
 	} else {
 		t.Fatalf("No error was produced when trying to load persisted vectors frm a source which requires perms I do not have.")
 	}
+}
+
+func TestLoadPersistedVectors_invalid_vector(t *testing.T) {
+	index, err := hnswgo.New(2, 2, 1, 42, 100, "cosine")
+	if err != nil {
+		t.Fatalf("An error occured when creating index: %s", err.Error())
+	}
+	dummyStore := &vectorStore{
+		StoredVectors: map[int]*Vector{
+			1: {Id: 1, Embedding: []float32{1, 2}},
+			2: {Id: 2, Embedding: []float32{3, 4, 3}}, // 3D vector should cause a panic since index is 2D
+			3: {Id: 3, Embedding: []float32{5, 6}},
+		},
+		index: index,
+	}
+	defer cleanup(t)
+
+	persistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	generateDummySerializedData(t, persistPath, dummyStore)
+
+	assert.Panics(t, func() { dummyStore.loadPersistedVectors(persistPath) }, "no panic occured when trying to load an invalid persisted vector")
 }
