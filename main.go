@@ -56,14 +56,20 @@ func main() {
 		displayAsciiArt()
 	}
 
-	cfg.InstantiateConfig()                  // creates a empty Config struct in memory
-	config := cfg.GetConfig()                // get pointer to Config in memory
-	config.LoadConfig(constants.CONFIG_PATH) // load config from config.yml into the Config struct in memory
+	cfg.InstantiateConfig()                                          // creates a empty Config struct in memory
+	config := cfg.GetConfig()                                        // get pointer to Config in memory
+	if err := config.LoadConfig(constants.CONFIG_PATH); err != nil { // load config from config.yml into the Config struct in memory
+		fmt.Println("There was an error loading the config into memory.")
+		panic(err)
+	}
 
 	if os.Getenv("TEST_MODE") == "1" {
 		fmt.Println("*** EigenDB running in TEST MODE, making the API key = \"test\". If this was not intentional, please run EigenDB in standard mode. ***")
 		apiKey = "test"
-		config.SetHNSWParamsDimensions(2) // setting dimensions to 2 for the tests
+		if err := config.SetHNSWParamsDimensions(2); err != nil { // setting dimensions to 2 for the tests
+			fmt.Println("An error occured when setting the dimensions to 2.")
+			panic(err)
+		}
 	}
 
 	if err := vector_io.InstantiateVectorStore(

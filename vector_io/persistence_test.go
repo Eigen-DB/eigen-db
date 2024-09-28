@@ -137,5 +137,9 @@ func TestLoadPersistedVectors_invalid_vector(t *testing.T) {
 	persistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
 	generateDummySerializedData(t, persistPath, dummyStore)
 
-	assert.Panics(t, func() { dummyStore.loadPersistedVectors(persistPath) }, "no panic occured when trying to load an invalid persisted vector")
+	assert.Panics(t, func() {
+		if err := dummyStore.loadPersistedVectors(persistPath); err != nil {
+			t.Fatalf("An error occured instead of a panic")
+		}
+	}, "no panic occured when trying to load an invalid persisted vector")
 }

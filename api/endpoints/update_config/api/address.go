@@ -3,6 +3,7 @@ package api
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,18 @@ func UpdateAddress(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetAPIAddress(body.UpdatedAddress)
+	err := config.SetAPIAddress(body.UpdatedAddress)
+	if err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"An error occured.",
+			nil,
+			utils.CreateError("ERROR_UPDATING_API_ADDRESS", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+
 	utils.SendResponse(
 		c,
 		http.StatusOK,

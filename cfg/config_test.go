@@ -72,7 +72,9 @@ hnswParams:
 
 	areConfigsIdentical(t, customConfigStruct, configInMem)
 
-	cleanup()
+	if err := cleanup(); err != nil {
+		t.Logf("There was an error cleaning up this test: %s", err.Error())
+	}
 }
 
 func TestLoadConfig_invalid_path(t *testing.T) {

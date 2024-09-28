@@ -4,6 +4,7 @@ import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
 	"eigen_db/types"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,18 @@ func UpdateSimilarityMetric(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetHNSWParamsSimilarityMetric(metric)
+	err = config.SetHNSWParamsSimilarityMetric(metric)
+	if err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"An error occured.",
+			nil,
+			utils.CreateError("ERROR_UPDATING_SIMILARITY_METRIC", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+
 	utils.SendResponse(
 		c,
 		http.StatusOK,
