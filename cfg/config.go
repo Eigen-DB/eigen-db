@@ -29,7 +29,7 @@ type Config struct {
 
 var config *Config // the config that lives in memory
 
-func InstantiateConfig() {
+func instantiateConfig() {
 	config = new(Config)
 }
 
@@ -37,7 +37,7 @@ func GetConfig() *Config {
 	return config
 }
 
-func (c *Config) WriteToDisk(configPath string) error {
+func (c *Config) writeToDisk(configPath string) error {
 	cfgYaml, err := yaml.Marshal(config)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func (c *Config) WriteToDisk(configPath string) error {
 	return nil
 }
 
-func (c *Config) LoadConfig(configPath string) error {
+func (c *Config) populateConfig(configPath string) error {
 	f, err := os.Open(configPath)
 	if err != nil {
 		return err
@@ -100,40 +100,40 @@ func (c *Config) GetHNSWParamsEfConstruction() int {
 
 func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) error {
 	c.Persistence.TimeInterval = timeInterval
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
 func (c *Config) SetAPIPort(port int) error {
 	c.API.Port = port
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
 func (c *Config) SetAPIAddress(address string) error {
 	c.API.Address = address
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
 func (c *Config) SetHNSWParamsDimensions(dimensions int) error {
 	c.HNSWParams.Dimensions = dimensions
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
 func (c *Config) SetHNSWParamsSimilarityMetric(similarityMetric t.SimilarityMetric) error {
 	c.HNSWParams.SimilarityMetric = similarityMetric
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
 func (c *Config) SetHNSWParamsSpaceSize(spaceSize uint32) error {
 	c.HNSWParams.SpaceSize = spaceSize
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
 func (c *Config) SetHNSWParamsM(M int) error {
 	c.HNSWParams.M = M
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
 func (c *Config) SetHNSWParamsEfConstruction(efConstruction int) error {
 	c.HNSWParams.EfConstruction = efConstruction
-	return c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }

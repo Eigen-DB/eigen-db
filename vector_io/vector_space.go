@@ -35,18 +35,15 @@ func InsertVector(v *Vector) error {
 	return nil
 }
 
+// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
+// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
+// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
 func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
-	// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
-	// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
-	// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
-
 	queryVector, err := getVector(queryVectorId)
 	if err != nil {
 		return nil, err
 	}
 
-	// BUG: when k = index max size, because you search for the k+1 nearest-neighbors, it returns an error from hnswgo saying 1 <= k <= index max size.
-	// Potential solution: perform the k+1 operation in hnswgo and not by the user of the library
 	ids, _, err := store.index.SearchKNN(queryVector.Embedding, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
 	if err != nil {
 		return nil, err
