@@ -3,6 +3,7 @@ package hnsw_params
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,18 @@ func UpdateEfConstruction(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetHNSWParamsEfConstruction(body.UpdatedEfConst)
+	err := config.SetHNSWParamsEfConstruction(body.UpdatedEfConst)
+	if err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"An error occured.",
+			nil,
+			utils.CreateError("ERROR_UPDATING_EF_CONSTRUCTION", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+
 	utils.SendResponse(
 		c,
 		http.StatusOK,

@@ -8,7 +8,7 @@ import (
 
 type VectorId = int
 type VectorComponent = float32
-type VectorSpace = *hnswgo.Index
+type Index = *hnswgo.Index
 
 // Config types
 type SimilarityMetric = string

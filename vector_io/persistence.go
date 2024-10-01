@@ -1,7 +1,5 @@
 package vector_io
 
-// *** Potentially move this code to vector_space.go ***
-
 import (
 	"bytes"
 	"eigen_db/constants"
@@ -38,9 +36,11 @@ func (store *vectorStore) loadPersistedVectors(db_persist_path string) error {
 	}
 
 	for id, v := range store.StoredVectors { // load deserialized stored vectors into the vector space
-		err := store.vectorSpace.InsertVector(v.Components, uint32(id))
+		err := store.index.InsertVector(v.Embedding, uint32(id))
 		if err != nil {
-			return err // should probably panic since vectors are not properly loaded into memory
+			panic(fmt.Errorf("an error occured when trying to load persisted vector with ID \"%d\" into memory. "+
+				"EigenDB is unable to start until all persisted vectors are loaded into memory. "+
+				"Error message: %s", id, err.Error())) // should probably panic since vectors are not properly loaded into memory
 		}
 	}
 
@@ -56,7 +56,7 @@ func StartPersistenceLoop(config *cfg.Config) error {
 
 	go func() {
 		for {
-			err := vectorStoreInstance.persistToDisk(constants.DB_PERSIST_PATH)
+			err := store.persistToDisk(constants.DB_PERSIST_PATH)
 			if err != nil {
 				fmt.Printf("Failed to persist data to disk: %s\n", err)
 			}

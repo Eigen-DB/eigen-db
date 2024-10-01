@@ -29,7 +29,7 @@ type Config struct {
 
 var config *Config // the config that lives in memory
 
-func InstantiateConfig() {
+func instantiateConfig() {
 	config = new(Config)
 }
 
@@ -37,7 +37,7 @@ func GetConfig() *Config {
 	return config
 }
 
-func (c *Config) WriteToDisk(configPath string) error {
+func (c *Config) writeToDisk(configPath string) error {
 	cfgYaml, err := yaml.Marshal(config)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func (c *Config) WriteToDisk(configPath string) error {
 	return nil
 }
 
-func (c *Config) LoadConfig(configPath string) error {
+func (c *Config) populateConfig(configPath string) error {
 	f, err := os.Open(configPath)
 	if err != nil {
 		return err
@@ -98,42 +98,42 @@ func (c *Config) GetHNSWParamsEfConstruction() int {
 	return c.HNSWParams.EfConstruction
 }
 
-func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) {
+func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) error {
 	c.Persistence.TimeInterval = timeInterval
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetAPIPort(port int) {
+func (c *Config) SetAPIPort(port int) error {
 	c.API.Port = port
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetAPIAddress(address string) {
+func (c *Config) SetAPIAddress(address string) error {
 	c.API.Address = address
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsDimensions(dimensions int) {
+func (c *Config) SetHNSWParamsDimensions(dimensions int) error {
 	c.HNSWParams.Dimensions = dimensions
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsSimilarityMetric(similarityMetric t.SimilarityMetric) {
+func (c *Config) SetHNSWParamsSimilarityMetric(similarityMetric t.SimilarityMetric) error {
 	c.HNSWParams.SimilarityMetric = similarityMetric
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsSpaceSize(spaceSize uint32) {
+func (c *Config) SetHNSWParamsSpaceSize(spaceSize uint32) error {
 	c.HNSWParams.SpaceSize = spaceSize
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsM(M int) {
+func (c *Config) SetHNSWParamsM(M int) error {
 	c.HNSWParams.M = M
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsEfConstruction(efConstruction int) {
+func (c *Config) SetHNSWParamsEfConstruction(efConstruction int) error {
 	c.HNSWParams.EfConstruction = efConstruction
-	c.WriteToDisk(constants.CONFIG_PATH)
+	return c.writeToDisk(constants.CONFIG_PATH)
 }

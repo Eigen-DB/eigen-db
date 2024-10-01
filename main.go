@@ -4,7 +4,6 @@ import (
 	"context"
 	"eigen_db/api"
 	"eigen_db/cfg"
-	"eigen_db/constants"
 	"eigen_db/redis_utils"
 	"eigen_db/vector_io"
 	"flag"
@@ -12,84 +11,69 @@ import (
 	"os"
 )
 
-func displayAsciiArt() { // because it looks cool
-	fmt.Println(`                                                                                                                                                  
-	@@@@@@,                                                           
-	@@@@@@@@@@@@&                                                     
-	        @@@@@@@@                                                  
-	            @@@@@@,                                               
-	               @@@@@                                              
-	                 @@@@@                                            
-	                  @@@@@                                           
-	                   .@@@@@                                         
-	                     @@@@@                                        
-	                      /@@@@#                                      
-	                        @@@@@                                     
-	                         %@@@@*                                   
-	                  @@@@@    @@@@@                                  
-	                @@@@@@      @@@@@.                                
-	    @@&      @@@@@@.          @@@@@                               
-	   ,@@@@   @@@@@@              @@@@@                              
-	   @@@@.@@@@@@.                  @@@@@                            
-	  @@@@@@@@@@                      ,@@@@@@                         
-	  @@@@@@@@@@@@@@.                    @@@@@@@@,                    
-	 @@@@@@@@@@@@@@                         *@@@@@@@@@@@@             
-	%@@@@                                          &@@@@@                                                               
-	`)
-}
-
 func main() {
 	var apiKey string
 	var redisHost string
 	var redisPort string
 	var redisPass string
-	var noBanner bool
 
 	flag.StringVar(&apiKey, "api-key", "", "EigenDB API key")
 	flag.StringVar(&redisHost, "redis-host", "127.0.0.1", "Redis server host IP (default: 127.0.0.1)")
 	flag.StringVar(&redisPort, "redis-port", "6379", "Redis server host port (default: 6379)")
 	flag.StringVar(&redisPass, "redis-pass", "", "Redis server password (default: \"\")")
-	flag.BoolVar(&noBanner, "no-banner", false, "Remove the ASCII banner at startup (default: false)")
 	flag.Parse()
 
-	if !noBanner {
-		displayAsciiArt()
+	// setting up the in-memory config
+	if err := cfg.SetupConfig(); err != nil {
+		fmt.Println("There was an error with setting up the config")
+		panic(err)
 	}
+	config := cfg.GetConfig()
 
-	cfg.InstantiateConfig()                  // creates a empty Config struct in memory
-	config := cfg.GetConfig()                // get pointer to Config in memory
-	config.LoadConfig(constants.CONFIG_PATH) // load config from config.yml into the Config struct in memory
-
+	// checking if EigenDB is running in TEST_MODE
 	if os.Getenv("TEST_MODE") == "1" {
-		fmt.Println("*** EigenDB running in TEST MODE, making the API key = \"test\". If this was not intentional, please run EigenDB in standard mode. ***")
+		fmt.Println("*** EigenDB running in TEST_MODE, making the API key = \"test\". If this was not intentional, please run EigenDB in standard mode. ***")
 		apiKey = "test"
-		config.SetHNSWParamsDimensions(2) // setting dimensions to 2 for the tests
+		if err := config.SetHNSWParamsDimensions(2); err != nil { // setting dimensions to 2 for the tests
+			fmt.Println("An error occured when setting the dimensions to 2.")
+			panic(err)
+		}
 	}
 
-	if err := vector_io.SetupDB(config); err != nil {
+	// setting up the in-memory vector store
+	if err := vector_io.InstantiateVectorStore(
+		config.GetHNSWParamsDimensions(),
+		config.GetHNSWParamsSimilarityMetric(),
+		config.GetHNSWParamsSpaceSize(),
+		config.GetHNSWParamsM(),
+		config.GetHNSWParamsEfConstruction(),
+	); err != nil {
 		panic(err)
 	}
 
+	//setting up the Redis connection
 	ctx := context.Background()
 	os.Setenv("REDIS_HOST", redisHost)
 	os.Setenv("REDIS_PORT", redisPort)
 	os.Setenv("REDIS_PASS", redisPass)
-
 	redisClient, err := redis_utils.GetConnection(ctx)
 	if err != nil {
 		panic(err)
 	}
 
+	// setting up the API key
 	apiKey, err = redis_utils.SetupAPIKey(ctx, redisClient, apiKey)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("API KEY: %s\n", apiKey)
 
+	// starting the persistence loop
 	if err := vector_io.StartPersistenceLoop(config); err != nil {
 		panic(err)
 	}
 
+	// setting up the REST API
 	if err := api.StartAPI(ctx, fmt.Sprintf("%s:%d", config.GetAPIAddress(), config.GetAPIPort()), redisClient); err != nil {
 		panic(err)
 	} else {

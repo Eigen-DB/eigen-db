@@ -38,8 +38,8 @@ func areConfigsIdentical(t *testing.T, c1 *Config, c2 *Config) {
 	assert.Equal(t, c1.GetHNSWParamsEfConstruction(), c2.GetHNSWParamsEfConstruction(), "HNSWParamsEfConstruction values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsEfConstruction(), c1.GetHNSWParamsEfConstruction())
 }
 
-func TestLoadConfig_success(t *testing.T) {
-	InstantiateConfig() // load a fresh empty config into memory
+func TestPopulateConfig_success(t *testing.T) {
+	instantiateConfig() // load a fresh empty config into memory
 	customConfig := []byte(`
 persistence:
   timeInterval: 5s
@@ -57,7 +57,7 @@ hnswParams:
 		t.Errorf("Error creating custom config file: %s", err.Error())
 	}
 
-	if err := GetConfig().LoadConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
+	if err := GetConfig().populateConfig(CUSTOM_CONFIG_PATH); err != nil { // load custom config into memory
 		t.Errorf("Error when loading config into memory: %s", err.Error())
 	}
 
@@ -72,13 +72,15 @@ hnswParams:
 
 	areConfigsIdentical(t, customConfigStruct, configInMem)
 
-	cleanup()
+	if err := cleanup(); err != nil {
+		t.Logf("There was an error cleaning up this test: %s", err.Error())
+	}
 }
 
-func TestLoadConfig_invalid_path(t *testing.T) {
-	InstantiateConfig()
+func TestPopulateConfig_invalid_path(t *testing.T) {
+	instantiateConfig()
 	invalidPath := "/some/fake/path/config.yml"
-	if err := GetConfig().LoadConfig(invalidPath); err != nil {
+	if err := GetConfig().populateConfig(invalidPath); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			t.Errorf("The wrong error was produced when trying to load a config from an invalid path: %s", err.Error())
 		}
@@ -87,10 +89,10 @@ func TestLoadConfig_invalid_path(t *testing.T) {
 	}
 }
 
-func TestLoadConfig_invalid_file_perms(t *testing.T) {
-	InstantiateConfig()
+func TestPopulateConfig_invalid_file_perms(t *testing.T) {
+	instantiateConfig()
 	invalidPath := "/root/config.yml"
-	if err := GetConfig().LoadConfig(invalidPath); err != nil {
+	if err := GetConfig().populateConfig(invalidPath); err != nil {
 		if !errors.Is(err, os.ErrPermission) {
 			t.Errorf("The wrong error was produced when trying to load a config with invalid permissions: %s", err.Error())
 		}

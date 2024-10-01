@@ -3,6 +3,7 @@ package persistence
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -20,7 +21,18 @@ func UpdateTimeInterval(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9))
+	err := config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9))
+	if err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"An error occured.",
+			nil,
+			utils.CreateError("ERROR_UPDATING_PERSISTENCE_TIME_INTERVAL", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+
 	utils.SendResponse(
 		c,
 		http.StatusOK,
