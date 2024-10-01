@@ -1,5 +1,5 @@
-github.com/Eigen-DB/hnswgo v1.0.0 h1:mGPK2D/b/Q6epcbgo2AKip0n46dWM2TmbboMZIlKVbg=
-github.com/Eigen-DB/hnswgo v1.0.0/go.mod h1:inerBTAyDPrMKkx7da1apBjPwprN8TFSioXpEcVnS5g=
+github.com/Eigen-DB/hnswgo/v2 v2.1.1 h1:sWYD1FSkKhQQboX37sicMgnrPkJ83lBRCoQ6V8QTRrY=
+github.com/Eigen-DB/hnswgo/v2 v2.1.1/go.mod h1:nZQywRl7V3BioWqTyQU/i5j/XZ0q0ornioezr6WdDaM=
 github.com/alicebob/gopher-json v0.0.0-20230218143504-906a9b012302 h1:uvdUDbHQHO85qeSydJtItA4T55Pw6BtAejd0APRJOCE=
 github.com/alicebob/gopher-json v0.0.0-20230218143504-906a9b012302/go.mod h1:SGnFV6hVsYE877CKEZ6tDNTjaSXYUk6QqoIK6PrAtcc=
 github.com/alicebob/miniredis v2.5.0+incompatible h1:yBHoLpsyjupjz3NL3MhKMVkR41j82Yjf3KFv7ApYzUI=

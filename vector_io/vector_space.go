@@ -7,31 +7,39 @@ import (
 	"eigen_db/constants"
 	t "eigen_db/types"
 
-	"github.com/Eigen-DB/hnswgo"
+	"github.com/Eigen-DB/hnswgo/v2"
 )
 
 var store *vectorStore // where all vectors are stored in memory at runtime
 
 type vectorStore struct {
-	StoredVectors map[t.VectorId]*Vector // this is bad
-	index         t.Index
-	LatestId      t.VectorId
+	index    t.Index
+	LatestId t.VectorId
 }
 
 func getVector(id t.VectorId) (*Vector, error) {
-	vector := store.StoredVectors[id] // if id does not exist in StoredVectors, it returns a nil pointer
-	if vector != nil {
-		return store.StoredVectors[id], nil
+	vector, err := store.index.GetVector(id)
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("there is no vector with id %d in the vector space", id)
+
+	v, err := NewVector(vector)
+	if err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+func deleteVector(id t.VectorId) error {
+	return store.index.DeleteVector(id)
 }
 
 func InsertVector(v *Vector) error {
-	err := store.index.InsertVector(v.Embedding, uint32(v.Id))
+	err := store.index.InsertVector(v.Embedding, uint64(v.Id))
 	if err != nil {
 		return err
 	}
-	store.StoredVectors[v.Id] = v
 	return nil
 }
 
@@ -52,8 +60,8 @@ func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
 	// might just need to pop the first or last neighbor if I can confirm that hnswgo will return the neighbors in order
 	idsExcludingQuery := make([]t.VectorId, 0)
 	for _, id := range ids {
-		if int(id) != queryVectorId {
-			idsExcludingQuery = append(idsExcludingQuery, int(id))
+		if id != queryVectorId {
+			idsExcludingQuery = append(idsExcludingQuery, id)
 		}
 	}
 	return idsExcludingQuery, nil
@@ -79,9 +87,8 @@ func InstantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 	}
 
 	store.index = index
-	store.StoredVectors = make(map[int]*Vector)
 
-	if err = store.loadPersistedVectors(constants.DB_PERSIST_PATH); err != nil {
+	if err = store.loadPersistedVectors(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH); err != nil {
 		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
 	} else {
 		fmt.Println("Loaded persisted vectors in memory.")

@@ -2,26 +2,26 @@ package vector_io
 
 import (
 	"bytes"
+	"eigen_db/cfg"
 	"eigen_db/constants"
 	"encoding/gob"
 	"errors"
 	"os"
 	"testing"
 
-	"github.com/Eigen-DB/hnswgo"
-	"github.com/stretchr/testify/assert"
+	"github.com/Eigen-DB/hnswgo/v2"
 )
 
-var mockVectorStore = &vectorStore{}
-
 func cleanup(t *testing.T) {
-	err := os.Remove(constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec")
-	if err != nil {
+	if err := os.Remove(constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"); err != nil {
+		t.Errorf("Error cleaning up after a unit test: %s", err.Error())
+	}
+	if err := os.Remove(constants.TESTING_TMP_FILES_PATH + "/test_index.bin"); err != nil {
 		t.Errorf("Error cleaning up after a unit test: %s", err.Error())
 	}
 }
 
-func generateDummySerializedData(t *testing.T, outputFilePath string, dummyStore *vectorStore) {
+func generateDummySerializedData(t *testing.T, outputStorePath string, outputIndexPath string, dummyStore *vectorStore) {
 	buf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buf)
 	if err := encoder.Encode(dummyStore); err != nil {
@@ -29,8 +29,12 @@ func generateDummySerializedData(t *testing.T, outputFilePath string, dummyStore
 	}
 	serializedData := buf.Bytes()
 
-	if err := os.WriteFile(outputFilePath, serializedData, constants.DB_PERSIST_CHMOD); err != nil {
+	if err := os.WriteFile(outputStorePath, serializedData, constants.DB_PERSIST_CHMOD); err != nil {
 		t.Errorf("Error writing serialized data to file: %s", err.Error())
+	}
+
+	if err := dummyStore.index.SaveToDisk(outputIndexPath); err != nil {
+		t.Errorf("Error saving index to disk: %s", err.Error())
 	}
 }
 
@@ -39,33 +43,43 @@ func generateDummyVectorStore(t *testing.T) *vectorStore {
 	if err != nil {
 		t.Fatalf("An error occured when creating index: %s", err.Error())
 	}
-	dummyStore := &vectorStore{
-		StoredVectors: map[int]*Vector{
-			1: {Id: 1, Embedding: []float32{1, 2}},
-			2: {Id: 2, Embedding: []float32{3, 4}},
-			3: {Id: 3, Embedding: []float32{5, 6}},
-		},
-		index: index,
+
+	sampleVecs := [][]float32{
+		{1, 2},
+		{3, 4},
+		{5, 6},
 	}
+
+	dummyStore := &vectorStore{
+		LatestId: 0,
+		index:    index,
+	}
+
+	for i, v := range sampleVecs {
+		if err := dummyStore.index.InsertVector(v, uint64(i)); err != nil {
+			t.Fatalf("Error inserting sample vectors in dummy index: %s", err.Error())
+		}
+	}
+
 	return dummyStore
 }
 
 func TestPersistToDisk_success(t *testing.T) {
 	defer cleanup(t)
-	path := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
-	err := mockVectorStore.persistToDisk(path)
+	mockVectorStore := generateDummyVectorStore(t)
+	spacePath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
+	err := mockVectorStore.persistToDisk(spacePath, indexPath)
 	if err != nil {
 		t.Fatalf("An error occured when persisting vector store to disk: %s", err.Error())
 	}
-
-	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-		t.Fatal("File containing persisted data does not exist.")
-	}
 }
 
-func TestPersistToDisk_no_perms_for_path(t *testing.T) {
-	path := "/root/test_vector_space.vec" // shouldn't have perms to write here (assuming this isn't being ran as root)
-	err := mockVectorStore.persistToDisk(path)
+func TestPersistToDisk_no_perms_for_space_path(t *testing.T) {
+	mockVectorStore := generateDummyVectorStore(t)
+	spacePath := "/root/test_vector_space.vec" // shouldn't have perms to write here (assuming this isn't being ran as root)
+	indexPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
+	err := mockVectorStore.persistToDisk(spacePath, indexPath)
 	if err == nil {
 		t.Fatalf("No error occured when trying to write to a path without the proper permissions.")
 	} else if !errors.Is(err, os.ErrPermission) {
@@ -73,9 +87,35 @@ func TestPersistToDisk_no_perms_for_path(t *testing.T) {
 	}
 }
 
-func TestPersistToDisk_invalid_path(t *testing.T) {
-	path := "/some/fake/path/test_vector_space.vec"
-	err := mockVectorStore.persistToDisk(path)
+func TestPersistToDisk_invalid_space_path(t *testing.T) {
+	mockVectorStore := generateDummyVectorStore(t)
+	spacePath := "/some/fake/path/test_vector_space.vec"
+	indexPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
+	err := mockVectorStore.persistToDisk(spacePath, indexPath)
+	if err == nil {
+		t.Fatalf("No error occured when trying to write to an invalid path.")
+	} else if !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("An error OTHER than invalid path issues occured: %s", err.Error())
+	}
+}
+
+func TestPersistToDisk_no_perms_for_index_path(t *testing.T) {
+	mockVectorStore := generateDummyVectorStore(t)
+	spacePath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPath := "/root/index.bin"
+	err := mockVectorStore.persistToDisk(spacePath, indexPath)
+	if err == nil {
+		t.Fatalf("No error occured when trying to write to a path without the proper permissions.")
+	} else if !errors.Is(err, os.ErrPermission) {
+		t.Fatalf("An error OTHER than permission issues occured: %s", err.Error())
+	}
+}
+
+func TestPersistToDisk_invalid_index_path(t *testing.T) {
+	mockVectorStore := generateDummyVectorStore(t)
+	spacePath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPath := "/some/fake/path/index.bin"
+	err := mockVectorStore.persistToDisk(spacePath, indexPath)
 	if err == nil {
 		t.Fatalf("No error occured when trying to write to an invalid path.")
 	} else if !errors.Is(err, os.ErrNotExist) {
@@ -86,18 +126,23 @@ func TestPersistToDisk_invalid_path(t *testing.T) {
 func TestLoadPersistedVectors_success(t *testing.T) {
 	defer cleanup(t)
 	dummyStore := generateDummyVectorStore(t)
-	persistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
-	generateDummySerializedData(t, persistPath, dummyStore)
-	if err := dummyStore.loadPersistedVectors(persistPath); err != nil {
+	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+		t.Fatal(err.Error())
+	}
+	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
+	generateDummySerializedData(t, spacePersistPath, indexPersistPath, dummyStore)
+	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
 		t.Fatalf("An error occured when loading persisted data into memory: %s", err.Error())
 	}
 }
 
-func TestLoadPersistedVectors_invalid_path(t *testing.T) {
+func TestLoadPersistedVectors_invalid_store_path(t *testing.T) {
 	dummyStore := generateDummyVectorStore(t)
-	persistPath := "/some/fake/path/dummyData.vec"
+	spacePersistPath := "/some/fake/path/dummyData.vec"
+	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
 
-	if err := dummyStore.loadPersistedVectors(persistPath); err != nil {
+	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			t.Fatalf("An error OTHER than the file not exisiting occured: %s", err.Error())
 		}
@@ -106,11 +151,12 @@ func TestLoadPersistedVectors_invalid_path(t *testing.T) {
 	}
 }
 
-func TestLoadPersistedVectors_no_perms_for_path(t *testing.T) {
+func TestLoadPersistedVectors_no_perms_for_store_path(t *testing.T) {
 	dummyStore := generateDummyVectorStore(t)
-	persistPath := "/root/dummyData.vec"
+	spacePersistPath := "/root/dummyData.vec"
+	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
 
-	if err := dummyStore.loadPersistedVectors(persistPath); err != nil {
+	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
 		if !errors.Is(err, os.ErrPermission) {
 			t.Fatalf("An error OTHER than not having the right perms: %s", err.Error())
 		}
@@ -119,27 +165,36 @@ func TestLoadPersistedVectors_no_perms_for_path(t *testing.T) {
 	}
 }
 
-func TestLoadPersistedVectors_invalid_vector(t *testing.T) {
-	index, err := hnswgo.New(2, 2, 1, 42, 100, "cosine")
-	if err != nil {
-		t.Fatalf("An error occured when creating index: %s", err.Error())
+func TestLoadPersistedVectors_invalid_index_path(t *testing.T) {
+	dummyStore := generateDummyVectorStore(t)
+	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPersistPath := "/some/fake/path/index.bin"
+	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+		t.Fatal(err.Error())
 	}
-	dummyStore := &vectorStore{
-		StoredVectors: map[int]*Vector{
-			1: {Id: 1, Embedding: []float32{1, 2}},
-			2: {Id: 2, Embedding: []float32{3, 4, 3}}, // 3D vector should cause a panic since index is 2D
-			3: {Id: 3, Embedding: []float32{5, 6}},
-		},
-		index: index,
-	}
-	defer cleanup(t)
+	generateDummySerializedData(t, spacePersistPath, constants.TESTING_TMP_FILES_PATH+"/test_index.bin", dummyStore)
 
-	persistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
-	generateDummySerializedData(t, persistPath, dummyStore)
-
-	assert.Panics(t, func() {
-		if err := dummyStore.loadPersistedVectors(persistPath); err != nil {
-			t.Fatalf("An error occured instead of a panic")
+	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("An error OTHER than the file not exisiting occured: %s", err.Error())
 		}
-	}, "no panic occured when trying to load an invalid persisted vector")
+	} else {
+		t.Fatalf("No error was produced when trying to load persisted vectors from invalid source.")
+	}
+}
+
+func TestLoadPersistedVectors_no_perms_for_index_path(t *testing.T) {
+	dummyStore := generateDummyVectorStore(t)
+	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPersistPath := "/root/index.bin"
+	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+		t.Fatal(err.Error())
+	}
+	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+		if !errors.Is(err, os.ErrPermission) {
+			t.Fatalf("An error OTHER than not having the right perms: %s", err.Error())
+		}
+	} else {
+		t.Fatalf("No error was produced when trying to load persisted vectors frm a source which requires perms I do not have.")
+	}
 }

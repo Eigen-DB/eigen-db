@@ -5,7 +5,7 @@ import "testing"
 func TestInstatiateVectorStore_success(t *testing.T) {
 	if err := InstantiateVectorStore(
 		2,
-		"euclidean",
+		"l2",
 		100,
 		2,
 		400,
@@ -17,7 +17,7 @@ func TestInstatiateVectorStore_success(t *testing.T) {
 func TestInstatiateVectorStore_invalid_dim(t *testing.T) {
 	if err := InstantiateVectorStore(
 		-2,
-		"euclidean",
+		"l2",
 		100,
 		2,
 		400,
@@ -45,7 +45,7 @@ func TestInstatiateVectorStore_invalid_sim_metric(t *testing.T) {
 func TestInstatiateVectorStore_invalid_m(t *testing.T) {
 	if err := InstantiateVectorStore(
 		2,
-		"euclidean",
+		"l2",
 		100,
 		-1,
 		400,
@@ -59,7 +59,7 @@ func TestInstatiateVectorStore_invalid_m(t *testing.T) {
 func TestInstatiateVectorStore_invalid_ef_construction(t *testing.T) {
 	if err := InstantiateVectorStore(
 		2,
-		"euclidean",
+		"l2",
 		100,
 		2,
 		-1,

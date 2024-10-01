@@ -3,10 +3,10 @@ package types
 import (
 	"errors"
 
-	"github.com/Eigen-DB/hnswgo"
+	"github.com/Eigen-DB/hnswgo/v2"
 )
 
-type VectorId = int
+type VectorId = uint64
 type VectorComponent = float32
 type Index = *hnswgo.Index
 
@@ -15,7 +15,7 @@ type SimilarityMetric = string
 
 const (
 	COSINE        SimilarityMetric = "cosine"
-	EUCLIDEAN     SimilarityMetric = "euclidean"
+	EUCLIDEAN     SimilarityMetric = "l2"
 	INNER_PRODUCT SimilarityMetric = "ip"
 )
 
