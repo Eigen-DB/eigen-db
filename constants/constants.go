@@ -3,8 +3,8 @@ package constants
 import "io/fs"
 
 const EIGEN_DIR string = "./eigen"
-const DB_PERSIST_FILENAME string = "vector_space.vec"
-const DB_PERSIST_PATH string = EIGEN_DIR + "/" + DB_PERSIST_FILENAME
+const STORE_PERSIST_PATH string = EIGEN_DIR + "/vector_space.vec"
+const INDEX_PERSIST_PATH string = EIGEN_DIR + "/hnsw_index.bin"
 const DB_PERSIST_CHMOD fs.FileMode = 0600 // rw-------
 const CONFIG_CHMOD fs.FileMode = 0600     // rw-------
 const CONFIG_PATH string = EIGEN_DIR + "/config.yml"

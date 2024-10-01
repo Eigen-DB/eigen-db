@@ -3,7 +3,7 @@ module eigen_db
 go 1.20
 
 require (
-	github.com/Eigen-DB/hnswgo v1.0.0
+	github.com/Eigen-DB/hnswgo/v2 v2.1.0
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/gin-gonic/gin v1.10.0
 	github.com/redis/go-redis/v9 v9.6.1
