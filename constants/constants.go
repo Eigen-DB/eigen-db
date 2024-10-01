@@ -1,8 +1,10 @@
 package constants
 
-import "io/fs"
+import (
+	"io/fs"
+)
 
-const EIGEN_DIR string = "./eigen"
+const EIGEN_DIR string = "eigen"
 const STORE_PERSIST_PATH string = EIGEN_DIR + "/vector_space.vec"
 const INDEX_PERSIST_PATH string = EIGEN_DIR + "/hnsw_index.bin"
 const DB_PERSIST_CHMOD fs.FileMode = 0600 // rw-------

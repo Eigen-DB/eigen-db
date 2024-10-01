@@ -4,6 +4,7 @@ import (
 	"context"
 	"eigen_db/api"
 	"eigen_db/cfg"
+	"eigen_db/constants"
 	"eigen_db/redis_utils"
 	"eigen_db/vector_io"
 	"flag"
@@ -24,7 +25,7 @@ func main() {
 	flag.Parse()
 
 	// setting up the in-memory config
-	if err := cfg.SetupConfig(); err != nil {
+	if err := cfg.SetupConfig(constants.CONFIG_PATH); err != nil {
 		fmt.Println("There was an error with setting up the config")
 		panic(err)
 	}

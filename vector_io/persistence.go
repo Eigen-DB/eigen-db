@@ -49,7 +49,7 @@ func (store *vectorStore) loadPersistedVectors(storePersistPath string, indexPer
 	index, err := hnswgo.LoadIndex(
 		indexPersistPath,
 		config.GetHNSWParamsDimensions(),
-		config.GetHNSWParamsSimilarityMetric(), // PROBLEM
+		config.GetHNSWParamsSimilarityMetric(),
 		config.GetHNSWParamsSpaceSize(),
 	)
 	if err != nil {
