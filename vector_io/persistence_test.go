@@ -36,7 +36,6 @@ func generateDummySerializedData(t *testing.T, outputStorePath string, outputInd
 	if err := dummyStore.index.SaveToDisk(outputIndexPath); err != nil {
 		t.Errorf("Error saving index to disk: %s", err.Error())
 	}
-
 }
 
 func generateDummyVectorStore(t *testing.T) *vectorStore {
@@ -76,7 +75,7 @@ func TestPersistToDisk_success(t *testing.T) {
 	}
 }
 
-func TestPersistToDisk_no_perms_for_path(t *testing.T) {
+func TestPersistToDisk_no_perms_for_space_path(t *testing.T) {
 	mockVectorStore := generateDummyVectorStore(t)
 	spacePath := "/root/test_vector_space.vec" // shouldn't have perms to write here (assuming this isn't being ran as root)
 	indexPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
@@ -88,10 +87,34 @@ func TestPersistToDisk_no_perms_for_path(t *testing.T) {
 	}
 }
 
-func TestPersistToDisk_invalid_path(t *testing.T) {
+func TestPersistToDisk_invalid_space_path(t *testing.T) {
 	mockVectorStore := generateDummyVectorStore(t)
 	spacePath := "/some/fake/path/test_vector_space.vec"
 	indexPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
+	err := mockVectorStore.persistToDisk(spacePath, indexPath)
+	if err == nil {
+		t.Fatalf("No error occured when trying to write to an invalid path.")
+	} else if !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("An error OTHER than invalid path issues occured: %s", err.Error())
+	}
+}
+
+func TestPersistToDisk_no_perms_for_index_path(t *testing.T) {
+	mockVectorStore := generateDummyVectorStore(t)
+	spacePath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPath := "/root/index.bin"
+	err := mockVectorStore.persistToDisk(spacePath, indexPath)
+	if err == nil {
+		t.Fatalf("No error occured when trying to write to a path without the proper permissions.")
+	} else if !errors.Is(err, os.ErrPermission) {
+		t.Fatalf("An error OTHER than permission issues occured: %s", err.Error())
+	}
+}
+
+func TestPersistToDisk_invalid_index_path(t *testing.T) {
+	mockVectorStore := generateDummyVectorStore(t)
+	spacePath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPath := "/some/fake/path/index.bin"
 	err := mockVectorStore.persistToDisk(spacePath, indexPath)
 	if err == nil {
 		t.Fatalf("No error occured when trying to write to an invalid path.")
@@ -114,7 +137,7 @@ func TestLoadPersistedVectors_success(t *testing.T) {
 	}
 }
 
-func TestLoadPersistedVectors_invalid_path(t *testing.T) {
+func TestLoadPersistedVectors_invalid_store_path(t *testing.T) {
 	dummyStore := generateDummyVectorStore(t)
 	spacePersistPath := "/some/fake/path/dummyData.vec"
 	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
@@ -128,11 +151,45 @@ func TestLoadPersistedVectors_invalid_path(t *testing.T) {
 	}
 }
 
-func TestLoadPersistedVectors_no_perms_for_path(t *testing.T) {
+func TestLoadPersistedVectors_no_perms_for_store_path(t *testing.T) {
 	dummyStore := generateDummyVectorStore(t)
 	spacePersistPath := "/root/dummyData.vec"
 	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
 
+	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+		if !errors.Is(err, os.ErrPermission) {
+			t.Fatalf("An error OTHER than not having the right perms: %s", err.Error())
+		}
+	} else {
+		t.Fatalf("No error was produced when trying to load persisted vectors frm a source which requires perms I do not have.")
+	}
+}
+
+func TestLoadPersistedVectors_invalid_index_path(t *testing.T) {
+	dummyStore := generateDummyVectorStore(t)
+	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPersistPath := "/some/fake/path/index.bin"
+	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+		t.Fatal(err.Error())
+	}
+	generateDummySerializedData(t, spacePersistPath, constants.TESTING_TMP_FILES_PATH+"/test_index.bin", dummyStore)
+
+	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("An error OTHER than the file not exisiting occured: %s", err.Error())
+		}
+	} else {
+		t.Fatalf("No error was produced when trying to load persisted vectors from invalid source.")
+	}
+}
+
+func TestLoadPersistedVectors_no_perms_for_index_path(t *testing.T) {
+	dummyStore := generateDummyVectorStore(t)
+	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
+	indexPersistPath := "/root/index.bin"
+	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+		t.Fatal(err.Error())
+	}
 	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
 		if !errors.Is(err, os.ErrPermission) {
 			t.Fatalf("An error OTHER than not having the right perms: %s", err.Error())
