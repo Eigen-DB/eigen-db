@@ -40,7 +40,7 @@ func CheckConnection(ctx context.Context, client *redis.Client) error {
 // generates API key, inserts it to Redis, and writes it to eigen/api_key.json
 // If apiKey != "", the custom key is used as the API key.
 // If apiKey == "", a random API key is generated and overwrites any existing API key.
-func SetupAPIKey(ctx context.Context, client *redis.Client, apiKey string) (string, error) {
+func SetupAPIKey(ctx context.Context, client *redis.Client, apiKey string, apiKeyFilePath string) (string, error) {
 	if err := CheckConnection(ctx, client); err != nil {
 		return "", err
 	}
@@ -65,7 +65,7 @@ func SetupAPIKey(ctx context.Context, client *redis.Client, apiKey string) (stri
 		return "", err
 	}
 
-	if err := os.WriteFile(constants.API_KEY_FILE_PATH, []byte(val), constants.API_KEY_FILE_CHMOD); err != nil {
+	if err := os.WriteFile(apiKeyFilePath, []byte(val), constants.API_KEY_FILE_CHMOD); err != nil {
 		return "", err
 	}
 

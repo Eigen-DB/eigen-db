@@ -63,7 +63,7 @@ func main() {
 	}
 
 	// setting up the API key
-	apiKey, err = redis_utils.SetupAPIKey(ctx, redisClient, apiKey)
+	apiKey, err = redis_utils.SetupAPIKey(ctx, redisClient, apiKey, constants.API_KEY_FILE_PATH)
 	if err != nil {
 		panic(err)
 	}

@@ -23,8 +23,9 @@ func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
 	updateApi := updateConfigRoot.Group("/api")
 	updateHnswParams := updateConfigRoot.Group("/hnsw-params")
 
-	// health check endpoint
+	// health check endpoints
 	r.GET("/health", health_check.Health)
+	r.POST("/test-auth", middleware.AuthMiddleware(ctx, redisClient), health_check.TestAuth)
 
 	// vector operation endpoints
 	vectors.PUT("/insert", vector.Insert)
