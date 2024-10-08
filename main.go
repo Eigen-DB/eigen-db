@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	// parsing cmd line args
 	var apiKey string
 	var redisHost string
 	var redisPort string

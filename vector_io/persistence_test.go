@@ -132,7 +132,7 @@ func TestLoadPersistedVectors_success(t *testing.T) {
 	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
 	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
 	generateDummySerializedData(t, spacePersistPath, indexPersistPath, dummyStore)
-	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+	if err := dummyStore.loadPersistedStore(spacePersistPath, indexPersistPath); err != nil {
 		t.Fatalf("An error occured when loading persisted data into memory: %s", err.Error())
 	}
 }
@@ -142,7 +142,7 @@ func TestLoadPersistedVectors_invalid_store_path(t *testing.T) {
 	spacePersistPath := "/some/fake/path/dummyData.vec"
 	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
 
-	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+	if err := dummyStore.loadPersistedStore(spacePersistPath, indexPersistPath); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			t.Fatalf("An error OTHER than the file not exisiting occured: %s", err.Error())
 		}
@@ -156,7 +156,7 @@ func TestLoadPersistedVectors_no_perms_for_store_path(t *testing.T) {
 	spacePersistPath := "/root/dummyData.vec"
 	indexPersistPath := constants.TESTING_TMP_FILES_PATH + "/test_index.bin"
 
-	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+	if err := dummyStore.loadPersistedStore(spacePersistPath, indexPersistPath); err != nil {
 		if !errors.Is(err, os.ErrPermission) {
 			t.Fatalf("An error OTHER than not having the right perms: %s", err.Error())
 		}
@@ -174,7 +174,7 @@ func TestLoadPersistedVectors_invalid_index_path(t *testing.T) {
 	}
 	generateDummySerializedData(t, spacePersistPath, constants.TESTING_TMP_FILES_PATH+"/test_index.bin", dummyStore)
 
-	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+	if err := dummyStore.loadPersistedStore(spacePersistPath, indexPersistPath); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			t.Fatalf("An error OTHER than the file not exisiting occured: %s", err.Error())
 		}
@@ -190,7 +190,7 @@ func TestLoadPersistedVectors_no_perms_for_index_path(t *testing.T) {
 	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
 		t.Fatal(err.Error())
 	}
-	if err := dummyStore.loadPersistedVectors(spacePersistPath, indexPersistPath); err != nil {
+	if err := dummyStore.loadPersistedStore(spacePersistPath, indexPersistPath); err != nil {
 		if !errors.Is(err, os.ErrPermission) {
 			t.Fatalf("An error OTHER than not having the right perms: %s", err.Error())
 		}

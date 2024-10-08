@@ -13,6 +13,17 @@ import (
 	"github.com/Eigen-DB/hnswgo/v2"
 )
 
+// Persists the vector store to disk.
+//
+// Works by storing the serialized form of the vector store as one
+// file at "storePersistPath", and the index within the vector
+// store as another file at "indexPersistPath".
+//
+// The index is persisted separately as the vector store only contains
+// a pointer to the index. This means that serializing the vector store
+// will only serialize the pointer to the index, and not the index itself.
+//
+// Returns an error if one occured.
 func (store *vectorStore) persistToDisk(storePersistPath string, indexPersistPath string) error {
 	// persist the actual index
 	if err := store.index.SaveToDisk(indexPersistPath); err != nil {
@@ -31,7 +42,13 @@ func (store *vectorStore) persistToDisk(storePersistPath string, indexPersistPat
 	return os.WriteFile(storePersistPath, serializedData, constants.DB_PERSIST_CHMOD)
 }
 
-func (store *vectorStore) loadPersistedVectors(storePersistPath string, indexPersistPath string) error {
+// Loads a vector store persisted on disk into memory.
+//
+// Loads in the actual vector store from "storePersistPath" first,
+// then loads in the index into the vector store from "indexPersistPath".
+//
+// Returns an error if one occured.
+func (store *vectorStore) loadPersistedStore(storePersistPath string, indexPersistPath string) error {
 	// load the store
 	serializedStore, err := os.ReadFile(storePersistPath)
 	if err != nil {
@@ -61,6 +78,12 @@ func (store *vectorStore) loadPersistedVectors(storePersistPath string, indexPer
 	return nil
 }
 
+// Creates a Goroutine that periodically persists data to disk.
+//
+// The time interval at which data is persisted on disk is set
+// in the "config" at persistence.timeInterval.
+//
+// Returns an error if one occured.
 func StartPersistenceLoop(config *cfg.Config) error {
 	if _, err := os.Stat(constants.STORE_PERSIST_PATH); os.IsNotExist(err) {
 		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil { // perm should maybe be switched to 600 instead of 400

@@ -13,6 +13,9 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// Setups up the API router
+//
+// Returns the router at a pointer to a Gin Engine instance.
 func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
 	r := gin.Default()
 
@@ -34,10 +37,8 @@ func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
 
 	// config setter endpoints
 	updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
-
 	updateApi.POST("/port", api.UpdatePort)
 	updateApi.POST("/address", api.UpdateAddress)
-
 	updateHnswParams.POST("/similarity-metric", hnsw_params.UpdateSimilarityMetric)
 	updateHnswParams.POST("/vector-space-size", hnsw_params.UpdateSpaceSize)
 	updateHnswParams.POST("/m", hnsw_params.UpdateM)
@@ -46,6 +47,9 @@ func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
 	return r
 }
 
+// Starts the API server
+//
+// Returns an error if one occured.
 func StartAPI(ctx context.Context, addr string, redisClient *redis.Client) error {
 	r := setupRouter(ctx, redisClient)
 	err := r.Run(addr)
