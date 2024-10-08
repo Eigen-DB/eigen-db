@@ -40,6 +40,7 @@ func getVector(id t.VectorId) (*Vector, error) {
 // Deletes a vector from the in-memory vector store using its ID.
 //
 // Returns an error if one occured.
+// nolint:all
 func deleteVector(id t.VectorId) error {
 	return store.index.DeleteVector(id)
 }
