@@ -8,24 +8,20 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/update-config/api/address"
-    body: > 
-      {"updatedAddress": "127.0.0.1"}
+    url: "{{.url}}/test-auth"
     headers:
       X-Eigen-API-Key: test
     timeout: 5
     assertions:
     - result.statuscode ShouldEqual 200
-    - result.bodyjson.message ShouldEqual "API address updated. Please restart the database for it to take effect."
+    - result.bodyjson.message ShouldEqual "Authenticated."
     - result.bodyjson.status ShouldEqual 200
 
 - name: Unauthenticated request using invalid API key
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/update-config/api/address"
-    body: > 
-      {"updatedAddress": "127.0.0.1"}
+    url: "{{.url}}/test-auth"
     headers:
       X-Eigen-API-Key: "12345"
     timeout: 5
@@ -40,9 +36,7 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/update-config/api/address"
-    body: > 
-      {"updatedAddress": "127.0.0.1"}
+    url: "{{.url}}/test-auth"
     timeout: 5
     assertions:
     - result.statuscode ShouldEqual 401
