@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// The configuration structure for EigenDB
 type Config struct {
 	Persistence struct {
 		TimeInterval time.Duration `yaml:"timeInterval"`
@@ -29,14 +30,19 @@ type Config struct {
 
 var config *Config // the config that lives in memory
 
+// Instantiates the in-memory config
 func instantiateConfig() {
 	config = new(Config)
 }
 
+// Returns a pointer to the in-memort config
 func GetConfig() *Config {
 	return config
 }
 
+// Writes the in-memory config to disk as a YAML file at "configPath"
+//
+// Returns an error if one occured.
 func (c *Config) writeToDisk(configPath string) error {
 	cfgYaml, err := yaml.Marshal(config)
 	if err != nil {
@@ -49,6 +55,9 @@ func (c *Config) writeToDisk(configPath string) error {
 	return nil
 }
 
+// Populates the in-memory config with the values stored on disk in the YAML file at "configPath".
+//
+// Returns an error if one occured.
 func (c *Config) populateConfig(configPath string) error {
 	f, err := os.Open(configPath)
 	if err != nil {
@@ -64,7 +73,8 @@ func (c *Config) populateConfig(configPath string) error {
 	return nil
 }
 
-// Config GETTERS & SETTERS
+// Config getters and setters:
+// NOTE: the setters update the specified value in-memory AND on disk.
 
 func (c *Config) GetPersistenceTimeInterval() time.Duration {
 	return c.Persistence.TimeInterval

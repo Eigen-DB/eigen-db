@@ -12,7 +12,14 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func GetConnection(ctx context.Context) (*redis.Client, error) { // if connection fails, it returned client is nil
+// Creates a connection to Redis.
+//
+// If the connection fails, the returned client is nil. Make sure to check
+// for any errors after calling this function as this can cause a lot of
+// nil pointer dereference errors.
+//
+// Returns a Redis client or an error if the connection was unsuccessfull.
+func GetConnection(ctx context.Context) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
 		Password: os.Getenv("REDIS_PASS"),
@@ -26,6 +33,9 @@ func GetConnection(ctx context.Context) (*redis.Client, error) { // if connectio
 	return client, nil
 }
 
+// Checks the connection to Redis by pinging it with a 3 secs timeout.
+//
+// Returns an error if one occurs.
 func CheckConnection(ctx context.Context, client *redis.Client) error {
 	timeout := time.Second * 3 // 3 secs timeout
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
@@ -37,9 +47,15 @@ func CheckConnection(ctx context.Context, client *redis.Client) error {
 	return nil
 }
 
-// generates API key, inserts it to Redis, and writes it to eigen/api_key.json
-// If apiKey != "", the custom key is used as the API key.
+// Generates the API key
+//
+// Once the key is created, it's inserted in Redis, and written to "apiKeyFilePath"
+//
+// If apiKey != "", then the API key will be set to the value of apiKey.
+//
 // If apiKey == "", a random API key is generated and overwrites any existing API key.
+//
+// Returns the API key, or an error if one occured.
 func SetupAPIKey(ctx context.Context, client *redis.Client, apiKey string, apiKeyFilePath string) (string, error) {
 	if err := CheckConnection(ctx, client); err != nil {
 		return "", err
