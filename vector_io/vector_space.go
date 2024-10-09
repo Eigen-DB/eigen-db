@@ -17,13 +17,13 @@ var store *vectorStore
 // Stores a vector index and the ID of the vector most recently inserted.
 type vectorStore struct {
 	index    t.Index
-	LatestId t.VectorId
+	LatestId t.VecId
 }
 
 // Gets a vector from the in-memory vector store using its ID.
 //
 // Returns the vector or an error if one occured.
-func getVector(id t.VectorId) (*Vector, error) {
+func getVector(id t.VecId) (*Vector, error) {
 	vector, err := store.index.GetVector(id)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func getVector(id t.VectorId) (*Vector, error) {
 //
 // Returns an error if one occured.
 // nolint:all
-func deleteVector(id t.VectorId) error {
+func deleteVector(id t.VecId) error {
 	return store.index.DeleteVector(id)
 }
 
@@ -68,7 +68,7 @@ func InsertVector(v *Vector) error {
 // neighbors and remove the query vector from the output.
 //
 // Returns the IDs of the nearest vectors or an error if one occured.
-func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
+func SimilaritySearch(queryVectorId t.VecId, k int) ([]t.VecId, error) {
 	queryVector, err := getVector(queryVectorId)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
 	}
 
 	// might just need to pop the first or last neighbor if I can confirm that hnswgo will return the neighbors in order
-	idsExcludingQuery := make([]t.VectorId, 0)
+	idsExcludingQuery := make([]t.VecId, 0)
 	for _, id := range ids {
 		if id != queryVectorId {
 			idsExcludingQuery = append(idsExcludingQuery, id)
@@ -98,9 +98,8 @@ func SimilaritySearch(queryVectorId t.VectorId, k int) ([]t.VectorId, error) {
 // exist, a fresh store is loaded into memory.
 //
 // Returns an error if one occured.
-func InstantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) error {
-	similarityMetric, err := t.ParseSimilarityMetric(similarityMetric)
-	if err != nil {
+func InstantiateVectorStore(dim int, similarityMetric t.SimMetric, spaceSize uint32, M int, efConstruction int) error {
+	if err := similarityMetric.Validate(); err != nil {
 		return err
 	}
 
@@ -112,7 +111,7 @@ func InstantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 		efConstruction,
 		int(time.Now().Unix()),
 		spaceSize,
-		similarityMetric,
+		similarityMetric.ToString(),
 	)
 	if err != nil {
 		return err
