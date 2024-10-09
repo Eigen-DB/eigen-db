@@ -85,12 +85,6 @@ func (store *vectorStore) loadPersistedStore(storePersistPath string, indexPersi
 //
 // Returns an error if one occured.
 func StartPersistenceLoop(config *cfg.Config) error {
-	if _, err := os.Stat(constants.STORE_PERSIST_PATH); os.IsNotExist(err) {
-		if err = os.MkdirAll(constants.EIGEN_DIR, constants.DB_PERSIST_CHMOD); err != nil { // perm should maybe be switched to 600 instead of 400
-			return err
-		}
-	}
-
 	go func() {
 		for {
 			err := store.persistToDisk(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH)
