@@ -2,17 +2,16 @@ package vector
 
 import (
 	"eigen_db/api/utils"
+	t "eigen_db/types"
 	"eigen_db/vector_io"
 	"net/http"
-
-	t "eigen_db/types"
 
 	"github.com/gin-gonic/gin"
 )
 
 type searchRequestBody struct {
-	QueryVectorId t.VectorId `json:"queryVectorId" binding:"required"`
-	K             int        `json:"k" binding:"required,gt=0"`
+	QueryVectorId t.VecId `json:"queryVectorId" binding:"required"`
+	K             int     `json:"k" binding:"required,gt=0"`
 }
 
 func Search(c *gin.Context) {

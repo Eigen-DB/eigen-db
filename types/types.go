@@ -6,12 +6,12 @@ import (
 	"github.com/Eigen-DB/hnswgo/v2"
 )
 
-type VectorId = uint64
-type VectorComponent = float32
+type VecId = uint64
+type Embedding = []float32
 type Index = *hnswgo.Index
 
 // Config types
-type SimilarityMetric = string
+type SimilarityMetric string
 
 const (
 	COSINE        SimilarityMetric = "cosine"
@@ -19,15 +19,19 @@ const (
 	INNER_PRODUCT SimilarityMetric = "ip"
 )
 
-func ParseSimilarityMetric(value string) (SimilarityMetric, error) {
-	switch value {
+func (metric SimilarityMetric) Validate() error {
+	switch metric {
 	case COSINE:
-		return COSINE, nil
+		return nil
 	case EUCLIDEAN:
-		return EUCLIDEAN, nil
+		return nil
 	case INNER_PRODUCT:
-		return INNER_PRODUCT, nil
+		return nil
 	default:
-		return "", errors.New("invalid similarity metric")
+		return errors.New("invalid similarity metric")
 	}
+}
+
+func (metric SimilarityMetric) ToString() string {
+	return string(metric)
 }

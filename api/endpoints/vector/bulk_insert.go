@@ -11,7 +11,7 @@ import (
 )
 
 type bulkInsertRequestBody struct {
-	Embeddings [][]t.VectorComponent `json:"embeddings" binding:"required"`
+	Embeddings []t.Embedding `json:"embeddings" binding:"required"`
 }
 
 func BulkInsert(c *gin.Context) {

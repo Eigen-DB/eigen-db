@@ -11,7 +11,7 @@ import (
 )
 
 type insertRequestBody struct {
-	Components []t.VectorComponent `json:"components" binding:"required"`
+	Components t.Embedding `json:"components" binding:"required"`
 }
 
 func Insert(c *gin.Context) {

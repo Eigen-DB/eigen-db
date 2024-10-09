@@ -20,8 +20,7 @@ func UpdateSimilarityMetric(c *gin.Context) {
 		return
 	}
 
-	metric, err := types.ParseSimilarityMetric(body.UpdatedMetric)
-	if err != nil {
+	if err := body.UpdatedMetric.Validate(); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusBadRequest,
@@ -33,8 +32,7 @@ func UpdateSimilarityMetric(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err = config.SetHNSWParamsSimilarityMetric(metric)
-	if err != nil {
+	if err := config.SetHNSWParamsSimilarityMetric(body.UpdatedMetric); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,
