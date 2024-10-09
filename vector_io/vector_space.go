@@ -104,6 +104,7 @@ func InstantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 		return err
 	}
 
+	// start with a fresh vector store
 	store = &vectorStore{}
 	index, err := hnswgo.New(
 		dim,
@@ -119,6 +120,7 @@ func InstantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceS
 
 	store.index = index
 
+	// attempt loading persisted data into ther store
 	if err = store.loadPersistedStore(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH); err != nil {
 		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
 	} else {
