@@ -20,11 +20,11 @@ type Config struct {
 		Address string `yaml:"address"`
 	} `yaml:"api"`
 	HNSWParams struct {
-		Dimensions       int                `yaml:"dimensions"`
-		SimilarityMetric t.SimilarityMetric `yaml:"similarityMetric"`
-		SpaceSize        uint32             `yaml:"vectorSpaceSize"`
-		M                int                `yaml:"M"`
-		EfConstruction   int                `yaml:"efConstruction"`
+		Dimensions       int         `yaml:"dimensions"`
+		SimilarityMetric t.SimMetric `yaml:"similarityMetric"`
+		SpaceSize        uint32      `yaml:"vectorSpaceSize"`
+		M                int         `yaml:"M"`
+		EfConstruction   int         `yaml:"efConstruction"`
 	} `yaml:"hnswParams"`
 }
 
@@ -92,7 +92,7 @@ func (c *Config) GetHNSWParamsDimensions() int {
 	return c.HNSWParams.Dimensions
 }
 
-func (c *Config) GetHNSWParamsSimilarityMetric() t.SimilarityMetric {
+func (c *Config) GetHNSWParamsSimilarityMetric() t.SimMetric {
 	return c.HNSWParams.SimilarityMetric
 }
 
@@ -128,7 +128,7 @@ func (c *Config) SetHNSWParamsDimensions(dimensions int) error {
 	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsSimilarityMetric(similarityMetric t.SimilarityMetric) error {
+func (c *Config) SetHNSWParamsSimilarityMetric(similarityMetric t.SimMetric) error {
 	c.HNSWParams.SimilarityMetric = similarityMetric
 	return c.writeToDisk(constants.CONFIG_PATH)
 }

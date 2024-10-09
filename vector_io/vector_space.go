@@ -98,7 +98,7 @@ func SimilaritySearch(queryVectorId t.VecId, k int) ([]t.VecId, error) {
 // exist, a fresh store is loaded into memory.
 //
 // Returns an error if one occured.
-func InstantiateVectorStore(dim int, similarityMetric t.SimilarityMetric, spaceSize uint32, M int, efConstruction int) error {
+func InstantiateVectorStore(dim int, similarityMetric t.SimMetric, spaceSize uint32, M int, efConstruction int) error {
 	if err := similarityMetric.Validate(); err != nil {
 		return err
 	}

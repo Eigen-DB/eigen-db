@@ -11,7 +11,7 @@ import (
 )
 
 type updateSimMetricBody struct {
-	UpdatedMetric types.SimilarityMetric `json:"updatedMetric" binding:"required"`
+	UpdatedMetric types.SimMetric `json:"updatedMetric" binding:"required"`
 }
 
 func UpdateSimilarityMetric(c *gin.Context) {
