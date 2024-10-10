@@ -4,3 +4,4 @@ integration_tests/*.log
 integration_tests/logs/
 eigen/hnsw_index.bin
 eigen/api_key.txt
+node_modules/
