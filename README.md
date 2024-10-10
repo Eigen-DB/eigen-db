@@ -5,6 +5,7 @@
 Payload to `/vector/bulk-insert` to create test data (must use 2D vector space) and a [visual](https://www.desmos.com/calculator/pjjei9akcx):
 
 Keep in mind that in a real application, vector dimensionality is usually much larger depending on the complextiy and granularity of the data.
+
 ```json
 {
     "setOfComponents": [
