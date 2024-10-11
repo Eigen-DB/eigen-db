@@ -22,13 +22,13 @@
 
 ## Table of contents
 
-1. [Overview](#overview)
-2. [Documentation](#documentation)
-4. [Contributing](#contributing)
-6. [Contact Us](#contact-us)
+1. [🔎 Overview](#overview)
+2. [📖 Documentation](#documentation)
+4. [🤝 Contributing](#contributing)
+6. [💬 Contact Us](#contact-us)
 ---
 
-### Overview
+### 🔎 Overview
 * EigenDB is a light-weight in-memory vector database written in Go. It’s entirely open-source! ❤️
 * Employs the _Hierarchical Navigable Small World_ (HNSW) algorithm to perform similarity search with the highest level of efficiency and speed.⚡
     * Logic surrounding the HNSW algorithm is handled by our open-source Go library, [_hnswgo_](https://github.com/Eigen-DB/hnswgo)! 🧠
@@ -36,7 +36,7 @@
 
 ---
 
-### Documentation
+### 📖 Documentation
 
 Our official documentation can be found [here](https://eigendb.mintlify.app/)!
 
@@ -44,13 +44,13 @@ If you feel like we missed something, feel free to [contribute](https://github.c
 
 ---
 
-### Contributing
+### 🤝 Contributing
 
 Coming soon...
 
 ---
 
-### Contact Us!
+### 💬 Contact Us!
 
 Email: ryanawad@yahoo.com
 
