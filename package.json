@@ -3,8 +3,7 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^19.5.0",
     "cz-conventional-changelog": "^3.3.0",
-    "husky": "^9.1.6",
-    "semantic-release": "^24.1.2"
+    "husky": "^9.1.6"
   },
   "config": {
     "commitizen": {
