@@ -1,4 +1,5 @@
-# EigenDB
+<div align="center">
+<img src=".github/assets/logo.svg" width="450px">
 
 ### ⚡ The blazingly fast in-memory vector database 🚀 
 
@@ -18,7 +19,7 @@
 <!--<a href="https://semantic-release.gitbook.io/semantic-release">
     <img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square" alt="Semantic Release">
 </a>-->
-
+</div>
 
 ## Table of contents
 
