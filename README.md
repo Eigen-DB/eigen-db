@@ -1,4 +1,4 @@
-<div style="text-align: center;">
+<div align="center">
 <img src=".github/assets/logo.svg" width="450px">
 
 ### ⚡ The blazingly fast in-memory vector database 🚀 
