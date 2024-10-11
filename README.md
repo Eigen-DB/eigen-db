@@ -40,7 +40,7 @@
 
 Our official documentation can be found [here](https://eigendb.mintlify.app/)!
 
-If you feel like we missed something, feel free to contribute to the docs! 
+If you feel like we missed something, feel free to [contribute](https://github.com/Eigen-DB/docs) to the docs! 
 
 ---
 
