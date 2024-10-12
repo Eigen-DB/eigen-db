@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"eigen_db/api/endpoints/health_check"
 	"eigen_db/api/endpoints/update_config/api"
 	"eigen_db/api/endpoints/update_config/hnsw_params"
@@ -10,17 +9,16 @@ import (
 	"eigen_db/api/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 )
 
 // Setups up the API router
 //
 // Returns the router at a pointer to a Gin Engine instance.
-func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	vectors := r.Group("/vector", middleware.AuthMiddleware(ctx, redisClient))
-	updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware(ctx, redisClient))
+	vectors := r.Group("/vector", middleware.AuthMiddleware())
+	updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware())
 
 	updatePersistence := updateConfigRoot.Group("/persistence")
 	updateApi := updateConfigRoot.Group("/api")
@@ -28,7 +26,7 @@ func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
 
 	// health check endpoints
 	r.GET("/health", health_check.Health)
-	r.POST("/test-auth", middleware.AuthMiddleware(ctx, redisClient), health_check.TestAuth)
+	r.POST("/test-auth", middleware.AuthMiddleware(), health_check.TestAuth)
 
 	// vector operation endpoints
 	vectors.PUT("/insert", vector.Insert)
@@ -50,8 +48,8 @@ func setupRouter(ctx context.Context, redisClient *redis.Client) *gin.Engine {
 // Starts the API server
 //
 // Returns an error if one occured.
-func StartAPI(ctx context.Context, addr string, redisClient *redis.Client) error {
-	r := setupRouter(ctx, redisClient)
+func StartAPI(addr string) error {
+	r := setupRouter()
 	err := r.Run(addr)
 	return err
 }

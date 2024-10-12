@@ -13,5 +13,5 @@ const DB_PERSIST_CHMOD fs.FileMode = 0600   // rw-------
 const CONFIG_CHMOD fs.FileMode = 0600       // rw-------
 const CONFIG_PATH string = EIGEN_DIR + "/config.yml"
 const TESTING_TMP_FILES_PATH string = "/tmp"
-const REDIS_API_KEY_NAME string = "apiKey"
+const ENV_VAR_API_KEY_NAME string = "EIGENDB_API_KEY"
 const MIDDLEWARE_API_KEY_HEADER string = "X-Eigen-API-Key"
