@@ -7,10 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/*
+TODO:
+- Check for unusual resource usage
+- Check that all endpoints function correctly
+- Return DB uptime
+*/
 func Health(c *gin.Context) {
-	// perform a test call to /test-auth
-	// ...
-
 	utils.SendResponse(
 		c,
 		http.StatusOK,

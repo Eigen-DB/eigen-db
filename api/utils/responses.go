@@ -12,7 +12,7 @@ import (
 //		"code": "SOME_CODE",
 //		"description": "some description..."
 //	}
-type ResErr struct {
+type resErr struct {
 	code        string
 	description any
 }
@@ -35,7 +35,7 @@ type ResErr struct {
 //			"description": "The requested resource could not be located"
 //		}
 //	}
-func SendResponse(ginCtx *gin.Context, statusCode int, message string, data map[string]any, err *ResErr) {
+func SendResponse(ginCtx *gin.Context, statusCode int, message string, data map[string]any, err *resErr) {
 	res := gin.H{
 		"status":  statusCode,
 		"message": message,
@@ -57,8 +57,8 @@ func SendResponse(ginCtx *gin.Context, statusCode int, message string, data map[
 // Creates an instance of ResErr given specified values
 //
 // Returns a pointer to the created instance.
-func CreateError(code string, desc any) *ResErr {
-	return &ResErr{
+func CreateError(code string, desc any) *resErr {
+	return &resErr{
 		code:        code,
 		description: desc,
 	}

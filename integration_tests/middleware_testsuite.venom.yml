@@ -7,7 +7,7 @@ testcases:
 - name: Authenticated request using valid API key
   steps:
   - type: http
-    method: POST
+    method: GET
     url: "{{.url}}/test-auth"
     headers:
       X-Eigen-API-Key: test
@@ -20,7 +20,7 @@ testcases:
 - name: Unauthenticated request using invalid API key
   steps:
   - type: http
-    method: POST
+    method: GET
     url: "{{.url}}/test-auth"
     headers:
       X-Eigen-API-Key: "12345"
@@ -35,7 +35,7 @@ testcases:
 - name: No header
   steps:
   - type: http
-    method: POST
+    method: GET
     url: "{{.url}}/test-auth"
     timeout: 5
     assertions:
