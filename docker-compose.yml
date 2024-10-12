@@ -8,22 +8,9 @@ services:
     volumes:
       - eigen_db:/app/eigen
     environment:
-      - REDIS_HOST=redis
       - GIN_MODE=release
       - TEST_MODE=0
-    depends_on: 
-     - redis
     restart: always
-
-  redis:
-    image: redis:latest
-    ports: 
-      - "127.0.0.1:6379:6379"
-    volumes:
-      - redis_data:/data
-    restart: always
-
 
 volumes:
   eigen_db:
-  redis_data:

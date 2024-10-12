@@ -1,11 +1,10 @@
 package main
 
 import (
-	"context"
 	"eigen_db/api"
+	"eigen_db/auth"
 	"eigen_db/cfg"
 	"eigen_db/constants"
-	"eigen_db/redis_utils"
 	"eigen_db/vector_io"
 	"flag"
 	"fmt"
@@ -15,14 +14,10 @@ import (
 func main() {
 	// parsing cmd line args
 	var apiKey string
-	var redisHost string
-	var redisPort string
-	var redisPass string
+	var regenApiKey bool
 
 	flag.StringVar(&apiKey, "api-key", "", "EigenDB API key")
-	flag.StringVar(&redisHost, "redis-host", "127.0.0.1", "Redis server host IP (default: 127.0.0.1)")
-	flag.StringVar(&redisPort, "redis-port", "6379", "Redis server host port (default: 6379)")
-	flag.StringVar(&redisPass, "redis-pass", "", "Redis server password (default: \"\")")
+	flag.BoolVar(&regenApiKey, "regen-api-key", false, "Regenerate the API key")
 	flag.Parse()
 
 	// setting up the in-memory config
@@ -53,18 +48,8 @@ func main() {
 		panic(err)
 	}
 
-	//setting up the Redis connection
-	ctx := context.Background()
-	os.Setenv("REDIS_HOST", redisHost)
-	os.Setenv("REDIS_PORT", redisPort)
-	os.Setenv("REDIS_PASS", redisPass)
-	redisClient, err := redis_utils.GetConnection(ctx)
-	if err != nil {
-		panic(err)
-	}
-
 	// setting up the API key
-	apiKey, err = redis_utils.SetupAPIKey(ctx, redisClient, apiKey, constants.API_KEY_FILE_PATH)
+	apiKey, err := auth.SetupAPIKey(apiKey, regenApiKey, constants.API_KEY_FILE_PATH)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +61,7 @@ func main() {
 	}
 
 	// setting up the REST API
-	if err := api.StartAPI(ctx, fmt.Sprintf("%s:%d", config.GetAPIAddress(), config.GetAPIPort()), redisClient); err != nil {
+	if err := api.StartAPI(fmt.Sprintf("%s:%d", config.GetAPIAddress(), config.GetAPIPort())); err != nil {
 		panic(err)
 	} else {
 		fmt.Println(apiKey)
