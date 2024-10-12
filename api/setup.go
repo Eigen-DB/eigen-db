@@ -26,7 +26,7 @@ func setupRouter() *gin.Engine {
 
 	// health check endpoints
 	r.GET("/health", health_check.Health)
-	r.POST("/test-auth", middleware.AuthMiddleware(), health_check.TestAuth)
+	r.GET("/test-auth", middleware.AuthMiddleware(), health_check.TestAuth)
 
 	// vector operation endpoints
 	vectors.PUT("/insert", vector.Insert)
