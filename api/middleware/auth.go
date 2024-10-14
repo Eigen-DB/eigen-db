@@ -1,18 +1,16 @@
 package middleware
 
 import (
-	"context"
 	"eigen_db/api/utils"
 	"eigen_db/constants"
-	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 )
 
 // simple API key authentication middleware
-func AuthMiddleware(ctx context.Context, redisClient *redis.Client) gin.HandlerFunc {
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		apiKey := c.Request.Header.Get(constants.MIDDLEWARE_API_KEY_HEADER)
 		if apiKey == "" {
@@ -27,21 +25,8 @@ func AuthMiddleware(ctx context.Context, redisClient *redis.Client) gin.HandlerF
 			return
 		}
 
-		val, err := redisClient.Get(ctx, "apiKey").Result()
-		if err != nil {
-			utils.SendResponse(
-				c,
-				http.StatusInternalServerError,
-				"Internal Server Error.",
-				nil,
-				nil,
-			)
-			c.Abort()
-			fmt.Println(err.Error())
-			return
-		}
-
-		if val != apiKey {
+		validKey := os.Getenv(constants.ENV_VAR_API_KEY_NAME)
+		if validKey != apiKey {
 			utils.SendResponse(
 				c,
 				http.StatusUnauthorized,
