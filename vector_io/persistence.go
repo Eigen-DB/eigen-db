@@ -65,9 +65,9 @@ func (store *vectorStore) loadPersistedStore(storePersistPath string, indexPersi
 	config := cfg.GetConfig()
 	index, err := hnswgo.LoadIndex(
 		indexPersistPath,
-		config.GetHNSWParamsDimensions(),
-		config.GetHNSWParamsSimilarityMetric().ToString(),
-		config.GetHNSWParamsSpaceSize(),
+		config.GetDimensions(),
+		config.GetSimilarityMetric().ToString(),
+		config.GetSpaceSize(),
 	)
 	if err != nil {
 		return err
