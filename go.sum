@@ -1,5 +1,5 @@
-github.com/Eigen-DB/hnswgo/v2 v2.1.1 h1:sWYD1FSkKhQQboX37sicMgnrPkJ83lBRCoQ6V8QTRrY=
-github.com/Eigen-DB/hnswgo/v2 v2.1.1/go.mod h1:nZQywRl7V3BioWqTyQU/i5j/XZ0q0ornioezr6WdDaM=
+github.com/Eigen-DB/hnswgo/v2 v2.2.0 h1:UAfZcxPK4NPgj0kKND3HrNO2Hjn8u3CeX6+THfCzYDI=
+github.com/Eigen-DB/hnswgo/v2 v2.2.0/go.mod h1:nZQywRl7V3BioWqTyQU/i5j/XZ0q0ornioezr6WdDaM=
 github.com/bytedance/sonic v1.11.6 h1:oUp34TzMlL+OY1OUWxHqsdkgC/Zfc85zGqw9siXjrc0=
 github.com/bytedance/sonic v1.11.6/go.mod h1:LysEHSvpvDySVdC2f87zGWf6CIKJcAvqab1ZaiQtds4=
 github.com/bytedance/sonic/loader v0.1.1 h1:c+e5Pt1k/cy5wMveRDyk2X4B9hF4g7an8N3zCYjJFNM=

@@ -3,7 +3,7 @@ module eigen_db
 go 1.20
 
 require (
-	github.com/Eigen-DB/hnswgo/v2 v2.1.1
+	github.com/Eigen-DB/hnswgo/v2 v2.2.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/shirou/gopsutil/v4 v4.24.9
 	github.com/stretchr/testify v1.9.0
