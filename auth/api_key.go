@@ -63,7 +63,7 @@ func SetupAPIKey(customApiKey string, regen bool, apiKeyFilePath string) (string
 		return "", err
 	}
 	key := string(keyBytes)
-	if err := os.Setenv("EIGENDB_API_KEY", key); err != nil { // load key into env vars for quick access
+	if err := os.Setenv(constants.ENV_VAR_API_KEY_NAME, key); err != nil { // load key into env vars for quick access
 		return "", err
 	}
 
