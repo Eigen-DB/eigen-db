@@ -20,7 +20,7 @@ func UpdateSpaceSize(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetHNSWParamsSpaceSize(body.UpdatedSize)
+	err := config.SetSpaceSize(body.UpdatedSize)
 	if err != nil {
 		utils.SendResponse(
 			c,

@@ -20,7 +20,7 @@ func UpdateEfConstruction(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetHNSWParamsEfConstruction(body.UpdatedEfConst)
+	err := config.SetEfConstruction(body.UpdatedEfConst)
 	if err != nil {
 		utils.SendResponse(
 			c,

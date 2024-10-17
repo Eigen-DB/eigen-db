@@ -20,22 +20,22 @@ func areAllValuesLoaded(t *testing.T, c *Config) {
 	assert.NotEqual(t, c.GetPersistenceTimeInterval(), 0, "Persistence Time Interval is not set (yaml: persistence.timeInterval)")
 	assert.NotEqual(t, c.GetAPIPort(), 0, "API Port is not set (yaml: api.port)")
 	assert.NotEqual(t, c.GetAPIAddress(), "", "API Address is not set (yaml: api.address)")
-	assert.NotEqual(t, c.GetHNSWParamsDimensions(), 0, "HNSWParams Dimensions is not set (yaml: hnswParams.dimensions)")
-	assert.NotEqual(t, c.GetHNSWParamsSimilarityMetric(), "", "HNSWParams Similarity Metric is not set (yaml: hnswParams.similarityMetric)")
-	assert.NotEqual(t, c.GetHNSWParamsSpaceSize(), 0, "HNSWParams Space Size is not set (yaml: hnswParams.vectorSpaceSize)")
-	assert.NotEqual(t, c.GetHNSWParamsM(), 0, "HNSWParams M is not set (yaml: hnswParams.M)")
-	assert.NotEqual(t, c.GetHNSWParamsEfConstruction(), 0, "HNSWParams Ef Construction is not set (yaml: hnswParams.efConstruction)")
+	assert.NotEqual(t, c.GetDimensions(), 0, "HNSWParams Dimensions is not set (yaml: hnswParams.dimensions)")
+	assert.NotEqual(t, c.GetSimilarityMetric(), "", "HNSWParams Similarity Metric is not set (yaml: hnswParams.similarityMetric)")
+	assert.NotEqual(t, c.GetSpaceSize(), 0, "HNSWParams Space Size is not set (yaml: hnswParams.vectorSpaceSize)")
+	assert.NotEqual(t, c.GetM(), 0, "HNSWParams M is not set (yaml: hnswParams.M)")
+	assert.NotEqual(t, c.GetEfConstruction(), 0, "HNSWParams Ef Construction is not set (yaml: hnswParams.efConstruction)")
 }
 
 func areConfigsIdentical(t *testing.T, c1 *Config, c2 *Config) {
 	assert.Equal(t, c1.GetPersistenceTimeInterval(), c2.GetPersistenceTimeInterval(), "PersistenceTimeInterval values do not match. configInMem: %v, customConfigStruct: %v", c2.GetPersistenceTimeInterval(), c1.GetPersistenceTimeInterval())
 	assert.Equal(t, c1.GetAPIPort(), c2.GetAPIPort(), "APIPort values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIPort(), c1.GetAPIPort())
 	assert.Equal(t, c1.GetAPIAddress(), c2.GetAPIAddress(), "APIAddress values do not match. configInMem: %v, customConfigStruct: %v", c2.GetAPIAddress(), c1.GetAPIAddress())
-	assert.Equal(t, c1.GetHNSWParamsDimensions(), c2.GetHNSWParamsDimensions(), "HNSWParamsDimensions values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsDimensions(), c1.GetHNSWParamsDimensions())
-	assert.Equal(t, c1.GetHNSWParamsSimilarityMetric(), c2.GetHNSWParamsSimilarityMetric(), "HNSWParamsSimilarityMetric values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsSimilarityMetric(), c1.GetHNSWParamsSimilarityMetric())
-	assert.Equal(t, c1.GetHNSWParamsSpaceSize(), c2.GetHNSWParamsSpaceSize(), "HNSWParamsSpaceSize values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsSpaceSize(), c1.GetHNSWParamsSpaceSize())
-	assert.Equal(t, c1.GetHNSWParamsM(), c2.GetHNSWParamsM(), "HNSWParamsM values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsM(), c1.GetHNSWParamsM())
-	assert.Equal(t, c1.GetHNSWParamsEfConstruction(), c2.GetHNSWParamsEfConstruction(), "HNSWParamsEfConstruction values do not match. configInMem: %v, customConfigStruct: %v", c2.GetHNSWParamsEfConstruction(), c1.GetHNSWParamsEfConstruction())
+	assert.Equal(t, c1.GetDimensions(), c2.GetDimensions(), "HNSWParamsDimensions values do not match. configInMem: %v, customConfigStruct: %v", c2.GetDimensions(), c1.GetDimensions())
+	assert.Equal(t, c1.GetSimilarityMetric(), c2.GetSimilarityMetric(), "HNSWParamsSimilarityMetric values do not match. configInMem: %v, customConfigStruct: %v", c2.GetSimilarityMetric(), c1.GetSimilarityMetric())
+	assert.Equal(t, c1.GetSpaceSize(), c2.GetSpaceSize(), "HNSWParamsSpaceSize values do not match. configInMem: %v, customConfigStruct: %v", c2.GetSpaceSize(), c1.GetSpaceSize())
+	assert.Equal(t, c1.GetM(), c2.GetM(), "HNSWParamsM values do not match. configInMem: %v, customConfigStruct: %v", c2.GetM(), c1.GetM())
+	assert.Equal(t, c1.GetEfConstruction(), c2.GetEfConstruction(), "HNSWParamsEfConstruction values do not match. configInMem: %v, customConfigStruct: %v", c2.GetEfConstruction(), c1.GetEfConstruction())
 }
 
 func TestPopulateConfig_success(t *testing.T) {

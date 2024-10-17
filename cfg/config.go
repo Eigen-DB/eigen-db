@@ -88,23 +88,23 @@ func (c *Config) GetAPIAddress() string {
 	return c.API.Address
 }
 
-func (c *Config) GetHNSWParamsDimensions() int {
+func (c *Config) GetDimensions() int {
 	return c.HNSWParams.Dimensions
 }
 
-func (c *Config) GetHNSWParamsSimilarityMetric() t.SimMetric {
+func (c *Config) GetSimilarityMetric() t.SimMetric {
 	return c.HNSWParams.SimilarityMetric
 }
 
-func (c *Config) GetHNSWParamsSpaceSize() uint32 {
+func (c *Config) GetSpaceSize() uint32 {
 	return c.HNSWParams.SpaceSize
 }
 
-func (c *Config) GetHNSWParamsM() int {
+func (c *Config) GetM() int {
 	return c.HNSWParams.M
 }
 
-func (c *Config) GetHNSWParamsEfConstruction() int {
+func (c *Config) GetEfConstruction() int {
 	return c.HNSWParams.EfConstruction
 }
 
@@ -123,27 +123,27 @@ func (c *Config) SetAPIAddress(address string) error {
 	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsDimensions(dimensions int) error {
+func (c *Config) SetDimensions(dimensions int) error {
 	c.HNSWParams.Dimensions = dimensions
 	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsSimilarityMetric(similarityMetric t.SimMetric) error {
+func (c *Config) SetSimilarityMetric(similarityMetric t.SimMetric) error {
 	c.HNSWParams.SimilarityMetric = similarityMetric
 	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsSpaceSize(spaceSize uint32) error {
+func (c *Config) SetSpaceSize(spaceSize uint32) error {
 	c.HNSWParams.SpaceSize = spaceSize
 	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsM(M int) error {
+func (c *Config) SetM(M int) error {
 	c.HNSWParams.M = M
 	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetHNSWParamsEfConstruction(efConstruction int) error {
+func (c *Config) SetEfConstruction(efConstruction int) error {
 	c.HNSWParams.EfConstruction = efConstruction
 	return c.writeToDisk(constants.CONFIG_PATH)
 }

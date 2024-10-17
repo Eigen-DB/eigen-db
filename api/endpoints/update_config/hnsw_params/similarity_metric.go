@@ -32,7 +32,7 @@ func UpdateSimilarityMetric(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	if err := config.SetHNSWParamsSimilarityMetric(body.UpdatedMetric); err != nil {
+	if err := config.SetSimilarityMetric(body.UpdatedMetric); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

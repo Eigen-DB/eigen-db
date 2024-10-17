@@ -20,7 +20,7 @@ func UpdateM(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetHNSWParamsM(body.UpdatedM)
+	err := config.SetM(body.UpdatedM)
 	if err != nil {
 		utils.SendResponse(
 			c,
