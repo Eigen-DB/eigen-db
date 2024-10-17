@@ -5,6 +5,7 @@ import (
 	"eigen_db/auth"
 	"eigen_db/cfg"
 	"eigen_db/constants"
+	"eigen_db/metrics"
 	"eigen_db/vector_io"
 	"flag"
 	"fmt"
@@ -12,6 +13,9 @@ import (
 )
 
 func main() {
+	// initialize the metrics
+	metrics.Init()
+
 	// parsing cmd line args
 	var apiKey string
 	var regenApiKey bool
@@ -31,7 +35,7 @@ func main() {
 	if os.Getenv("TEST_MODE") == "1" {
 		fmt.Println("*** EigenDB running in TEST_MODE, making the API key = \"test\". If this was not intentional, please run EigenDB in standard mode. ***")
 		apiKey = "test"
-		if err := config.SetHNSWParamsDimensions(2); err != nil { // setting dimensions to 2 for the tests
+		if err := config.SetDimensions(2); err != nil { // setting dimensions to 2 for the tests
 			fmt.Println("An error occured when setting the dimensions to 2.")
 			panic(err)
 		}
@@ -39,11 +43,11 @@ func main() {
 
 	// setting up the in-memory vector store
 	if err := vector_io.InstantiateVectorStore(
-		config.GetHNSWParamsDimensions(),
-		config.GetHNSWParamsSimilarityMetric(),
-		config.GetHNSWParamsSpaceSize(),
-		config.GetHNSWParamsM(),
-		config.GetHNSWParamsEfConstruction(),
+		config.GetDimensions(),
+		config.GetSimilarityMetric(),
+		config.GetSpaceSize(),
+		config.GetM(),
+		config.GetEfConstruction(),
 	); err != nil {
 		panic(err)
 	}

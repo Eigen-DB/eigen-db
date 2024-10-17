@@ -10,15 +10,15 @@ import (
 //
 // Each vector has an ID and an embedding.
 type Vector struct {
-	Id        t.VecId     `json:"id"`
-	Embedding t.Embedding `json:"components"`
+	Id        t.VecId
+	Embedding t.Embedding
 }
 
 // Creates a new vector with the specified embedding.
 //
 // Returns a pointer to the new Vector, or an error if one occured.
 func NewVector(embedding t.Embedding) (*Vector, error) {
-	dimensions := cfg.GetConfig().GetHNSWParamsDimensions()
+	dimensions := cfg.GetConfig().GetDimensions()
 	if len(embedding) == dimensions {
 		v := &Vector{}
 		v.Embedding = embedding

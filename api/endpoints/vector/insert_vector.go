@@ -11,7 +11,7 @@ import (
 )
 
 type insertRequestBody struct {
-	Components t.Embedding `json:"components" binding:"required"`
+	Embedding t.Embedding `json:"embedding" binding:"required"`
 }
 
 func Insert(c *gin.Context) {
@@ -20,7 +20,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	v, err := vector_io.NewVector(body.Components)
+	v, err := vector_io.NewVector(body.Embedding)
 	if err != nil {
 		utils.SendResponse(
 			c,
