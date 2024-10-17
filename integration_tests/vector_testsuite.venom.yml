@@ -131,7 +131,7 @@ testcases:
   - type: http
     method: PUT
     url: "{{.url}}/vector/insert"
-    body: "{\"components\": [1,2]}"
+    body: "{\"embedding\": [1,2]}"
     headers:
       X-Eigen-API-Key: test
     timeout: 5
@@ -145,7 +145,7 @@ testcases:
   - type: http
     method: PUT
     url: "{{.url}}/vector/insert"
-    body: "{\"components\": [1,2,3]}"
+    body: "{\"embedding\": [1,2,3]}"
     headers:
       X-Eigen-API-Key: test
     timeout: 5
