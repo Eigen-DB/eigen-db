@@ -29,7 +29,7 @@ func getVector(id t.VecId) (*Vector, error) {
 		return nil, err
 	}
 
-	v, err := NewVector(vector)
+	v, err := NewVector(vector, id)
 	if err != nil {
 		return nil, err
 	}
