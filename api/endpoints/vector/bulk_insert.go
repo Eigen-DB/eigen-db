@@ -2,7 +2,6 @@ package vector
 
 import (
 	"eigen_db/api/utils"
-	t "eigen_db/types"
 	"eigen_db/vector_io"
 	"fmt"
 	"net/http"
@@ -11,7 +10,7 @@ import (
 )
 
 type bulkInsertRequestBody struct {
-	Embeddings []t.Embedding `json:"embeddings" binding:"required"`
+	Vectors []vector_io.Vector `json:"vectors" binding:"required"`
 }
 
 func BulkInsert(c *gin.Context) {
@@ -22,15 +21,15 @@ func BulkInsert(c *gin.Context) {
 
 	vectorsInserted := 0
 	errors := make([]string, 0)
-	for i, components := range body.Embeddings {
-		v, err := vector_io.NewVector(components)
+	for _, vector := range body.Vectors {
+		v, err := vector_io.NewVector(vector.Embedding, vector.Id)
 		if err != nil {
-			errors = append(errors, fmt.Sprintf("vector %d was skipped - %s", i+1, err.Error()))
+			errors = append(errors, fmt.Sprintf("vector with ID %d was skipped - %s", vector.Id, err.Error()))
 			continue
 		}
 
 		if err := vector_io.InsertVector(v); err != nil {
-			errors = append(errors, fmt.Sprintf("vector %d was skipped - %s", i+1, err.Error()))
+			errors = append(errors, fmt.Sprintf("vector with ID %d was skipped - %s", vector.Id, err.Error()))
 		} else {
 			vectorsInserted++
 		}
@@ -40,7 +39,7 @@ func BulkInsert(c *gin.Context) {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,
-			fmt.Sprintf("%d/%d vectors successfully inserted.", vectorsInserted, len(body.Embeddings)),
+			fmt.Sprintf("%d/%d vectors successfully inserted.", vectorsInserted, len(body.Vectors)),
 			nil,
 			utils.CreateError("VECTORS_SKIPPED", errors),
 		)
@@ -48,7 +47,7 @@ func BulkInsert(c *gin.Context) {
 		utils.SendResponse(
 			c,
 			http.StatusOK,
-			fmt.Sprintf("%d/%d vectors successfully inserted.", vectorsInserted, len(body.Embeddings)),
+			fmt.Sprintf("%d/%d vectors successfully inserted.", vectorsInserted, len(body.Vectors)),
 			nil,
 			nil,
 		)
