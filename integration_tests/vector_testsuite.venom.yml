@@ -11,56 +11,56 @@ testcases:
     url: "{{.url}}/vector/bulk-insert"
     body: > 
       {
-        "embeddings": [
-          [3.2, -1.5],
-          [4.7, 2.1],
-          [-6.3, 3.4],
-          [0.9, -4.8],
-          [-2.7, 5.6],
-          [1.3, -3.9],
-          [2.4, 6.1],
-          [-1.1, 3.0],
-          [5.5, -2.2],
-          [0.0, 4.4],
-          [-3.6, -0.7],
-          [4.1, 5.3],
-          [-2.9, 2.8],
-          [3.7, -3.6],
-          [1.0, 0.5],
-          [5.9, 1.7],
-          [-4.4, -3.2],
-          [2.8, 4.9],
-          [-1.5, -2.4],
-          [3.3, 1.6],
-          [4.6, -1.3],
-          [-2.1, 3.7],
-          [1.8, -5.4],
-          [3.9, 2.5],
-          [-1.4, 4.2],
-          [0.2, -3.1],
-          [5.1, 1.3],
-          [-2.8, -1.7],
-          [3.0, 5.5],
-          [1.5, -2.8],
-          [-4.9, 3.1],
-          [2.6, -4.5],
-          [0.7, 3.8],
-          [-3.3, 2.2],
-          [4.0, -0.9],
-          [-1.2, 4.9],
-          [3.4, -2.6],
-          [0.6, 1.8],
-          [-2.5, -3.9],
-          [5.3, 2.0],
-          [-0.8, 3.3],
-          [2.1, -4.2],
-          [4.5, 1.4],
-          [-3.7, -2.5],
-          [1.9, 3.6],
-          [0.3, -5.1],
-          [4.8, -3.0],
-          [-1.6, 2.9],
-          [2.9, -4.0]
+        "vectors": [
+          {"embedding": [3.2, -1.5], "id": 1},
+          {"embedding": [4.7, 2.1], "id": 2},
+          {"embedding": [-6.3, 3.4], "id": 3},
+          {"embedding": [0.9, -4.8], "id": 4},
+          {"embedding": [-2.7, 5.6], "id": 5},
+          {"embedding": [1.3, -3.9], "id": 6},
+          {"embedding": [2.4, 6.1], "id": 7},
+          {"embedding": [-1.1, 3.0], "id": 8},
+          {"embedding": [5.5, -2.2], "id": 9},
+          {"embedding": [0.0, 4.4], "id": 10},
+          {"embedding": [-3.6, -0.7], "id": 11},
+          {"embedding": [4.1, 5.3], "id": 12},
+          {"embedding": [-2.9, 2.8], "id": 13},
+          {"embedding": [3.7, -3.6], "id": 14},
+          {"embedding": [1.0, 0.5], "id": 15},
+          {"embedding": [5.9, 1.7], "id": 16},
+          {"embedding": [-4.4, -3.2], "id": 17},
+          {"embedding": [2.8, 4.9], "id": 18},
+          {"embedding": [-1.5, -2.4], "id": 19},
+          {"embedding": [3.3, 1.6], "id": 20},
+          {"embedding": [4.6, -1.3], "id": 21},
+          {"embedding": [-2.1, 3.7], "id": 22},
+          {"embedding": [1.8, -5.4], "id": 23},
+          {"embedding": [3.9, 2.5], "id": 24},
+          {"embedding": [-1.4, 4.2], "id": 25},
+          {"embedding": [0.2, -3.1], "id": 26},
+          {"embedding": [5.1, 1.3], "id": 27},
+          {"embedding": [-2.8, -1.7], "id": 28},
+          {"embedding": [3.0, 5.5], "id": 29},
+          {"embedding": [1.5, -2.8], "id": 30},
+          {"embedding": [-4.9, 3.1], "id": 31},
+          {"embedding": [2.6, -4.5], "id": 32},
+          {"embedding": [0.7, 3.8], "id": 33},
+          {"embedding": [-3.3, 2.2], "id": 34},
+          {"embedding": [4.0, -0.9], "id": 35},
+          {"embedding": [-1.2, 4.9], "id": 36},
+          {"embedding": [3.4, -2.6], "id": 37},
+          {"embedding": [0.6, 1.8], "id": 38},
+          {"embedding": [-2.5, -3.9], "id": 39},
+          {"embedding": [5.3, 2.0], "id": 40},
+          {"embedding": [-0.8, 3.3], "id": 41},
+          {"embedding": [2.1, -4.2], "id": 42},
+          {"embedding": [4.5, 1.4], "id": 43},
+          {"embedding": [-3.7, -2.5], "id": 44},
+          {"embedding": [1.9, 3.6], "id": 45},
+          {"embedding": [0.3, -5.1], "id": 46},
+          {"embedding": [4.8, -3.0], "id": 47},
+          {"embedding": [-1.6, 2.9], "id": 48},
+          {"embedding": [2.9, -4.0], "id": 49}
         ]
       }
     headers:
@@ -131,7 +131,13 @@ testcases:
   - type: http
     method: PUT
     url: "{{.url}}/vector/insert"
-    body: "{\"embedding\": [1,2]}"
+    body: >
+      {
+        "vector": {
+          "embedding": [1,2], 
+          "id": 200
+        }
+      }
     headers:
       X-Eigen-API-Key: test
     timeout: 5
@@ -145,7 +151,13 @@ testcases:
   - type: http
     method: PUT
     url: "{{.url}}/vector/insert"
-    body: "{\"embedding\": [1,2,3]}"
+    body: >
+      {
+        "vector": {
+          "embedding": [1,2,3],
+          "id": 201
+        }
+      }
     headers:
       X-Eigen-API-Key: test
     timeout: 5
@@ -155,6 +167,28 @@ testcases:
     - result.bodyjson.status ShouldEqual 400
     - result.bodyjson.error.code ShouldEqual "INVALID_VECTOR_PROVIDED"
     - result.bodyjson.error.description ShouldEqual "provided a 3-dimensional vector while the vector space is 2-dimensional"
+
+- name: Test vector insertion (ID already exists)
+  steps:
+  - type: http
+    method: PUT
+    url: "{{.url}}/vector/insert"
+    body: >
+      {
+        "vector": {
+          "embedding": [3,4],
+          "id": 1
+        }
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "An error occured when inserting your vector."
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.error.code ShouldEqual "CANNOT_INSERT_VECTOR"
+    - result.bodyjson.error.description ShouldEqual "a vector with label 1 already exists in the index"
 
 - name: Test vector insertion (invalid request body)
   steps:
@@ -177,7 +211,14 @@ testcases:
   - type: http
     method: PUT
     url: "{{.url}}/vector/bulk-insert"
-    body: "{\"embeddings\": [[1.4, 2.3, 1], [3.4, 2.1, 2], [-5.2, 2.3]]}"
+    body: >
+      {
+        "vectors": [
+          {"embedding": [3.2, -1.5, 1], "id": 100},
+          {"embedding": [4.7, 2.1, 1], "id": 101},
+          {"embedding": [-6.3, 3.4], "id": 102}
+        ]
+      }
     headers:
       X-Eigen-API-Key: test
     timeout: 5
@@ -186,8 +227,8 @@ testcases:
     - result.bodyjson.message ShouldEqual "1/3 vectors successfully inserted."
     - result.bodyjson.status ShouldEqual 500
     - result.bodyjson.error.code ShouldEqual "VECTORS_SKIPPED"
-    - result.bodyjson.error.description ShouldContain "vector 1 was skipped - provided a 3-dimensional vector while the vector space is 2-dimensional"
-    - result.bodyjson.error.description ShouldContain "vector 2 was skipped - provided a 3-dimensional vector while the vector space is 2-dimensional"
+    - result.bodyjson.error.description ShouldContain "vector with ID 100 was skipped - provided a 3-dimensional vector while the vector space is 2-dimensional"
+    - result.bodyjson.error.description ShouldContain "vector with ID 101 was skipped - provided a 3-dimensional vector while the vector space is 2-dimensional"
 
 - name: Test vector bulk-insertion (invalid request body)
   steps:

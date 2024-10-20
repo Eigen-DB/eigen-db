@@ -5,13 +5,11 @@ import (
 	"eigen_db/vector_io"
 	"net/http"
 
-	t "eigen_db/types"
-
 	"github.com/gin-gonic/gin"
 )
 
 type insertRequestBody struct {
-	Embedding t.Embedding `json:"embedding" binding:"required"`
+	Vector vector_io.Vector `json:"vector" binding:"required"`
 }
 
 func Insert(c *gin.Context) {
@@ -20,7 +18,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	v, err := vector_io.NewVector(body.Embedding)
+	v, err := vector_io.NewVector(body.Vector.Embedding, body.Vector.Id)
 	if err != nil {
 		utils.SendResponse(
 			c,
