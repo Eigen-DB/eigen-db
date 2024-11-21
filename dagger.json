@@ -1,0 +1,6 @@
+{
+  "name": "eigen-db",
+  "engineVersion": "v0.14.0",
+  "sdk": "python",
+  "source": "dagger"
+}
