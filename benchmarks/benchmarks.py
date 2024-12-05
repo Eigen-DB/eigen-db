@@ -1,98 +1,59 @@
 #!/usr/bin/python3
 
-# WORK IN PROGRESS! 
-# Working on gathering performance metrics 
-
 import requests
 import json
+import random
 from time import time
 
-BASE_URL = "http://127.0.0.1:8080"
-API_KEY = "7e691a0cfae65c1254fb8f9879fa6e2d31e1700b5556500d39230a12a066fe22" # change this to proper API key
+EIGEN_ENDPOINT = "http://127.0.0.1:8080"
+API_KEY = "20417e0c21cea44e4b4fc90a06f57658" # change this to proper API key
 
-def setup() -> None:
-    req_body = {
-        "setOfComponents": [
-            [3.2, -1.5],
-            [4.7, 2.1],
-            [-6.3, 3.4],
-            [0.9, -4.8],
-            [-2.7, 5.6],
-            [1.3, -3.9],
-            [2.4, 6.1],
-            [-1.1, 3.0],
-            [5.5, -2.2],
-            [0.0, 4.4],
-            [-3.6, -0.7],
-            [4.1, 5.3],
-            [-2.9, 2.8],
-            [3.7, -3.6],
-            [1.0, 0.5],
-            [5.9, 1.7],
-            [-4.4, -3.2],
-            [2.8, 4.9],
-            [-1.5, -2.4],
-            [3.3, 1.6],
-            [4.6, -1.3],
-            [-2.1, 3.7],
-            [1.8, -5.4],
-            [3.9, 2.5],
-            [-1.4, 4.2],
-            [0.2, -3.1],
-            [5.1, 1.3],
-            [-2.8, -1.7],
-            [3.0, 5.5],
-            [1.5, -2.8],
-            [-4.9, 3.1],
-            [2.6, -4.5],
-            [0.7, 3.8],
-            [-3.3, 2.2],
-            [4.0, -0.9],
-            [-1.2, 4.9],
-            [3.4, -2.6],
-            [0.6, 1.8],
-            [-2.5, -3.9],
-            [5.3, 2.0],
-            [-0.8, 3.3],
-            [2.1, -4.2],
-            [4.5, 1.4],
-            [-3.7, -2.5],
-            [1.9, 3.6],
-            [0.3, -5.1],
-            [4.8, -3.0],
-            [-1.6, 2.9],
-            [2.9, -4.0]
-        ]
-    }
-    num_of_vectors = len(req_body['setOfComponents'])
+####### HELPER FUNCTIONS #######
+
+def create_random_vector(dim: int) -> "list[float]":
+    v = []
+    for i in range(dim):
+        v.append(random.uniform(0.0, 200.0))
+    return v
+
+def setup(num_vectors: int, dim: int) -> None:
+    req_body = {"vectors": []}
+    for i in range(num_vectors):
+        req_body["vectors"].append({
+            "embedding": create_random_vector(dim),
+            "id": i+1
+        })
+
     req = requests.put(
-        url=BASE_URL + "/vector/bulk-insert",
+        url=EIGEN_ENDPOINT + "/vector/bulk-insert",
         data=json.dumps(req_body),
         headers={
             "X-Eigen-API-Key": API_KEY
         }
     )
 
-    if req.status_code != 200 or req.content.decode() != f"{num_of_vectors}/{num_of_vectors} vectors successfully inserted.":
+    if req.status_code != 200 or json.loads(req.content.decode()).get("message") != f"{num_vectors}/{num_vectors} vectors successfully inserted.":
         print(f"ERROR: request to /vector/bulk-insert failed. Response: {req.content.decode()}")
         exit(1)
 
+
+####### BENCHMARKING FUNCTIONS ####### 
+
 '''
-Returns avg times (seconds) to perform the indexing.
+Returns mean time in seconds to perform similarity search.
 '''
-def benchmark_indexing() -> float:
-    times = []
-    num_of_trials = 100
+def benchmark_indexing(num_vectors: int, num_trials: int, k: int) -> float:
+    times_secs = []
 
     req_body = {
-        'queryVectorId': 1,
-        'k': 5
+        'queryVectorId': random.randint(1, num_vectors),
+        'k': k
     }
 
-    for i in range(num_of_trials):
+    for i in range(num_trials):
         start = time()
         req = requests.get(
-            url=BASE_URL + "/vector/search",
+            url=EIGEN_ENDPOINT + "/vector/search",
             data=json.dumps(req_body),
             headers={
                 "X-Eigen-API-Key": API_KEY
@@ -103,17 +64,62 @@ def benchmark_indexing() -> float:
         if req.status_code != 200:
             print(f"ERROR: request to /vector/search failed. Response: {req.content.decode()}")
         else:
-            times.append(end - start)
+            times_secs.append(end - start)
     
-    return sum(times) / len(times)
+    return sum(times_secs) / len(times_secs)
 
+'''
+Returns the mean time in seconds to insert a vector
+'''
+def benchmark_inserting(num_vectors: int, dim: int, num_trials: int) -> float:
+    times_secs = []
+    req_body = {
+        "vector": {
+            "embedding": create_random_vector(dim),
+            "id": None # set dynamically during trials
+        }
+    }
+
+    for i in range(num_trials):
+        start = time()
+        req_body["vector"]["id"] = num_vectors + i + 1
+        req = requests.put(
+            url=EIGEN_ENDPOINT + "/vector/insert",
+            data=json.dumps(req_body),
+            headers={
+                "X-Eigen-API-Key": API_KEY
+            }
+        )
+        end = time()
+
+        if req.status_code != 200:
+            print(f"ERROR: request to /vector/search failed. Response: {req.content.decode()}")
+        else:
+            times_secs.append(end - start)
+
+    return sum(times_secs) / len(times_secs)
 
 
 
 
 if __name__ == "__main__":
-    setup()
+    #setup(
+    #    num_vectors=10_000, 
+    #    dim=512
+    #)
 
-    mean = benchmark_indexing()
-    print(mean)
+    index_mean = benchmark_indexing(
+        num_vectors=10_000,
+        num_trials=100, 
+        k=50
+    )
+    print(f"index mean: {index_mean}s")
+
+    insert_mean = benchmark_inserting(
+        num_vectors=10_000,
+        num_trials=100,
+        dim=512
+    )
+    print(f"insert mean: {insert_mean}s")
+
     exit(0)
