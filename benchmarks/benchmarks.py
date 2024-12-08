@@ -3,10 +3,67 @@
 import requests
 import json
 import random
+import os
 from time import time
 
 EIGEN_ENDPOINT = "http://127.0.0.1:8080"
 API_KEY = "20417e0c21cea44e4b4fc90a06f57658" # change this to proper API key
+TEST_PARAMS = [
+    {
+        "num_vectors": 1_000,
+        "num_trials": 100,
+        "k": 10,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 1_000,
+        "num_trials": 100,
+        "k": 50,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 1_000,
+        "num_trials": 100,
+        "k": 100,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 10_000,
+        "num_trials": 100,
+        "k": 10,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 10_000,
+        "num_trials": 100,
+        "k": 50,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 10_000,
+        "num_trials": 100,
+        "k": 100,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 100_000,
+        "num_trials": 100,
+        "k": 10,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 100_000,
+        "num_trials": 100,
+        "k": 50,
+        "dim": 512,
+    },
+    {
+        "num_vectors": 100_000,
+        "num_trials": 100,
+        "k": 100,
+        "dim": 512,
+    },
+]
 
 ####### HELPER FUNCTIONS #######
 
@@ -36,6 +93,12 @@ def setup(num_vectors: int, dim: int) -> None:
         print(f"ERROR: request to /vector/bulk-insert failed. Response: {req.content.decode()}")
         exit(1)
 
+def cleanup() -> None:
+    if os.path.exists("../eigen/hnsw_index.bin"):
+        os.remove("../eigen/hnsw_index.bin")  
+
+    if os.path.exists("../eigen/vector_space.vec"):
+        os.remove("../eigen/vector_space.vec")    
 
 ####### BENCHMARKING FUNCTIONS ####### 
 
@@ -103,23 +166,34 @@ def benchmark_inserting(num_vectors: int, dim: int, num_trials: int) -> float:
 
 
 if __name__ == "__main__":
-    #setup(
-    #    num_vectors=10_000, 
-    #    dim=512
-    #)
+    param = {
+        "num_vectors": 1_000,
+        "num_trials": 100,
+        "k": 10,
+        "dim": 512,
+    }
+
+    print(f"Metrics for the following params:\n{json.dumps(param, indent=4)}")
+
+    setup(
+        num_vectors=param["num_vectors"], 
+        dim=param["dim"]
+    )
 
     index_mean = benchmark_indexing(
-        num_vectors=10_000,
-        num_trials=100, 
-        k=50
+        num_vectors=param["num_vectors"],
+        num_trials=param["num_trials"], 
+        k=param["k"]
     )
     print(f"index mean: {index_mean}s")
 
     insert_mean = benchmark_inserting(
-        num_vectors=10_000,
-        num_trials=100,
-        dim=512
+        num_vectors=param["num_vectors"],
+        num_trials=param["num_trials"],
+        dim=param["dim"]
     )
     print(f"insert mean: {insert_mean}s")
+
+    cleanup()
 
     exit(0)
