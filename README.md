@@ -57,6 +57,10 @@ Email: ryanawad@yahoo.com
 
 LinkedIn: https://www.linkedin.com/in/ryanawad/
 
+---
+
+Made with ❤️ by developers, for developers.
+
 
 <!--
 Payload to `/vector/bulk-insert` to create test data (must use 2D vector space) and a [visual](https://www.desmos.com/calculator/pjjei9akcx):
