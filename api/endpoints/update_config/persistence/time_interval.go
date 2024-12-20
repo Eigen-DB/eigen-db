@@ -3,6 +3,7 @@ package persistence
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"eigen_db/constants"
 	"fmt"
 	"net/http"
 	"time"
@@ -21,7 +22,8 @@ func UpdateTimeInterval(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9))
+	config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9))
+	err := config.WriteToDisk(constants.CONFIG_PATH)
 	if err != nil {
 		utils.SendResponse(
 			c,

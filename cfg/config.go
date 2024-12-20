@@ -35,7 +35,7 @@ func instantiateConfig() {
 	config = new(Config)
 }
 
-// Returns a pointer to the in-memort config
+// Returns a pointer to the in-memory config
 func GetConfig() *Config {
 	return config
 }
@@ -43,7 +43,7 @@ func GetConfig() *Config {
 // Writes the in-memory config to disk as a YAML file at "configPath"
 //
 // Returns an error if one occured.
-func (c *Config) writeToDisk(configPath string) error {
+func (c *Config) WriteToDisk(configPath string) error {
 	cfgYaml, err := yaml.Marshal(config)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (c *Config) populateConfig(configPath string) error {
 }
 
 // Config getters and setters:
-// NOTE: the setters update the specified value in-memory AND on disk.
+// NOTE: the setters update the specified value in-memory ONLY.
 
 func (c *Config) GetPersistenceTimeInterval() time.Duration {
 	return c.Persistence.TimeInterval
@@ -108,42 +108,34 @@ func (c *Config) GetEfConstruction() int {
 	return c.HNSWParams.EfConstruction
 }
 
-func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) error {
+func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) {
 	c.Persistence.TimeInterval = timeInterval
-	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetAPIPort(port int) error {
+func (c *Config) SetAPIPort(port int) {
 	c.API.Port = port
-	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetAPIAddress(address string) error {
+func (c *Config) SetAPIAddress(address string) {
 	c.API.Address = address
-	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetDimensions(dimensions int) error {
+func (c *Config) SetDimensions(dimensions int) {
 	c.HNSWParams.Dimensions = dimensions
-	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetSimilarityMetric(similarityMetric t.SimMetric) error {
+func (c *Config) SetSimilarityMetric(similarityMetric t.SimMetric) {
 	c.HNSWParams.SimilarityMetric = similarityMetric
-	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetSpaceSize(spaceSize uint32) error {
+func (c *Config) SetSpaceSize(spaceSize uint32) {
 	c.HNSWParams.SpaceSize = spaceSize
-	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetM(M int) error {
+func (c *Config) SetM(M int) {
 	c.HNSWParams.M = M
-	return c.writeToDisk(constants.CONFIG_PATH)
 }
 
-func (c *Config) SetEfConstruction(efConstruction int) error {
+func (c *Config) SetEfConstruction(efConstruction int) {
 	c.HNSWParams.EfConstruction = efConstruction
-	return c.writeToDisk(constants.CONFIG_PATH)
 }

@@ -1,9 +1,9 @@
 eigen_db
-eigen/vector_space.vec
 integration_tests/*.log
 integration_tests/logs/
-eigen/hnsw_index.bin
-eigen/api_key.txt
+eigen/*
 node_modules/
 benchmarks/*.log
 benchmarks/*_mean_*.csv
+
+!eigen/.keep

@@ -3,6 +3,7 @@ package hnsw_params
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"eigen_db/constants"
 	"fmt"
 	"net/http"
 
@@ -20,7 +21,8 @@ func UpdateM(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetM(body.UpdatedM)
+	config.SetM(body.UpdatedM)
+	err := config.WriteToDisk(constants.CONFIG_PATH)
 	if err != nil {
 		utils.SendResponse(
 			c,
