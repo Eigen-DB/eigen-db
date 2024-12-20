@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/Eigen-DB/hnswgo/v2 v2.2.0
 	github.com/gin-gonic/gin v1.10.0
+	github.com/manifoldco/promptui v0.9.0
 	github.com/shirou/gopsutil/v4 v4.24.9
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -13,6 +14,7 @@ require (
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

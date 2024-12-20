@@ -3,6 +3,7 @@ package api
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"eigen_db/constants"
 	"fmt"
 	"net/http"
 
@@ -20,7 +21,8 @@ func UpdateAddress(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetAPIAddress(body.UpdatedAddress)
+	config.SetAPIAddress(body.UpdatedAddress)
+	err := config.WriteToDisk(constants.CONFIG_PATH)
 	if err != nil {
 		utils.SendResponse(
 			c,

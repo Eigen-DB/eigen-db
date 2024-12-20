@@ -3,6 +3,7 @@ package api
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"eigen_db/constants"
 	"fmt"
 	"net/http"
 
@@ -20,7 +21,8 @@ func UpdatePort(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetAPIPort(body.UpdatedPort)
+	config.SetAPIPort(body.UpdatedPort)
+	err := config.WriteToDisk(constants.CONFIG_PATH)
 	if err != nil {
 		utils.SendResponse(
 			c,
