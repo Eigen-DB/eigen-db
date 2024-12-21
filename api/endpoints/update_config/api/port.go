@@ -21,9 +21,17 @@ func UpdatePort(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetAPIPort(body.UpdatedPort)
-	err := config.WriteToDisk(constants.CONFIG_PATH)
-	if err != nil {
+	if err := config.SetAPIPort(body.UpdatedPort); err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusBadRequest,
+			"Invalid API port.",
+			nil,
+			utils.CreateError("INVALID_API_PORT", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

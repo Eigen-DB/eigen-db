@@ -21,9 +21,17 @@ func UpdateEfConstruction(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetEfConstruction(body.UpdatedEfConst)
-	err := config.WriteToDisk(constants.CONFIG_PATH)
-	if err != nil {
+	if err := config.SetEfConstruction(body.UpdatedEfConst); err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusBadRequest,
+			"Invalid erConstruction parameter.",
+			nil,
+			utils.CreateError("INVALID_EF_CONSTRUCTION", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

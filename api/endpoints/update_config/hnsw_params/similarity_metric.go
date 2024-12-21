@@ -21,19 +21,17 @@ func UpdateSimilarityMetric(c *gin.Context) {
 		return
 	}
 
-	if err := body.UpdatedMetric.Validate(); err != nil {
+	config := cfg.GetConfig()
+	if err := config.SetSimilarityMetric(body.UpdatedMetric); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusBadRequest,
 			"Something went wrong when trying to update the similarity metric.",
 			nil,
-			utils.CreateError("INVALID_SIMILARITY_METRIC", err.Error()),
+			utils.CreateError("INVALID_SIMILARITY_METRIC", fmt.Sprintf("Error: %s", err.Error())),
 		)
 		return
 	}
-
-	config := cfg.GetConfig()
-	config.SetSimilarityMetric(body.UpdatedMetric)
 	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,

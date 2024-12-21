@@ -6,10 +6,13 @@ import (
 	"eigen_db/cfg"
 	"eigen_db/constants"
 	"eigen_db/metrics"
+	"eigen_db/types"
 	"eigen_db/vector_io"
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 )
 
 func main() {
@@ -19,9 +22,28 @@ func main() {
 	// parsing cmd line args
 	var apiKey string
 	var regenApiKey bool
+	var overrideConfig bool
+	var persistenceTimeInterval time.Duration
+	var apiPort int
+	var apiAddress string
+	var hnswDimensions int
+	var hnswSimilarityMetric string
+	var hnswVectorSpaceSize string // take argument as string and cast as uint32
+	var hnswM int
+	var hnswEfConstruction int
 
 	flag.StringVar(&apiKey, "api-key", "", "EigenDB API key")
 	flag.BoolVar(&regenApiKey, "regen-api-key", false, "Regenerate the API key")
+
+	flag.BoolVar(&overrideConfig, "override-config", false, "Allow the overriding of configuration values")
+	flag.DurationVar(&persistenceTimeInterval, "persistence.timeInterval", time.Duration(0), "How often should data be persisted to disk (secs)")
+	flag.IntVar(&apiPort, "api.port", 0, "API port")
+	flag.StringVar(&apiAddress, "api.address", "", "API address")
+	flag.IntVar(&hnswDimensions, "hnsw.dimensions", 0, "HNSW dimensions")
+	flag.StringVar(&hnswSimilarityMetric, "hnsw.similarityMetric", "", "HNSW similarity metric")
+	flag.StringVar(&hnswVectorSpaceSize, "hnsw.vectorSpaceSize", "", "HNSW vector space size")
+	flag.IntVar(&hnswM, "hnsw.M", 0, "HNSW M parameter")
+	flag.IntVar(&hnswEfConstruction, "hnsw.efConstruction", 0, "HNSW efConstruction parameter")
 	flag.Parse()
 
 	// setting up the in-memory config
@@ -30,6 +52,43 @@ func main() {
 		panic(err)
 	}
 	config := cfg.GetConfig()
+
+	if overrideConfig {
+		// create a map of config setters
+		configSetters := map[bool]func(){
+			persistenceTimeInterval != time.Duration(0): func() { config.SetPersistenceTimeInterval(persistenceTimeInterval) },
+			apiPort != 0:        func() { config.SetAPIPort(apiPort) },
+			apiAddress != "":    func() { config.SetAPIAddress(apiAddress) },
+			hnswDimensions != 0: func() { config.SetDimensions(hnswDimensions) },
+			hnswSimilarityMetric != "": func() {
+				metric := types.SimMetric(hnswSimilarityMetric)
+				if err := metric.Validate(); err != nil {
+					panic(err)
+				}
+				config.SetSimilarityMetric(metric)
+			},
+			hnswVectorSpaceSize != "": func() {
+				spaceSize, err := strconv.ParseUint(hnswVectorSpaceSize, 10, 32)
+				if err != nil {
+					panic(err)
+				}
+				config.SetSpaceSize(uint32(spaceSize))
+			},
+			hnswM != 0:              func() { config.SetM(hnswM) },
+			hnswEfConstruction != 0: func() { config.SetEfConstruction(hnswEfConstruction) },
+		}
+
+		for condition, setter := range configSetters {
+			if condition {
+				fmt.Println("Overriding config value")
+				setter()
+			}
+		}
+
+		if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil { // persisted new config to disk
+			panic(err)
+		}
+	}
 
 	// checking if EigenDB is running in TEST_MODE
 	if os.Getenv("TEST_MODE") == "1" {

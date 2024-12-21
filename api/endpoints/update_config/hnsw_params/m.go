@@ -21,9 +21,17 @@ func UpdateM(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetM(body.UpdatedM)
-	err := config.WriteToDisk(constants.CONFIG_PATH)
-	if err != nil {
+	if err := config.SetM(body.UpdatedM); err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusBadRequest,
+			"Invalid M parameter.",
+			nil,
+			utils.CreateError("INVALID_M", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

@@ -22,7 +22,16 @@ func UpdateTimeInterval(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * 1.0e+9))
+	if err := config.SetPersistenceTimeInterval(time.Duration(body.UpdatedValueSecs * float32(time.Second))); err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusBadRequest,
+			"Invalid time interval.",
+			nil,
+			utils.CreateError("INVALID_TIME_INTERVAL", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
 	err := config.WriteToDisk(constants.CONFIG_PATH)
 	if err != nil {
 		utils.SendResponse(

@@ -51,7 +51,9 @@ func startConfigMenu() error {
 		return err
 	}
 	interval, _ := strconv.ParseFloat(result, 32) // ignoring error as the input is already validated as a valid float32 when received
-	config.SetPersistenceTimeInterval(time.Duration(interval * 1.0e+9))
+	if err := config.SetPersistenceTimeInterval(time.Duration(interval * float64(time.Second))); err != nil {
+		return err
+	}
 
 	// setting api port
 	result, err = (&promptui.Prompt{
@@ -72,7 +74,9 @@ func startConfigMenu() error {
 		return err
 	}
 	port, _ := strconv.ParseInt(result, 10, 32)
-	config.SetAPIPort(int(port))
+	if err := config.SetAPIPort(int(port)); err != nil {
+		return err
+	}
 
 	// setting api address
 	result, err = (&promptui.Prompt{
@@ -82,7 +86,9 @@ func startConfigMenu() error {
 	if err != nil {
 		return err
 	}
-	config.SetAPIAddress(result)
+	if err := config.SetAPIAddress(result); err != nil {
+		return err
+	}
 
 	// setting dimensions
 	result, err = (&promptui.Prompt{
@@ -102,7 +108,9 @@ func startConfigMenu() error {
 		return err
 	}
 	dim, _ := strconv.ParseInt(result, 10, 32)
-	config.SetDimensions(int(dim)) // type conversion is safe as value is validated
+	if err := config.SetDimensions(int(dim)); err != nil {
+		return err
+	}
 
 	// setting similarity metric
 	_, result, err = (&promptui.Select{
@@ -116,7 +124,9 @@ func startConfigMenu() error {
 	if err != nil {
 		return err
 	}
-	config.SetSimilarityMetric(types.SimMetric(result))
+	if err := config.SetSimilarityMetric(types.SimMetric(result)); err != nil {
+		return err
+	}
 
 	// setting vector space size
 	result, err = (&promptui.Prompt{
@@ -134,7 +144,9 @@ func startConfigMenu() error {
 		return err
 	}
 	size, _ := strconv.ParseUint(result, 10, 32)
-	config.SetSpaceSize(uint32(size)) // type conversion is safe as value is validated
+	if err := config.SetSpaceSize(uint32(size)); err != nil {
+		return err
+	}
 
 	// setting M value
 	result, err = (&promptui.Prompt{
@@ -155,7 +167,9 @@ func startConfigMenu() error {
 		return err
 	}
 	m, _ := strconv.ParseInt(result, 10, 32)
-	config.SetM(int(m)) // type conversion is safe as value is validated
+	if err := config.SetM(int(m)); err != nil {
+		return err
+	}
 
 	// setting efConstruction value
 	result, err = (&promptui.Prompt{
@@ -176,7 +190,9 @@ func startConfigMenu() error {
 		return err
 	}
 	ef, _ := strconv.ParseInt(result, 10, 32)
-	config.SetM(int(ef)) // type conversion is safe as value is validated
+	if err := config.SetEfConstruction(int(ef)); err != nil {
+		return err
+	}
 
 	return config.WriteToDisk(constants.CONFIG_PATH) // persisting config values to disk
 }
