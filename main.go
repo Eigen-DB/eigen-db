@@ -55,33 +55,35 @@ func main() {
 
 	if overrideConfig {
 		// create a map of config setters
-		configSetters := map[bool]func(){
-			persistenceTimeInterval != time.Duration(0): func() { config.SetPersistenceTimeInterval(persistenceTimeInterval) },
-			apiPort != 0:        func() { config.SetAPIPort(apiPort) },
-			apiAddress != "":    func() { config.SetAPIAddress(apiAddress) },
-			hnswDimensions != 0: func() { config.SetDimensions(hnswDimensions) },
-			hnswSimilarityMetric != "": func() {
+		configSetters := map[bool]func() error{
+			persistenceTimeInterval != time.Duration(0): func() error { return config.SetPersistenceTimeInterval(persistenceTimeInterval) },
+			apiPort != 0:        func() error { return config.SetAPIPort(apiPort) },
+			apiAddress != "":    func() error { return config.SetAPIAddress(apiAddress) },
+			hnswDimensions != 0: func() error { return config.SetDimensions(hnswDimensions) },
+			hnswSimilarityMetric != "": func() error {
 				metric := types.SimMetric(hnswSimilarityMetric)
 				if err := metric.Validate(); err != nil {
-					panic(err)
+					return err
 				}
-				config.SetSimilarityMetric(metric)
+				return config.SetSimilarityMetric(metric)
 			},
-			hnswVectorSpaceSize != "": func() {
+			hnswVectorSpaceSize != "": func() error {
 				spaceSize, err := strconv.ParseUint(hnswVectorSpaceSize, 10, 32)
 				if err != nil {
-					panic(err)
+					return err
 				}
-				config.SetSpaceSize(uint32(spaceSize))
+				return config.SetSpaceSize(uint32(spaceSize))
 			},
-			hnswM != 0:              func() { config.SetM(hnswM) },
-			hnswEfConstruction != 0: func() { config.SetEfConstruction(hnswEfConstruction) },
+			hnswM != 0:              func() error { return config.SetM(hnswM) },
+			hnswEfConstruction != 0: func() error { return config.SetEfConstruction(hnswEfConstruction) },
 		}
 
 		for condition, setter := range configSetters {
 			if condition {
 				fmt.Println("Overriding config value")
-				setter()
+				if err := setter(); err != nil {
+					panic(err)
+				}
 			}
 		}
 
