@@ -1,6 +1,7 @@
 package cfg
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -108,34 +109,66 @@ func (c *Config) GetEfConstruction() int {
 	return c.HNSWParams.EfConstruction
 }
 
-func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) {
+func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) error {
+	if timeInterval < time.Second*1 {
+		return errors.New("persistence time interval must be >= 1s")
+	}
 	c.Persistence.TimeInterval = timeInterval
+	return nil
 }
 
-func (c *Config) SetAPIPort(port int) {
+func (c *Config) SetAPIPort(port int) error {
+	if port <= 0 || port > 65535 {
+		return errors.New("API port must be between 1 and 65535")
+	}
 	c.API.Port = port
+	return nil
 }
 
-func (c *Config) SetAPIAddress(address string) {
+func (c *Config) SetAPIAddress(address string) error {
+	if address == "" {
+		return errors.New("API address cannot be empty")
+	}
 	c.API.Address = address
+	return nil
 }
 
-func (c *Config) SetDimensions(dimensions int) {
+func (c *Config) SetDimensions(dimensions int) error {
+	if dimensions < 2 {
+		return errors.New("dimensions must be >= 2")
+	}
 	c.HNSWParams.Dimensions = dimensions
+	return nil
 }
 
-func (c *Config) SetSimilarityMetric(similarityMetric t.SimMetric) {
+func (c *Config) SetSimilarityMetric(similarityMetric t.SimMetric) error {
+	if err := similarityMetric.Validate(); err != nil {
+		return errors.New("invalid similarity metric")
+	}
 	c.HNSWParams.SimilarityMetric = similarityMetric
+	return nil
 }
 
-func (c *Config) SetSpaceSize(spaceSize uint32) {
+func (c *Config) SetSpaceSize(spaceSize uint32) error {
+	if spaceSize == 0 {
+		return errors.New("space size must be > 0")
+	}
 	c.HNSWParams.SpaceSize = spaceSize
+	return nil
 }
 
-func (c *Config) SetM(M int) {
+func (c *Config) SetM(M int) error {
+	if M < 2 {
+		return errors.New("m must be >= 2")
+	}
 	c.HNSWParams.M = M
+	return nil
 }
 
-func (c *Config) SetEfConstruction(efConstruction int) {
+func (c *Config) SetEfConstruction(efConstruction int) error {
+	if efConstruction < 0 {
+		return errors.New("efConstruction must be >= 0")
+	}
 	c.HNSWParams.EfConstruction = efConstruction
+	return nil
 }

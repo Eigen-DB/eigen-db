@@ -21,9 +21,17 @@ func UpdateSpaceSize(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetSpaceSize(body.UpdatedSize)
-	err := config.WriteToDisk(constants.CONFIG_PATH)
-	if err != nil {
+	if err := config.SetSpaceSize(body.UpdatedSize); err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusBadRequest,
+			"Invalid vector space size.",
+			nil,
+			utils.CreateError("INVALID_SPACE_SIZE", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

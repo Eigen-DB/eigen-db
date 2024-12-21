@@ -21,9 +21,17 @@ func UpdateAddress(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	config.SetAPIAddress(body.UpdatedAddress)
-	err := config.WriteToDisk(constants.CONFIG_PATH)
-	if err != nil {
+	if err := config.SetAPIAddress(body.UpdatedAddress); err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusBadRequest,
+			"Invalid API address.",
+			nil,
+			utils.CreateError("INVALID_API_ADDRESS", fmt.Sprintf("Error: %s", err.Error())),
+		)
+		return
+	}
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,
