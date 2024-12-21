@@ -96,7 +96,9 @@ func main() {
 	if os.Getenv("TEST_MODE") == "1" {
 		fmt.Println("*** EigenDB running in TEST_MODE, making the API key = \"test\". If this was not intentional, please run EigenDB in standard mode. ***")
 		apiKey = "test"
-		config.SetDimensions(2)
+		if err := config.SetDimensions(2); err != nil {
+			panic(err)
+		}
 	}
 
 	// setting up the in-memory vector store
