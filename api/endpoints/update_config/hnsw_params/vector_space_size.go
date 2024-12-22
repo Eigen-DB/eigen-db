@@ -4,7 +4,6 @@ import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
 	"eigen_db/constants"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +26,7 @@ func UpdateSpaceSize(c *gin.Context) {
 			http.StatusBadRequest,
 			"Invalid vector space size.",
 			nil,
-			utils.CreateError("INVALID_SPACE_SIZE", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("INVALID_SPACE_SIZE", err.Error()),
 		)
 		return
 	}
@@ -37,7 +36,7 @@ func UpdateSpaceSize(c *gin.Context) {
 			http.StatusInternalServerError,
 			"An error occured.",
 			nil,
-			utils.CreateError("ERROR_UPDATING_SPACE_SIZE", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("ERROR_UPDATING_SPACE_SIZE", err.Error()),
 		)
 		return
 	}

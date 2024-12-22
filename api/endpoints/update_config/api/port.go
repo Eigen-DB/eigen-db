@@ -4,7 +4,6 @@ import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
 	"eigen_db/constants"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +26,7 @@ func UpdatePort(c *gin.Context) {
 			http.StatusBadRequest,
 			"Invalid API port.",
 			nil,
-			utils.CreateError("INVALID_API_PORT", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("INVALID_API_PORT", err.Error()),
 		)
 		return
 	}
@@ -37,7 +36,7 @@ func UpdatePort(c *gin.Context) {
 			http.StatusInternalServerError,
 			"An error occured.",
 			nil,
-			utils.CreateError("ERROR_UPDATING_API_PORT", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("ERROR_UPDATING_API_PORT", err.Error()),
 		)
 		return
 	}

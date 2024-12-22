@@ -5,7 +5,6 @@ import (
 	"eigen_db/cfg"
 	"eigen_db/constants"
 	"eigen_db/types"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +27,7 @@ func UpdateSimilarityMetric(c *gin.Context) {
 			http.StatusBadRequest,
 			"Something went wrong when trying to update the similarity metric.",
 			nil,
-			utils.CreateError("INVALID_SIMILARITY_METRIC", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("INVALID_SIMILARITY_METRIC", err.Error()),
 		)
 		return
 	}
@@ -38,7 +37,7 @@ func UpdateSimilarityMetric(c *gin.Context) {
 			http.StatusInternalServerError,
 			"An error occured.",
 			nil,
-			utils.CreateError("ERROR_UPDATING_SIMILARITY_METRIC", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("ERROR_UPDATING_SIMILARITY_METRIC", err.Error()),
 		)
 		return
 	}

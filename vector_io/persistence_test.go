@@ -21,6 +21,25 @@ func cleanup(t *testing.T) {
 	}
 }
 
+func createSampleConfig(t *testing.T) {
+	sampleConfig := `persistence:
+  timeInterval: 3s
+api:
+  port: 8080
+  address: 0.0.0.0
+hnswParams:
+  dimensions: 2
+  similarityMetric: cosine
+  vectorSpaceSize: 10000
+  M: 32
+  efConstruction: 400`
+
+	// write sample config yaml file
+	if err := os.WriteFile(constants.TESTING_TMP_FILES_PATH+"/config.yml", []byte(sampleConfig), 0777); err != nil {
+		t.Fatalf("Error writing sample config file: %s", err.Error())
+	}
+}
+
 func generateDummySerializedData(t *testing.T, outputStorePath string, outputIndexPath string, dummyStore *vectorStore) {
 	buf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buf)
@@ -125,8 +144,9 @@ func TestPersistToDisk_invalid_index_path(t *testing.T) {
 
 func TestLoadPersistedVectors_success(t *testing.T) {
 	defer cleanup(t)
+	createSampleConfig(t)
 	dummyStore := generateDummyVectorStore(t)
-	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+	if err := cfg.SetupConfig(constants.TESTING_TMP_FILES_PATH + "/config.yml"); err != nil {
 		t.Fatal(err.Error())
 	}
 	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
@@ -166,10 +186,11 @@ func TestLoadPersistedVectors_no_perms_for_store_path(t *testing.T) {
 }
 
 func TestLoadPersistedVectors_invalid_index_path(t *testing.T) {
+	createSampleConfig(t)
 	dummyStore := generateDummyVectorStore(t)
 	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
 	indexPersistPath := "/some/fake/path/index.bin"
-	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+	if err := cfg.SetupConfig(constants.TESTING_TMP_FILES_PATH + "/config.yml"); err != nil {
 		t.Fatal(err.Error())
 	}
 	generateDummySerializedData(t, spacePersistPath, constants.TESTING_TMP_FILES_PATH+"/test_index.bin", dummyStore)
@@ -184,10 +205,11 @@ func TestLoadPersistedVectors_invalid_index_path(t *testing.T) {
 }
 
 func TestLoadPersistedVectors_no_perms_for_index_path(t *testing.T) {
+	createSampleConfig(t)
 	dummyStore := generateDummyVectorStore(t)
 	spacePersistPath := constants.TESTING_TMP_FILES_PATH + "/test_vector_space.vec"
 	indexPersistPath := "/root/index.bin"
-	if err := cfg.SetupConfig("../" + constants.CONFIG_PATH); err != nil {
+	if err := cfg.SetupConfig(constants.TESTING_TMP_FILES_PATH + "/config.yml"); err != nil {
 		t.Fatal(err.Error())
 	}
 	if err := dummyStore.loadPersistedStore(spacePersistPath, indexPersistPath); err != nil {
