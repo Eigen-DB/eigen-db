@@ -1,6 +1,6 @@
 eigen_db
-integration_tests/*.log
-integration_tests/logs/
+e2e/*.log
+e2e/logs/
 eigen/*
 node_modules/
 benchmarks/*.log
