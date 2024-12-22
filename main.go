@@ -6,10 +6,13 @@ import (
 	"eigen_db/cfg"
 	"eigen_db/constants"
 	"eigen_db/metrics"
+	"eigen_db/types"
 	"eigen_db/vector_io"
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 )
 
 func main() {
@@ -19,26 +22,76 @@ func main() {
 	// parsing cmd line args
 	var apiKey string
 	var regenApiKey bool
+	var persistenceTimeInterval time.Duration
+	var apiPort int
+	var apiAddress string
+	var hnswDimensions int
+	var hnswSimilarityMetric string
+	var hnswVectorSpaceSize string // take argument as string and cast as uint32
+	var hnswM int
+	var hnswEfConstruction int
 
 	flag.StringVar(&apiKey, "api-key", "", "EigenDB API key")
 	flag.BoolVar(&regenApiKey, "regen-api-key", false, "Regenerate the API key")
+
+	flag.DurationVar(&persistenceTimeInterval, "persistence-time-interval", time.Duration(0), "How often should data be persisted to disk (secs)")
+	flag.IntVar(&apiPort, "api-port", 0, "API port")
+	flag.StringVar(&apiAddress, "api-address", "", "API address")
+	flag.IntVar(&hnswDimensions, "dimensions", 0, "Dimensions")
+	flag.StringVar(&hnswSimilarityMetric, "similarity-metric", "", "Similarity metric")
+	flag.StringVar(&hnswVectorSpaceSize, "vector-space-size", "", "Vector space size")
+	flag.IntVar(&hnswM, "m", 0, "m parameter")
+	flag.IntVar(&hnswEfConstruction, "efConstruction", 0, "efConstruction parameter")
 	flag.Parse()
+
+	// checking if EigenDB is running in E2E_TEST_MODE
+	if os.Getenv("E2E_TEST_MODE") == "1" {
+		fmt.Println("*** EigenDB running in E2E_TEST_MODE, if this was not intentional, please run EigenDB in standard mode. ***\nSetting the API key = \"test\"")
+		apiKey = "test"
+	}
 
 	// setting up the in-memory config
 	if err := cfg.SetupConfig(constants.CONFIG_PATH); err != nil {
 		fmt.Println("There was an error with setting up the config")
 		panic(err)
 	}
-	config := cfg.GetConfig()
+	config := cfg.GetConfig() // getting the in-memory config
 
-	// checking if EigenDB is running in TEST_MODE
-	if os.Getenv("TEST_MODE") == "1" {
-		fmt.Println("*** EigenDB running in TEST_MODE, making the API key = \"test\". If this was not intentional, please run EigenDB in standard mode. ***")
-		apiKey = "test"
-		if err := config.SetDimensions(2); err != nil { // setting dimensions to 2 for the tests
-			fmt.Println("An error occured when setting the dimensions to 2.")
-			panic(err)
+	// create a map of config setters
+	configSetters := map[bool]func() error{
+		persistenceTimeInterval != time.Duration(0): func() error { return config.SetPersistenceTimeInterval(persistenceTimeInterval) },
+		apiPort != 0:        func() error { return config.SetAPIPort(apiPort) },
+		apiAddress != "":    func() error { return config.SetAPIAddress(apiAddress) },
+		hnswDimensions != 0: func() error { return config.SetDimensions(hnswDimensions) },
+		hnswSimilarityMetric != "": func() error {
+			metric := types.SimMetric(hnswSimilarityMetric)
+			if err := metric.Validate(); err != nil {
+				return err
+			}
+			return config.SetSimilarityMetric(metric)
+		},
+		hnswVectorSpaceSize != "": func() error {
+			spaceSize, err := strconv.ParseUint(hnswVectorSpaceSize, 10, 32)
+			if err != nil {
+				return err
+			}
+			return config.SetSpaceSize(uint32(spaceSize))
+		},
+		hnswM != 0:              func() error { return config.SetM(hnswM) },
+		hnswEfConstruction != 0: func() error { return config.SetEfConstruction(hnswEfConstruction) },
+	}
+
+	for condition, setter := range configSetters {
+		if condition {
+			fmt.Println("Overriding config value")
+			if err := setter(); err != nil {
+				panic(err)
+			}
 		}
+	}
+
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil { // persisted new config to disk
+		panic(err)
 	}
 
 	// setting up the in-memory vector store

@@ -3,8 +3,8 @@ package hnsw_params
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
+	"eigen_db/constants"
 	"eigen_db/types"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,8 @@ func UpdateSimilarityMetric(c *gin.Context) {
 		return
 	}
 
-	if err := body.UpdatedMetric.Validate(); err != nil {
+	config := cfg.GetConfig()
+	if err := config.SetSimilarityMetric(body.UpdatedMetric); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusBadRequest,
@@ -30,15 +31,13 @@ func UpdateSimilarityMetric(c *gin.Context) {
 		)
 		return
 	}
-
-	config := cfg.GetConfig()
-	if err := config.SetSimilarityMetric(body.UpdatedMetric); err != nil {
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,
 			"An error occured.",
 			nil,
-			utils.CreateError("ERROR_UPDATING_SIMILARITY_METRIC", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("ERROR_UPDATING_SIMILARITY_METRIC", err.Error()),
 		)
 		return
 	}

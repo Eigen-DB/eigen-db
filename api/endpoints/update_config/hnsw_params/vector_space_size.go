@@ -3,7 +3,7 @@ package hnsw_params
 import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
-	"fmt"
+	"eigen_db/constants"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,14 +20,23 @@ func UpdateSpaceSize(c *gin.Context) {
 	}
 
 	config := cfg.GetConfig()
-	err := config.SetSpaceSize(body.UpdatedSize)
-	if err != nil {
+	if err := config.SetSpaceSize(body.UpdatedSize); err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusBadRequest,
+			"Invalid vector space size.",
+			nil,
+			utils.CreateError("INVALID_SPACE_SIZE", err.Error()),
+		)
+		return
+	}
+	if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,
 			"An error occured.",
 			nil,
-			utils.CreateError("ERROR_UPDATING_SPACE_SIZE", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("ERROR_UPDATING_SPACE_SIZE", err.Error()),
 		)
 		return
 	}

@@ -1,6 +1,7 @@
 package cfg
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -35,7 +36,7 @@ func instantiateConfig() {
 	config = new(Config)
 }
 
-// Returns a pointer to the in-memort config
+// Returns a pointer to the in-memory config
 func GetConfig() *Config {
 	return config
 }
@@ -43,7 +44,7 @@ func GetConfig() *Config {
 // Writes the in-memory config to disk as a YAML file at "configPath"
 //
 // Returns an error if one occured.
-func (c *Config) writeToDisk(configPath string) error {
+func (c *Config) WriteToDisk(configPath string) error {
 	cfgYaml, err := yaml.Marshal(config)
 	if err != nil {
 		return err
@@ -74,7 +75,7 @@ func (c *Config) populateConfig(configPath string) error {
 }
 
 // Config getters and setters:
-// NOTE: the setters update the specified value in-memory AND on disk.
+// NOTE: the setters update the specified value in-memory ONLY.
 
 func (c *Config) GetPersistenceTimeInterval() time.Duration {
 	return c.Persistence.TimeInterval
@@ -109,41 +110,65 @@ func (c *Config) GetEfConstruction() int {
 }
 
 func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) error {
+	if timeInterval < time.Second*1 {
+		return errors.New("persistence time interval must be >= 1s")
+	}
 	c.Persistence.TimeInterval = timeInterval
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
 
 func (c *Config) SetAPIPort(port int) error {
+	if port <= 0 || port > 65535 {
+		return errors.New("API port must be between 1 and 65535")
+	}
 	c.API.Port = port
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
 
 func (c *Config) SetAPIAddress(address string) error {
+	if address == "" {
+		return errors.New("API address cannot be empty")
+	}
 	c.API.Address = address
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
 
 func (c *Config) SetDimensions(dimensions int) error {
+	if dimensions < 2 {
+		return errors.New("dimensions must be >= 2")
+	}
 	c.HNSWParams.Dimensions = dimensions
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
 
 func (c *Config) SetSimilarityMetric(similarityMetric t.SimMetric) error {
+	if err := similarityMetric.Validate(); err != nil {
+		return errors.New("invalid similarity metric")
+	}
 	c.HNSWParams.SimilarityMetric = similarityMetric
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
 
 func (c *Config) SetSpaceSize(spaceSize uint32) error {
+	if spaceSize == 0 {
+		return errors.New("space size must be > 0")
+	}
 	c.HNSWParams.SpaceSize = spaceSize
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
 
 func (c *Config) SetM(M int) error {
+	if M < 2 {
+		return errors.New("m must be >= 2")
+	}
 	c.HNSWParams.M = M
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
 
 func (c *Config) SetEfConstruction(efConstruction int) error {
+	if efConstruction < 0 {
+		return errors.New("efConstruction must be >= 0")
+	}
 	c.HNSWParams.EfConstruction = efConstruction
-	return c.writeToDisk(constants.CONFIG_PATH)
+	return nil
 }
