@@ -16,13 +16,28 @@ import (
 //
 // Returns an error if one occured.
 func SetupConfig(configPath string) error {
-	instantiateConfig()                                                           // creates a empty Config struct in memory
-	if _, err := os.Stat(constants.CONFIG_PATH); errors.Is(err, os.ErrNotExist) { // if config file does not exist -> choose your config values
+	instantiateConfig()   // creates a empty Config struct in memory
+	config := GetConfig() // get pointer to Config in memory
+	if os.Getenv("E2E_TEST_MODE") == "1" {
+		fmt.Println("Making E2E test config")
+		_ = config.SetPersistenceTimeInterval(3 * time.Second)
+		_ = config.SetAPIPort(8080)
+		_ = config.SetAPIAddress("0.0.0.0")
+		_ = config.SetDimensions(2)
+		_ = config.SetSimilarityMetric(types.EUCLIDEAN)
+		_ = config.SetSpaceSize(10000)
+		_ = config.SetM(32)
+		_ = config.SetEfConstruction(400)
+		if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) { // if config file does not exist -> choose your config values
 		fmt.Println("No existing config file found. Please select your configuration values.")
 		return startConfigMenu()
 	}
-
-	config := GetConfig()                                     // get pointer to Config in memory
 	if err := config.populateConfig(configPath); err != nil { // populate config in memory with values from config.yml
 		return err
 	}

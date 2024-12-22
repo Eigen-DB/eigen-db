@@ -14,20 +14,20 @@ echo "UNIT tests:"
 go test ./... -count=1 -v # running the tests. "-count=1" stops test caching
 UNIT_TEST_EXIT_CODE=$?
 
-echo "INTEGRATION tests:"
+echo "END-TO-END tests:"
 if [[ $BUILD == 1 ]]
 then
-    TEST_MODE=1 $DOCKER_COMPOSE -f docker-compose-test.yml up -d --build
+    E2E_TEST_MODE=1 $DOCKER_COMPOSE -f docker-compose-test.yml up -d --build
 else
-    TEST_MODE=1 $DOCKER_COMPOSE -f docker-compose-test.yml up -d
+    E2E_TEST_MODE=1 $DOCKER_COMPOSE -f docker-compose-test.yml up -d
 fi
-$VENOM run integration_tests/ --output-dir=integration_tests/logs
-INT_TEST_EXIT_CODE=$?
+$VENOM run e2e/ --output-dir=e2e/logs
+E2E_TEST_EXIT_CODE=$?
 
 $DOCKER_COMPOSE down
 echo "Done."
 
-if [[ $INT_TEST_EXIT_CODE != 0 || $UNIT_TEST_EXIT_CODE != 0 ]]
+if [[ $E2E_TEST_EXIT_CODE != 0 || $UNIT_TEST_EXIT_CODE != 0 ]]
 then
     exit 1
 fi

@@ -4,7 +4,6 @@ import (
 	"eigen_db/api/utils"
 	"eigen_db/cfg"
 	"eigen_db/constants"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -28,7 +27,7 @@ func UpdateTimeInterval(c *gin.Context) {
 			http.StatusBadRequest,
 			"Invalid time interval.",
 			nil,
-			utils.CreateError("INVALID_TIME_INTERVAL", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("INVALID_TIME_INTERVAL", err.Error()),
 		)
 		return
 	}
@@ -39,7 +38,7 @@ func UpdateTimeInterval(c *gin.Context) {
 			http.StatusInternalServerError,
 			"An error occured.",
 			nil,
-			utils.CreateError("ERROR_UPDATING_PERSISTENCE_TIME_INTERVAL", fmt.Sprintf("Error: %s", err.Error())),
+			utils.CreateError("ERROR_UPDATING_PERSISTENCE_TIME_INTERVAL", err.Error()),
 		)
 		return
 	}

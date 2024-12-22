@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   eigen_db:
     build: .
@@ -9,7 +7,8 @@ services:
       - eigen_db:/app/eigen
     environment:
       - GIN_MODE=release
-      - TEST_MODE=0
+      - E2E_TEST_MODE=0
+    command: ["/bin/bash", "-c", "/app/eigen_db"]
     restart: always
 
 volumes:
