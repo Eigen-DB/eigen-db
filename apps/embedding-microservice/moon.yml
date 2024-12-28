@@ -1,0 +1,36 @@
+type: 'application'
+language: 'python'
+
+project:
+  name: 'embedding-microservice'
+  description: 'A microservice that sits on-top of EigenDB, in charge of embedding various forms of data using pretrained machine learning models.'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  setup_venv:
+    command: 'python3 -m virtualenv venv && source venv/bin/activate && pip3 install -r requirements.txt'
+    inputs:
+      - '/apps/embedding-microservice'
+  
+  dev: # add dep for running eigendb in the background
+    command: 'source venv/bin/activate && fastapi dev run.py'
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    inputs:
+      - '/apps/embedding-microservice'
+    deps:
+      - 'setup_venv'
+
+  clean:
+    command: 'rm -rf **/__pycache__'
+    inputs:
+      - '/apps/embedding-microservice'
+
+  run: # add dep for running eigendb in the background
+    command: 'source venv/bin/activate && fastapi run run.py'
+    inputs:
+      - '/apps/embedding-microservice'
+    deps:
+      - 'setup_venv'

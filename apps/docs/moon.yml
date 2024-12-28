@@ -1,0 +1,15 @@
+type: 'application'
+language: 'mdx'
+
+project:
+  name: 'docs'
+  description: 'Official EigenDB documentation'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  run:
+    command: 'npx mintlify dev'
+    inputs:
+      - '/apps/docs'

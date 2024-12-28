@@ -1,0 +1,41 @@
+type: 'application'
+language: 'go'
+
+project:
+  name: 'eigendb'
+  description: 'A blazing fast, in-memory, vector database'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  build:
+    command: 'go build -o dist/eigen_db main.go'
+    inputs:
+      - '/apps/eigendb'
+    outputs:
+      - 'dist/eigen_db'
+
+  run:
+    command: 'go run main.go'
+    inputs:
+      - '/apps/eigendb'
+
+  clean:
+    command: 'rm -rf dist; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml'
+    inputs:
+      - '/apps/eigendb/*'
+  
+  test:
+    command: 'go test ./... -count=1'
+    inputs:
+      - "/apps/eigendb/**/*_test.go"
+
+  e2e:
+    command: './run_e2e.sh'
+    inputs:
+      - '/apps/eigendb/e2e/*'
+    deps:
+      - 'clean'
+    outputs: 
+      - 'e2e/logs'

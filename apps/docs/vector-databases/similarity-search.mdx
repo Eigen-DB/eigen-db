@@ -1,0 +1,20 @@
+---
+title: Similarity search in EigenDB
+description: How it's done!
+icon: diagram-project
+---
+
+## Similarity search algorithm
+
+EigenDB employs the [_Hierarchical Navigable Small World (HNSW)_](https://arxiv.org/abs/1603.09320) algorithm to perform similarity search with the highest level of efficiency and speed.&#x20;
+
+
+
+## Implementation
+
+The HNSW algorithm is implemented in EigenDB through our open-source Go library [hnswgo](https://github.com/Eigen-DB/hnswgo). The library is a Go wrapper for [hnswlib](https://github.com/nmslib/hnswlib), the C++ implementation of the HNSW algorithm.
+
+This library allows EigenDB to perform database operations solely using Go while never having to write any C/C++ code. In addition, the wrapper was made into an open-source library instead of including it in EigenDB, as this allows other developers to easily utilize the HNSW algorithm purely with Go. This means developers won't have to write their own wrappers, mess around in C/C++, or even implement the HNSW algorithm from scratch in Go. &#x20;
+
+
+

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Official EigenDB Documentation",
+  "logo": {
+    "dark": "/logo/Final Logo Text Transparent.svg",
+    "light": "/logo/Final Logo Text Transparent Light.svg"
+  },
+  "favicon": "/logo/Final Logo Circular.svg",
+  "colors": {
+    "primary": "#0400A3",
+    "light": "#AFADFF",
+    "dark": "#FFF",
+    "background": {
+      "light": "#FFF",
+      "dark": "#000"
+    }
+  },
+  "theme": "prism",
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference",
+      "openapi": "https://raw.githubusercontent.com/Eigen-DB/docs/refs/heads/main/api-reference/openapi.json"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/Eigen-DB"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "overview",
+        "quickstart",
+        "how-fast-is-it",
+        "our-mission",
+        {
+          "group": "Vector databases explained",
+          "pages": ["vector-databases/vector-databases", "vector-databases/similarity-search"]
+        }
+      ]
+    },
+    {
+      "group": "EigenDB's REST API",
+      "pages": [
+        "api-reference/api"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/Eigen-DB"
+  }
+}

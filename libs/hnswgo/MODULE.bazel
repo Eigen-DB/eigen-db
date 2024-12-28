@@ -1,9 +1,0 @@
-module(
-    name = "hnswgo", 
-    version = "2.2.2"
-)
-
-bazel_dep(
-    name = "rules_go",
-    version = "0.51.0",
-)

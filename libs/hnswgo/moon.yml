@@ -1,0 +1,15 @@
+type: 'application'
+language: 'go'
+
+project:
+  name: 'hnswgo'
+  description: 'A Go wrapper for hnswlib'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  test:
+    command: 'go test ./... -count=1'
+    inputs:
+      - '/libs/hnswgo'

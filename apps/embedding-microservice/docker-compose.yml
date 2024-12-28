@@ -1,0 +1,9 @@
+name: Embedding Model Microservice
+
+services:
+  embedding_microservice:
+    build: .
+    ports:
+      - "8000:8000"
+    command: ["uvicorn", "run:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    restart: always

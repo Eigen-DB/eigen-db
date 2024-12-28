@@ -1,0 +1,803 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EigenDB REST API",
+    "description": "REST API for EigenDB, the blazingly fast in-memory vector database.",
+    "version": "1.0.0"
+  },
+  "security": [{"ApiKeyAuth": []}],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Eigen-API-Key"
+      }
+    },
+    "schemas": {
+      "vectorSchema": {
+        "type": "object",
+        "properties": {
+          "embedding": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "description": "The vector's embedding"
+          },
+          "id": {
+            "type": "integer",
+            "description": "The vector's ID/label"
+          }
+        },
+        "required": ["embedding", "id"]
+      },
+      "responseSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "Status code of the response"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message giving basic information on the response"
+          },
+          "data": {
+            "type": "object",
+            "description": "Important data to be given to the caller"
+          },
+          "error": {
+            "type": "object",
+            "description": "An error that has occured",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "An error code unique to this type of error"
+              },
+              "description": {
+                "type": "string",
+                "description": "A detailed description of the error"
+              }
+            }
+          }
+        },
+        "required": ["status", "message"]
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Database health check",
+        "operationId": "healthCheck",
+        "description": "Perform a health check on the database.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Database is healthy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "healthy",
+                  "data": {
+                    "cpu_usage_percent": 0.06,
+                    "mem_usage_percent": 1.31,
+                    "uptime": "72h3m0.5s"
+                  } 
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Database is unhealthy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "unhealthy",
+                  "error": {
+                    "code": "ERROR_GETTING_CPU_USAGE",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test-auth": {
+      "get": {
+        "summary": "Test your authentication",
+        "operationId": "testAuth",
+        "description": "Test your authentication using your API key.",
+        "responses": {
+          "200": {
+            "description": "Authenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "Authenticated."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 401,
+                  "message": "Invalid API key.",
+                  "error": {
+                    "code": "INVALID_API_KEY",
+                    "description": "The API key you provided is invalid."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vector/insert": {
+      "put": {
+        "summary": "Insert a vector",
+        "operationId": "insertVector",
+        "description": "Inserts a vector into the database.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "vector"
+                ],
+                "properties": {
+                  "vector": {
+                    "$ref": "#/components/schemas/vectorSchema",
+                    "description": "Vector to be inserted"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vector successfully inserted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "Vector successfully inserted."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or incorrect dimensionality.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 400,
+                  "message": "The vector you provided is invalid.",
+                  "error": {
+                    "code": "INVALID_VECTOR_PROVIDED",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An internal server error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured when inserting your vector.",
+                  "error": {
+                    "code": "CANNOT_INSERT_VECTOR",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vector/bulk-insert": {
+      "put": {
+        "summary": "Insert many vectors at once",
+        "operationId": "bulkInsertVectors",
+        "description": "Insert many vectors at once into the database.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "vectors"
+                ],
+                "properties": {
+                  "vectors": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/vectorSchema"
+                    },
+                    "description": "Array of vectors, each represented by their embedding."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vectors successfully inserted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "50/50 vectors successfully inserted."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A vector was skipped.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "49/50 vectors successfully inserted.",
+                  "error": {
+                    "code": "VECTORS_SKIPPED",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vector/search": {
+      "get": {
+        "summary": "Perform similarity search",
+        "operationId": "searchVector",
+        "description": "Perform similarity search on a query vector.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "queryVectorId",
+                  "k"
+                ],
+                "properties": {
+                  "queryVectorId": {
+                    "type": "number",
+                    "format": "int",
+                    "description": "ID of the query vector"
+                  },
+                  "k": {
+                    "type": "number",
+                    "format": "int",
+                    "description": "K-nearest vectors desired"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The k-nearest vectors returned in an array.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "Similarity search successfully performed.",
+                  "data": {
+                    "nearest_neighbor_ids": [54,98,21,63,45]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error occured when performing similarity search.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 400,
+                  "message": "An error occured during the similarity search.",
+                  "error": {
+                    "code": "SIMILARITY_SEARCH_ERROR",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-config/persistence/time-interval": {
+      "post": {
+        "summary": "Update persistence time interval",
+        "operationId": "updatePersistenceTimeInterval",
+        "description": "Modify the time interval at which vectors in memory are persisted on disk.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "updatedValueSecs"
+                ],
+                "properties": {
+                  "updatedValueSecs": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "The new time interval in seconds"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Time interval successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "Time interval updated."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured.",
+                  "error": {
+                    "code": "ERROR_UPDATING_PERSISTENCE_TIME_INTERVAL",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-config/api/port": {
+      "post": {
+        "summary": "Update the API port",
+        "operationId": "updateApiPort",
+        "description": "Update the port on which the API runs (default = 8080). EigenDB must be restarted this to take effect.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "updatedPort"
+                ],
+                "properties": {
+                  "updatedPort": {
+                    "type": "number",
+                    "format": "int",
+                    "description": "The new port number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API port successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "API port updated. Please restart the database for it to take effect."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured.",
+                  "error": {
+                    "code": "ERROR_UPDATING_API_PORT",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-config/api/address": {
+      "post": {
+        "summary": "Update the API address",
+        "operationId": "updateApiAddress",
+        "description": "Update the address on which the API runs (default = 0.0.0.0). EigenDB must be restarted this to take effect.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/responseSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API address successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "API address updated. Please restart the database for it to take effect."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured.",
+                  "error": {
+                    "code": "ERROR_UPDATING_API_ADDRESS",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-config/hnsw-params/similarity-metric": {
+      "post": {
+        "summary": "Update the similarity metric",
+        "operationId": "updateSimilarityMetric",
+        "description": "Update the similarity metric used in similarity search (default = euclidean). EigenDB must be restarted this to take effect.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "updatedMetric"
+                ],
+                "properties": {
+                  "updatedMetric": {
+                    "type": "string",
+                    "description": "The new similarity metric (cosine, euclidean, ip)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Similarity metric successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "Vector similarity metric updated. Please restart the database for it to take effect."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid similarity metric.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 400,
+                  "message": "Something went wrong when trying to update the similarity metric.",
+                  "error": {
+                    "code": "INVALID_SIMILARITY_METRIC",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured.",
+                  "error": {
+                    "code": "ERROR_UPDATING_SIMILARITY_METRIC",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-config/hnsw-params/vector-space-size": {
+      "post": {
+        "summary": "Update the vector space size",
+        "operationId": "updateVectorSpaceSize",
+        "description": "Update the vector storage capacity. EigenDB must be restarted this to take effect.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "updatedSize"
+                ],
+                "properties": {
+                  "updatedSize": {
+                    "type": "string",
+                    "description": "The new vector space size"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vector space size successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "Vector space size updated. Please restart the database for it to take effect."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured.",
+                  "error": {
+                    "code": "ERROR_UPDATING_SPACE_SIZE",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-config/hnsw-params/m": {
+      "post": {
+        "summary": "Update the M parameter",
+        "operationId": "updateMParam",
+        "description": "Update M parameter in the HNSW algorithm used for similarity search. EigenDB must be restarted this to take effect.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "updatedM"
+                ],
+                "properties": {
+                  "updatedM": {
+                    "type": "string",
+                    "description": "The new M parameter"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "M parameter successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "M parameter updated. Please restart the database for it to take effect."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured.",
+                  "error": {
+                    "code": "ERROR_UPDATING_M",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-config/hnsw-params/ef-construction": {
+      "post": {
+        "summary": "Update the efConstruction parameter",
+        "operationId": "updateEFConstParam",
+        "description": "Update efConstruction parameter in the HNSW algorithm used for similarity search. EigenDB must be restarted this to take effect.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "updatedEfConst"
+                ],
+                "properties": {
+                  "updatedEfConst": {
+                    "type": "string",
+                    "description": "The new efConstruction parameter"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "efConstruction parameter successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 200,
+                  "message": "EF Construction parameter updated. Please restart the database for it to take effect."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseSchema"
+                },
+                "example": {
+                  "status": 500,
+                  "message": "An error occured.",
+                  "error": {
+                    "code": "ERROR_UPDATING_EF_CONSTRUCTION",
+                    "description": "detailed description of the error..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
