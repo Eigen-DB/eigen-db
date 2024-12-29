@@ -11,5 +11,7 @@ project:
 tasks:
   run:
     command: 'npx mintlify dev'
+    options:
+      runInCI: false
     inputs:
       - '/apps/docs'

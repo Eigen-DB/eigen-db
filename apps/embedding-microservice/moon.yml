@@ -11,11 +11,15 @@ project:
 tasks:
   setup_venv:
     command: 'python3 -m virtualenv venv && source venv/bin/activate && pip3 install -r requirements.txt'
+    options:
+      runInCI: false
     inputs:
       - '/apps/embedding-microservice'
   
   dev: # add dep for running eigendb in the background
     command: 'source venv/bin/activate && fastapi dev run.py'
+    options:
+      runInCI: false
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     inputs:
@@ -24,12 +28,16 @@ tasks:
       - 'setup_venv'
 
   clean:
-    command: 'rm -rf **/__pycache__'
+    command: 'rm -rf **/__pycache__ || true' # || true to always return code 0 even if no files are found
+    options:
+      runInCI: false
     inputs:
       - '/apps/embedding-microservice'
 
   run: # add dep for running eigendb in the background
     command: 'source venv/bin/activate && fastapi run run.py'
+    options:
+      runInCI: false
     inputs:
       - '/apps/embedding-microservice'
     deps:

@@ -1,6 +1,9 @@
 type: 'application'
 language: 'go'
 
+dependsOn:
+  - 'hnswgo'
+
 project:
   name: 'eigendb'
   description: 'A blazing fast, in-memory, vector database'
@@ -18,6 +21,8 @@ tasks:
 
   run:
     command: 'go run main.go'
+    options:
+      runInCI: false
     inputs:
       - '/apps/eigendb'
 
@@ -39,3 +44,5 @@ tasks:
       - 'clean'
     outputs: 
       - 'e2e/logs'
+
+  # write lint task here and for all apps and libs
