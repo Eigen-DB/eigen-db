@@ -15,7 +15,7 @@ tasks:
   build:
     command: 'go build -o dist/eigen_db main.go'
     inputs:
-      - '/apps/eigendb'
+      - '/apps/eigendb/**'
     outputs:
       - 'dist/eigen_db'
 
@@ -24,22 +24,22 @@ tasks:
     options:
       runInCI: false
     inputs:
-      - '/apps/eigendb'
+      - '/apps/eigendb/**'
 
   clean:
-    command: 'rm -rf dist; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml'
+    command: 'rm -rf dist; rm -rf api_key.txt; rm -rf hnsw_index.bin; rm -rf vector_space.vec; rm -rf config.yml'
     inputs:
-      - '/apps/eigendb/*'
+      - '/apps/eigendb/eigen/**'
   
   test:
     command: 'go test ./... -count=1'
     inputs:
-      - "/apps/eigendb/**/*_test.go"
+      - "/apps/eigendb/**"
 
   e2e:
     command: './run_e2e.sh'
     inputs:
-      - '/apps/eigendb/e2e/*'
+      - '/apps/eigendb/**'
     deps:
       - 'clean'
     outputs: 

@@ -14,7 +14,7 @@ tasks:
     options:
       runInCI: false
     inputs:
-      - '/apps/embedding-microservice'
+      - '/apps/embedding-microservice/**'
   
   dev: # add dep for running eigendb in the background
     command: 'source venv/bin/activate && fastapi dev run.py'
@@ -23,7 +23,7 @@ tasks:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     inputs:
-      - '/apps/embedding-microservice'
+      - '/apps/embedding-microservice/**'
     deps:
       - 'setup_venv'
 
@@ -32,13 +32,13 @@ tasks:
     options:
       runInCI: false
     inputs:
-      - '/apps/embedding-microservice'
+      - '/apps/embedding-microservice/**'
 
   run: # add dep for running eigendb in the background
     command: 'source venv/bin/activate && fastapi run run.py'
     options:
       runInCI: false
     inputs:
-      - '/apps/embedding-microservice'
+      - '/apps/embedding-microservice/**'
     deps:
       - 'setup_venv'

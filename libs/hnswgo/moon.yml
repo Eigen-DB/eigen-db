@@ -12,4 +12,4 @@ tasks:
   test:
     command: 'go test ./... -count=1'
     inputs:
-      - '/libs/hnswgo'
+      - '/libs/hnswgo/**'

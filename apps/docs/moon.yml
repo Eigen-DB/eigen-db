@@ -14,4 +14,4 @@ tasks:
     options:
       runInCI: false
     inputs:
-      - '/apps/docs'
+      - '/apps/docs/**'
