@@ -2,8 +2,6 @@ module eigen_db
 
 go 1.23
 
-toolchain go1.23.4
-
 require (
 	github.com/Eigen-DB/hnswgo/v2 v2.2.2
 	github.com/gin-gonic/gin v1.10.0
