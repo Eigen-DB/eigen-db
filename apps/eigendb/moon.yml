@@ -2,7 +2,8 @@ type: 'application'
 language: 'go'
 
 dependsOn:
-  - 'hnswgo'
+  - id: 'hnswgo'
+    scope: 'development'
 
 project:
   name: 'eigendb'
