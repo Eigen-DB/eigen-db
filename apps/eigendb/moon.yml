@@ -3,7 +3,7 @@ language: 'go'
 
 dependsOn:
   - id: 'hnswgo'
-    scope: 'build'
+    scope: 'development'
 
 project:
   name: 'eigendb'
@@ -28,9 +28,9 @@ tasks:
       - '/apps/eigendb/**'
 
   clean:
-    command: 'rm -rf dist; rm -rf api_key.txt; rm -rf hnsw_index.bin; rm -rf vector_space.vec; rm -rf config.yml'
+    command: 'rm -rf dist/; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml'
     inputs:
-      - '/apps/eigendb/eigen/**'
+      - '/apps/eigendb/**'
   
   test:
     command: 'go test ./... -count=1'

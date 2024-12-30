@@ -1,15 +1,19 @@
 module eigen_db
 
-go 1.20
+go 1.23
+
+toolchain go1.23.4
 
 require (
-	github.com/Eigen-DB/hnswgo/v2 v2.2.0
+	github.com/Eigen-DB/hnswgo/v2 v2.2.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/shirou/gopsutil/v4 v4.24.9
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+replace github.com/Eigen-DB/hnswgo/v2 v2.2.2 => ../../libs/hnswgo
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect
