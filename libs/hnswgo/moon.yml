@@ -13,6 +13,6 @@ tasks:
     command: 'go test ./... -count=1'
 
   lint:
-    command: 'proto run golangci-lint'
+    command: 'proto run golangci-lint -- run'
     inputs:
       - '/apps/hnswgo/**/*.go'
