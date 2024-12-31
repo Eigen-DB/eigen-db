@@ -3,7 +3,6 @@ language: 'go'
 
 dependsOn:
   - id: 'hnswgo'
-    scope: 'development'
 
 project:
   name: 'eigendb'
@@ -15,32 +14,27 @@ project:
 tasks:
   build:
     command: 'go build -o dist/eigen_db main.go'
-    inputs:
-      - '/apps/eigendb/**'
     outputs:
       - 'dist/eigen_db'
+    deps:
+      - '^:test'
 
   run:
     command: 'go run main.go'
     options:
       runInCI: false
-    inputs:
-      - '/apps/eigendb/**'
-
+      cache: false
+      
   clean:
     command: 'rm -rf dist/; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml'
-    inputs:
-      - '/apps/eigendb/**'
+    options:
+      cache: false
   
   test:
     command: 'go test ./... -count=1'
-    inputs:
-      - "/apps/eigendb/**"
 
   e2e:
     command: './run_e2e.sh'
-    inputs:
-      - '/apps/eigendb/**'
     deps:
       - 'clean'
     outputs: 
