@@ -2,3 +2,6 @@ golangci-lint = "1.61.0"
 
 [plugins]
 golangci-lint = "https://raw.githubusercontent.com/b4nst/proto-plugins/refs/heads/main/toml/golangci-lint.toml"
+
+[settings]
+auto-install = true
