@@ -26,12 +26,14 @@ tasks:
       cache: false
 
   clean:
-    command: 'rm -rf dist/; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml'
+    command: 'rm -rf dist/; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml; rm -rf e2e/logs'
     options:
       cache: false
   
   test:
     command: 'go test ./... -count=1'
+    deps:
+      - '^:test'
 
   e2e:
     command: './run_e2e.sh'
@@ -39,6 +41,7 @@ tasks:
       retryCount: 3 # in-case of flaky tests
     deps:
       - 'clean'
+      - '^:test'
     outputs: 
       - 'e2e/logs'
 
