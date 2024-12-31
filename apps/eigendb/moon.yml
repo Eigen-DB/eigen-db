@@ -46,6 +46,6 @@ tasks:
       - 'e2e/logs'
 
   lint:
-    command: 'proto run golangci-lint -- run'
+    command: 'proto run golangci-lint -- run --allow-parallel-runners'
     inputs:
       - '/apps/eigendb/**/*.go'
