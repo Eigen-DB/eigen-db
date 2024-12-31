@@ -1,5 +1,9 @@
 #!/bin/bash
-docker compose -f docker-compose-test.yml up -d --build
+docker compose -f docker-compose.e2e.yml up -d --build
+if [[ $? -ne 0 ]]; then
+    echo "Failed to start the e2e container."
+    exit 1
+fi
 
 which venom
 if [[ $? -ne 0 ]]; then

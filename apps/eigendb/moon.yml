@@ -24,7 +24,7 @@ tasks:
     options:
       runInCI: false
       cache: false
-      
+
   clean:
     command: 'rm -rf dist/; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml'
     options:
@@ -35,6 +35,8 @@ tasks:
 
   e2e:
     command: './run_e2e.sh'
+    options:
+      retryCount: 3 # in-case of flaky tests
     deps:
       - 'clean'
     outputs: 

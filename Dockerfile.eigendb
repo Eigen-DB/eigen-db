@@ -1,0 +1,39 @@
+FROM golang:1.23 AS builder
+
+WORKDIR /app
+
+COPY ../apps/eigendb ./apps/eigendb
+COPY ../libs/hnswgo ./libs/hnswgo
+
+WORKDIR /app/apps/eigendb
+
+RUN go mod edit -replace=github.com/Eigen-DB/hnswgo/v2=/app/libs/hnswgo
+
+# download eigendb's dependencies
+RUN go mod download
+
+# compile eigendb into a statically linked binary for easy portability across builder and alpine image
+RUN go build -ldflags="-linkmode external -extldflags -static" -o dist/eigen_db ./main.go
+
+FROM alpine:3.21.0
+
+# Install adduser utility in Alpine
+RUN apk add --no-cache shadow
+
+# Run binary as low-privilege user instead of root
+RUN adduser -D -u 1000 eigendb
+
+WORKDIR /app
+
+COPY --from=builder /app/apps/eigendb/dist/eigen_db eigen_db
+COPY --from=builder /app/apps/eigendb/eigen/ eigen/
+
+RUN chown -R eigendb:eigendb .
+
+USER eigendb
+
+ENV GIN_MODE=release
+
+EXPOSE 8080
+
+CMD ["/app/eigen_db"]
