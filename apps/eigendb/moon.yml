@@ -45,4 +45,7 @@ tasks:
     outputs: 
       - 'e2e/logs'
 
-  # write lint task here and for all apps and libs
+  lint:
+    command: 'proto run golangci-lint'
+    inputs:
+      - '/apps/eigendb/**/*.go'
