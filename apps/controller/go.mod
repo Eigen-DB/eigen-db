@@ -3,6 +3,7 @@ module controller
 go 1.23
 
 require (
+	github.com/carlmjohnson/requests v0.24.2
 	github.com/gin-gonic/gin v1.10.0
 	helm.sh/helm/v3 v3.16.2
 	k8s.io/apimachinery v0.31.2
@@ -25,7 +26,6 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/bytedance/sonic v1.12.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
-	github.com/carlmjohnson/requests v0.24.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect

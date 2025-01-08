@@ -46,6 +46,8 @@ tasks:
       - 'e2e/logs'
 
   lint:
-    command: 'proto run golangci-lint -- run --allow-parallel-runners'
+    command: 'go get; proto run golangci-lint -- run --allow-parallel-runners'
+    env:
+      GO111MODULE: 'on'
     inputs:
       - '/apps/eigendb/**/*.go'
