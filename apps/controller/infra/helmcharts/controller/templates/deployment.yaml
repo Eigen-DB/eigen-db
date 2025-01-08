@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eigeninfra-controller-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: eigeninfra-controller-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eigeninfra-controller-pod
+  template:
+    metadata:
+      labels:
+        app: eigeninfra-controller-pod
+    spec:
+      containers:
+        - name: eigen-controller
+          image: {{ .Values.container.image }}:{{ .Values.container.tag }}
+          ports:
+            - containerPort: {{ .Values.container.port }}
+          #resources:
+          #  requests:
+          #    cpu: "100m"
+          #    memory: "128Mi"
+          #  limits:
+          #    cpu: "500m"
+          #    memory: "512Mi"
+          #readinessProbe:
+          #  httpGet:
+          #    path: /health
+          #    port: 8080
+          #  initialDelaySeconds: 5
+          #  periodSeconds: 10
+          #livenessProbe:
+          #  httpGet:
+          #    path: /health
+          #    port: 8080
+          #  initialDelaySeconds: 15
+          #  periodSeconds: 20

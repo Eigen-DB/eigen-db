@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eigen-{{ .Values.customerId }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: eigen-{{ .Values.customerId }}
+spec:
+  serviceName: "eigen-service" # Name of the headless service for stable networking
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eigen-{{ .Values.customerId }}
+  template:
+    metadata:
+      labels:
+        app: eigen-{{ .Values.customerId }}
+    spec:
+      containers:
+        - name: eigendb
+          image: {{ .Values.container.image }}:{{ .Values.container.tag }}
+          ports:
+            - containerPort: {{ .Values.container.port }}
+          env:
+            - name: GIN_MODE
+              value: "release"
+            - name: TEST_MODE
+              value: "0"
+          command:
+            - /bin/bash
+            - "-c"
+            - |
+              # Create a symlink between /data and /app/eigen.
+              # This is done as mount directly to /app/eigen will wipe it's data on volume mount
+              mv /app/eigen /tmp
+              ln -sf /data /app/eigen
+              mv /tmp/eigen/* /app/eigen
+              rm -rf /tmp/eigen
+
+              # Start EigenDB
+              /app/eigen_db --api-key {{ .Values.apiKey }}
+          # Uncomment and configure readinessProbe and livenessProbe as needed
+          # readinessProbe:
+          #   exec:
+          #     command: ["/app/health_check.py"]
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 30
+          #   timeoutSeconds: 30
+          #   failureThreshold: 3
+          # livenessProbe:
+          #   exec:
+          #     command: ["/app/health_check.py"]
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 30
+          #   timeoutSeconds: 30
+          #   failureThreshold: 3
+          resources:
+            requests:
+              memory: {{ .Values.requestedResources.memory }}
+              cpu: {{ .Values.requestedResources.cpu }}
+            limits:
+              memory: {{ .Values.resourceLimits.memory }}
+              cpu: {{ .Values.resourceLimits.cpu }}
+          volumeMounts:
+            - name: eigen-{{ .Values.customerId }}-vol
+              mountPath: /data # there is a symlink from /app/eigen to /data to avoid config.yaml and other files in /app/eigen to be overwritten during volume mount
+  volumeClaimTemplates:
+    - metadata:
+        name: eigen-{{ .Values.customerId }}-vol
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.requestedResources.storage }}

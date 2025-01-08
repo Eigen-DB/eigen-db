@@ -9,21 +9,24 @@ project:
     - '@ryan-awad'
 
 tasks:
-  setup_venv:
-    command: 'python3 -m virtualenv venv && source venv/bin/activate && pip3 install -r requirements.txt'
+  create_venv:
+    command: 'python3 -m virtualenv .venv && source ./.venv/bin/activate && pip3 install -r requirements.txt'
+    inputs:
+      - '/apps/embedding-microservice/.venv/**'
     options:
       runInCI: false
-      cache: false
   
   dev: # add dep for running eigendb in the background
-    command: 'source venv/bin/activate && fastapi dev run.py'
+    command: 'source ./.venv/bin/activate && fastapi dev run.py'
+    inputs:
+      - '/apps/embedding-microservice/**'
     options:
       runInCI: false
       cache: false
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     deps:
-      - 'setup_venv'
+      - 'create_venv'
 
   clean:
     command: 'rm -rf **/__pycache__ || true' # || true to always return code 0 even if no files are found
@@ -32,9 +35,9 @@ tasks:
       cache: false
 
   run: # add dep for running eigendb in the background
-    command: 'source venv/bin/activate && fastapi run run.py'
+    command: 'source ./.venv/bin/activate && fastapi run run.py'
     options:
       runInCI: false
       cache: false
     deps:
-      - 'setup_venv'
+      - 'create_venv'

@@ -1,0 +1,29 @@
+type: 'application'
+language: 'go'
+
+project:
+  name: 'controller'
+  description: 'Kubernetes controller for managing customer instances on Eigen Cloud'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  build:
+    command: 'go build -o dist/controller main.go'
+    outputs:
+      - 'dist/controller'
+
+  run:
+    command: 'go run main.go'
+    options:
+      runInCI: false
+      cache: false
+  
+  test:
+    command: 'go test ./... -count=1'
+
+  lint:
+    command: 'proto run golangci-lint -- run --allow-parallel-runners'
+    inputs:
+      - '/apps/controller/**/*.go'

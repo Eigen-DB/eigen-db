@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eigen-{{ .Values.customerId }}-ingress
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: {{ .Values.customerId }}.127.0.0.1.nip.io # using nip.io for local development. Production will use our real public domain.
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: eigen-{{ .Values.customerId }}-svc
+                port:
+                  number: 80

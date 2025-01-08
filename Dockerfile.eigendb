@@ -2,8 +2,8 @@ FROM golang:1.23 AS builder
 
 WORKDIR /app
 
-COPY ../apps/eigendb ./apps/eigendb
-COPY ../libs/hnswgo ./libs/hnswgo
+COPY ./apps/eigendb ./apps/eigendb
+COPY ./libs/hnswgo ./libs/hnswgo
 
 WORKDIR /app/apps/eigendb
 
@@ -36,4 +36,5 @@ ENV GIN_MODE=release
 
 EXPOSE 8080
 
-CMD ["/app/eigen_db"]
+# using ENTRYPOINT instead of CMD to allow for passing arguments to the binary
+ENTRYPOINT ["/app/eigen_db"]
