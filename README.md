@@ -8,6 +8,7 @@
 ![](https://github.com/eigen-db/eigen-db/actions/workflows/conventional_commits.yml/badge.svg)
 
 
+![Monorepo badge](https://img.shields.io/badge/Monorepo-171c57?style=flat&logo=moonrepo&link=https%3A%2F%2Fnx.dev%2F)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <a href="https://conventionalcommits.org">
     <img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white" alt="Conventional Commits">
@@ -15,10 +16,17 @@
 <a href="http://commitizen.github.io/cz-cli/">
     <img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen friendly">
 </a>
-![](https://img.shields.io/github/repo-size/eigen-db/eigen-db)
+![Repo size badge](https://img.shields.io/github/repo-size/eigen-db/eigen-db)
 <!--<a href="https://semantic-release.gitbook.io/semantic-release">
     <img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square" alt="Semantic Release">
 </a>-->
+
+![Go](https://img.shields.io/badge/Go-%2300ADD8.svg?style=flat&logo=go&logoColor=white)
+![C++](https://img.shields.io/badge/C++-%2300599C.svg?style=flat&logo=c%2B%2B&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3670A0?style=flat&logo=python&logoColor=ffdd54)
+![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-%23326ce5.svg?style=flat&logo=kubernetes&logoColor=white)
+
 </div>
 
 ## Table of contents
