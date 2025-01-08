@@ -113,6 +113,7 @@ func TerminateInstance(customerId string) (*release.UninstallReleaseResponse, er
 
 // used for testing the API key. this function (in theory) should create a delay until a customer instance is fully created, before sending a /test-auth request
 // testing the API key has been planned to do later so this function is currently un-used.
+// nolint:all
 func pollUntilInstanceReady(customerId string, timeout time.Duration) error {
 	namespace := generateNamespaceString(customerId)
 	statefulSetName := "eigen-" + customerId
@@ -134,6 +135,7 @@ func pollUntilInstanceReady(customerId string, timeout time.Duration) error {
 	})
 }
 
+// nolint:all
 func testApiKey(key string, instanceUrl string) error {
 	type resSchema struct {
 		Status  int            `json:"status"`
@@ -170,6 +172,7 @@ func generateReleaseName(customerId string) string {
 	return fmt.Sprintf("eigendb-%s-release", customerId)
 }
 
+// nolint:all
 func getInstanceUrl(customerId string) string {
 	return fmt.Sprintf("http://%s.127.0.0.1.nip.io", customerId)
 }
