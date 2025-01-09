@@ -10,8 +10,5 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 'Install Go linter'
-        run: 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.62.2'
-      
       - uses: 'moonrepo/setup-toolchain@v0'
       - run: 'moon ci'
