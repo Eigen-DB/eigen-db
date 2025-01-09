@@ -46,7 +46,7 @@ tasks:
       - 'e2e/logs'
 
   lint:
-    command: 'go get; proto run golangci-lint -- run --allow-parallel-runners'
+    command: 'proto run golangci-lint -- run --allow-parallel-runners --timeout 2m0s'
     env:
       GO111MODULE: 'on'
     inputs:
