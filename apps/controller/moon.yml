@@ -24,7 +24,7 @@ tasks:
     command: 'go test ./... -count=1'
 
   lint:
-    command: 'proto run golangci-lint -- run --allow-parallel-runners --timeout 2m0s'
+    command: 'golangci-lint run --allow-parallel-runners'
     env:
       GO111MODULE: 'on'
     inputs:
