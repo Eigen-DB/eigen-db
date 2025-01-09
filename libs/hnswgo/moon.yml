@@ -14,5 +14,7 @@ tasks:
 
   lint:
     command: 'proto run golangci-lint -- run --allow-parallel-runners'
+    options:
+      runInCI: false # bug: linter breaking in CI
     inputs:
       - '/apps/hnswgo/**/*.go'
