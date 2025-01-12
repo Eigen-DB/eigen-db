@@ -1,0 +1,4 @@
+$schema: 'https://moonrepo.dev/schemas/toolchain.json'
+
+moon:
+  downloadUrl: 'https://github.com/moonrepo/moon/releases/tag/v1.31.1'

@@ -1,0 +1,9 @@
+services:
+  eigen_db:
+    build: 
+      context: ../../
+      dockerfile: Dockerfile.eigendb
+    ports:
+      - "8080:8080"
+    environment:
+      - E2E_TEST_MODE=1

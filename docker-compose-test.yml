@@ -1,9 +1,0 @@
-services:
-  eigen_db:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      - GIN_MODE=release
-      - E2E_TEST_MODE=1
-    command: ["/bin/bash", "-c", "/app/eigen_db"]

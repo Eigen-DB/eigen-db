@@ -1,0 +1,20 @@
+type: 'library'
+language: 'go'
+
+project:
+  name: 'hnswgo'
+  description: 'A Go wrapper for hnswlib'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  test:
+    command: 'go test ./... -count=1'
+
+  lint:
+    command: 'proto run golangci-lint -- run --allow-parallel-runners'
+    options:
+      runInCI: false # go linters are ran differently in CI
+    inputs:
+      - '/apps/hnswgo/**/*.go'

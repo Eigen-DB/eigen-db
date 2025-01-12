@@ -1,0 +1,4 @@
+.vscode/
+hnswgo
+rough_testing/
+bazel-*/

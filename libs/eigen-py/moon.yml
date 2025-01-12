@@ -1,0 +1,27 @@
+type: 'library'
+language: 'python'
+
+project:
+  name: 'eigen-py'
+  description: "EigenDB's Official Python API"
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  setup_venv:
+    command: 'python3 -m virtualenv .venv && source .venv/bin/activate && python3 setup.py install'
+    options:
+      runInCI: false
+      cache: false
+  
+  build:
+    command: python3 setup.py build
+    options:
+      runInCI: true
+
+  clean:
+    command: 'rm -rf build/ && rm -rf dist/ && rm -rf **/*.egg-info && rm -rf **/__pycache__ || true'
+    options:
+      runInCI: false
+      cache: false

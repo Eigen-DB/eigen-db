@@ -1,9 +1,5 @@
-eigen_db
-e2e/*.log
-e2e/logs/
-eigen/*
 node_modules/
-benchmarks/*.log
-benchmarks/*_mean_*.csv
 
-!eigen/.keep
+# moon
+.moon/cache
+.moon/docker
