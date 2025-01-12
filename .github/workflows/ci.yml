@@ -9,6 +9,29 @@ jobs:
       - uses: 'actions/checkout@v4'
         with:
           fetch-depth: 0
+      
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Linter (apps/eigendb)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+          working-directory: apps/eigendb
+
+      - name: Linter (apps/controller)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+          working-directory: apps/controller
+          
+      - name: Linter (libs/hnswgo)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+          working-directory: libs/hnswgo
 
       - uses: 'moonrepo/setup-toolchain@v0'
       - run: 'moon ci'

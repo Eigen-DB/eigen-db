@@ -26,7 +26,7 @@ tasks:
   lint:
     command: 'golangci-lint run --allow-parallel-runners'
     options:
-      runInCI: false # bug: linter breaking in CI
+      runInCI: false # go linters are ran differently in CI
     env:
       GO111MODULE: 'on'
     inputs:
