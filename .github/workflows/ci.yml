@@ -20,18 +20,21 @@ jobs:
         with:
           version: v1.60
           working-directory: apps/eigendb
+          args: --timeout=3m
 
       - name: Linter (apps/controller)
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60
           working-directory: apps/controller
-          
+          args: --timeout=3m
+
       - name: Linter (libs/hnswgo)
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60
           working-directory: libs/hnswgo
+          args: --timeout=3m
 
       - uses: 'moonrepo/setup-toolchain@v0'
       - run: 'moon ci'
