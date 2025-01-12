@@ -38,3 +38,4 @@ jobs:
 
       - uses: 'moonrepo/setup-toolchain@v0'
       - run: 'moon ci'
+        working-directory: ${{ github.workspace }}
