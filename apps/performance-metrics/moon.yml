@@ -10,7 +10,7 @@ project:
 
 tasks:
   setup_venv:
-    command: 'python3 -m virtualenv .venv && source venv/bin/activate && pip3 install -r requirements.txt'
+    command: 'python3 -m virtualenv .venv && source .venv/bin/activate && pip3 install -r requirements.txt'
     options:
       runInCI: false
       cache: false 
