@@ -1,5 +1,5 @@
 <div align="center">
-<img src=".github/assets/logo.svg" width="450px">
+<img src="../../.github/assets/logo.svg" width="450px">
 
 ### ⚡ The blazingly fast in-memory vector database 🚀 
 

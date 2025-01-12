@@ -1,0 +1,21 @@
+# Default values for eigendb.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# values to be manually set at installation
+customerId:
+apiKey:
+
+requestedResources:
+  memory: "128Mi"
+  cpu: "500m" # m = millicores. 1000m = 1 CPU core
+  storage: "500Mi"
+
+resourceLimits:
+  memory: "256Mi"
+  cpu: "1000m"
+
+container:
+  tag: "latest"
+  port: 8080
+  image: "k3d-eigen-cloud-dev-reg.localhost:5000/eigendb"

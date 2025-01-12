@@ -1,0 +1,35 @@
+FROM golang:1.23 AS builder
+
+# FIGURE OUT THE BEST WAY TO ACCESS A KUBECONFIG FILE FROM WITHIN THE CONTAINER
+
+WORKDIR /app
+
+COPY ./apps/controller .
+
+# download controller's dependencies
+RUN go mod download
+
+# compile controller into a statically linked binary for easy portability across builder and alpine image
+RUN go build -ldflags="-linkmode external -extldflags -static" -o dist/controller ./main.go
+
+FROM alpine:3.21.0
+
+# Install adduser utility in Alpine
+RUN apk add --no-cache shadow
+
+# Run binary as low-privilege user instead of root
+RUN adduser -D -u 1000 controller
+
+WORKDIR /app
+
+COPY --from=builder /app/dist/controller controller
+
+RUN chown -R controller:controller .
+
+USER controller
+
+ENV GIN_MODE=release
+
+EXPOSE 8080
+
+ENTRYPOINT ["/app/controller"]

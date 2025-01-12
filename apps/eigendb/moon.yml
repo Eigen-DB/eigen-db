@@ -1,0 +1,55 @@
+type: 'application'
+language: 'go'
+
+dependsOn:
+  - id: 'hnswgo'
+
+project:
+  name: 'eigendb'
+  description: 'A blazing fast, in-memory, vector database'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  build:
+    command: 'go build -o dist/eigen_db main.go'
+    outputs:
+      - 'dist/eigen_db'
+    deps:
+      - '^:test'
+
+  run:
+    command: 'go run main.go'
+    options:
+      runInCI: false
+      cache: false
+
+  clean:
+    command: 'rm -rf dist/; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml; rm -rf e2e/logs'
+    options:
+      cache: false
+  
+  test:
+    command: 'go test ./... -count=1'
+    deps:
+      - '^:test'
+
+  e2e:
+    command: './run_e2e.sh'
+    options:
+      retryCount: 3 # in-case of flaky tests
+    deps:
+      - 'clean'
+      - '^:test'
+    outputs: 
+      - 'e2e/logs'
+
+  lint:
+    command: 'golangci-lint run --allow-parallel-runners'
+    options:
+      runInCI: false # go linters are ran differently in CI
+    env:
+      GO111MODULE: 'on'
+    inputs:
+      - '/apps/eigendb/**/*.go'

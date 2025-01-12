@@ -1,0 +1,32 @@
+type: 'application'
+language: 'python'
+
+project:
+  name: 'performance-metrics'
+  description: 'Visualize performance metrics for EigenDB'
+  owner: '@ryan-awad'
+  maintainers:
+    - '@ryan-awad'
+
+tasks:
+  setup_venv:
+    command: 'python3 -m virtualenv .venv && source .venv/bin/activate && pip3 install -r requirements.txt'
+    options:
+      runInCI: false
+      cache: false 
+  
+  dev: 
+    command: 'source venv/bin/activate && python3 -m streamlit run main.py'
+    options:
+      runInCI: false
+      cache: false
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    deps:
+      - 'setup_venv'
+
+  clean:
+    command: 'rm -rf **/__pycache__ || true' # || true to always return code 0 even if no files are found
+    options:
+      runInCI: false
+      cache: false
