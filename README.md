@@ -3,8 +3,7 @@
 
 ### ⚡ The blazingly fast in-memory vector database 🚀 
 
-![](https://github.com/eigen-db/eigen-db/actions/workflows/tests.yml/badge.svg)
-![](https://github.com/eigen-db/eigen-db/actions/workflows/linting.yml/badge.svg)
+![](https://github.com/eigen-db/eigen-db/actions/workflows/ci.yml/badge.svg)
 ![](https://github.com/eigen-db/eigen-db/actions/workflows/conventional_commits.yml/badge.svg)
 
 
