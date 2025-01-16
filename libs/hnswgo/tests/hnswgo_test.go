@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Eigen-DB/hnswgo/v2"
+	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v3"
 
 	"github.com/stretchr/testify/assert"
 )
