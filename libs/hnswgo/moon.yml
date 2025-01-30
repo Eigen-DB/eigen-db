@@ -17,4 +17,4 @@ tasks:
     options:
       runInCI: false # go linters are ran differently in CI
     inputs:
-      - '/apps/hnswgo/**/*.go'
+      - '/libs/hnswgo/**/*.go'
