@@ -1,0 +1,3 @@
+[submodule "libs/faissgo/lib/faiss"]
+	path = libs/faissgo/lib/faiss
+	url = https://github.com/facebookresearch/faiss
