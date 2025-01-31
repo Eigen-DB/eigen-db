@@ -1,0 +1,3 @@
+package faissgo
+
+import "C"
