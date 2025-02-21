@@ -15,7 +15,7 @@ import (
 	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/faiss"
 )
 
-type index interface {
+type Index interface {
 	Train(vecsFlat []float32) error
 
 	Add(vecsFlat []float32) error

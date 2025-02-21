@@ -16,7 +16,7 @@ import (
 )
 
 // desc: https://github.com/facebookresearch/faiss/wiki/The-index-factory
-func IndexFactory(dim int, desc string, metric faiss.MetricType) (index, error) {
+func IndexFactory(dim int, desc string, metric faiss.MetricType) (Index, error) {
 	cDesc := C.CString(desc)
 	defer C.free(unsafe.Pointer(cDesc))
 
