@@ -1,7 +1,6 @@
 package index
 
 /*
-#cgo CXXFLAGS: -I${SRCDIR}/../lib/faiss/c_api
 #cgo LDFLAGS: -lfaiss_c -lstdc++
 
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-# hnswgo [![Go Reference](https://pkg.go.dev/badge/github.com/Eigen-DB/hnswgo/v2.svg)](https://pkg.go.dev/github.com/Eigen-DB/hnswgo/v2)
+# hnswgo [![Go Reference](https://pkg.go.dev/badge/github.com/Eigen-DB/eigen-db/libs/hnswgo)](https://pkg.go.dev/github.com/Eigen-DB/eigen-db/libs/hnswgo)
 
 ### A Go wrapper for [hnswlib](https://github.com/nmslib/hnswlib)⚡ 
 

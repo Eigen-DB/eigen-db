@@ -1,7 +1,6 @@
 package index
 
 /*
-#cgo CXXFLAGS: -I${SRCDIR}/../lib/faiss/c_api
 #cgo LDFLAGS: -lfaiss_c -lstdc++
 
 #include <stdlib.h>
@@ -130,6 +129,9 @@ func (idx *faissIndex) WriteToDisk(path string) error {
 	return nil
 }
 
+// When loading an index from disk, the index description passed into the Index Factory
+// doesn't matter as the index you created to load the index from disk will be replaced
+// by the one on disk.
 func (idx *faissIndex) LoadFromDisk(path string) error {
 	fName := C.CString(path)
 	defer C.free(unsafe.Pointer(fName))
@@ -141,6 +143,7 @@ func (idx *faissIndex) LoadFromDisk(path string) error {
 	if c != 0 {
 		return faiss.GetLastError()
 	}
+
 	return nil
 }
 

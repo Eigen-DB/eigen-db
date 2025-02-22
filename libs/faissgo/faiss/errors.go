@@ -1,7 +1,6 @@
 package faiss
 
 /*
-#cgo CXXFLAGS: -I${SRCDIR}/../lib/faiss/c_api
 #cgo LDFLAGS: -lfaiss_c -lstdc++
 
 #include <faiss/c_api/error_c.h>

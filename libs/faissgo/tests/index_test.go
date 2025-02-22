@@ -11,7 +11,11 @@ import (
 	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/index"
 )
 
-var testIndex index.Index
+var idxIDMap index.Index
+var idxHNSW index.Index
+var idxPQ index.Index
+
+const DIM int = 128
 
 func generateRandomVectors(numVecs int, dim int) []float32 {
 	vectors := make([]float32, dim*numVecs)
@@ -24,22 +28,48 @@ func generateRandomVectors(numVecs int, dim int) []float32 {
 }
 
 func setup() error {
-	idx, err := index.IndexFactory(
-		128,
+	_idxIDMap, err := index.IndexFactory(
+		DIM,
+		"IDMap,HNSW32",
+		faiss.MetricL2,
+	)
+	if err != nil {
+		return errors.New("Error setting up test suite: " + err.Error())
+	}
+
+	_idxHNSW, err := index.IndexFactory(
+		DIM,
+		"HNSW32",
+		faiss.MetricL2,
+	)
+	if err != nil {
+		return errors.New("Error setting up test suite: " + err.Error())
+	}
+
+	_idxPQ, err := index.IndexFactory(
+		DIM,
 		"HNSW32_PQ16x8",
 		faiss.MetricL2,
 	)
 	if err != nil {
 		return errors.New("Error setting up test suite: " + err.Error())
 	}
-	testIndex = idx
+
+	idxIDMap = _idxIDMap
+	idxHNSW = _idxHNSW
+	idxPQ = _idxPQ
+
 	return nil
 }
 
 func teardown() error {
-	testIndex.Free()
-	if err := os.Remove(idxPersistPath); err != nil {
-		return err
+	idxIDMap.Free()
+	idxHNSW.Free()
+	idxPQ.Free()
+	if _, err := os.Stat(idxPersistPath); !os.IsNotExist(err) {
+		if err := os.Remove(idxPersistPath); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -70,26 +100,26 @@ func TestIndexFactory(t *testing.T) {
 }
 
 func TestTrain(t *testing.T) {
-	vectors := generateRandomVectors(1000, 128)
-	if err := testIndex.Train(vectors); err != nil {
+	vectors := generateRandomVectors(256, DIM)
+	if err := idxPQ.Train(vectors); err != nil {
 		t.Errorf("Error training index: %v", err)
 	}
 }
 
 func TestAdd(t *testing.T) {
-	vectors := generateRandomVectors(1000, 128)
-	if err := testIndex.Add(vectors); err != nil {
+	vectors := generateRandomVectors(1000, DIM)
+	if err := idxHNSW.Add(vectors); err != nil {
 		t.Errorf("Error adding vectors: %v", err)
 	}
 }
 
-func TestAddWithIds(t *testing.T) { // potential issue: overlap of ids with vectors inserted in TestAdd
-	vectors := generateRandomVectors(1000, 128)
+func TestAddWithIds(t *testing.T) {
+	vectors := generateRandomVectors(1000, DIM)
 	ids := make([]int64, 1000)
 	for i := 0; i < 1000; i++ {
 		ids[i] = int64(i) * 7 // Add() will automatically assign IDs in increasing order so I chose a different pattern to test AddWithIds()
 	}
-	if err := testIndex.AddWithIds(vectors, ids); err != nil {
+	if err := idxIDMap.AddWithIds(vectors, ids); err != nil {
 		t.Errorf("Error adding vectors with IDs: %v", err)
 	}
 }
@@ -99,9 +129,9 @@ func TestRemoveIds(t *testing.T) {
 }
 
 func TestSearch(t *testing.T) {
-	queryVector := generateRandomVectors(1, 128)
+	queryVector := generateRandomVectors(1, DIM)
 	k := int64(5)
-	ids, dists, err := testIndex.Search(queryVector, k) // vectors have already been added from TestAdd and TestAddWithIds
+	ids, dists, err := idxIDMap.Search(queryVector, k) // vectors have already been added from TestAdd and TestAddWithIds
 	if err != nil {
 		t.Errorf("Error searching KNN: %v", err)
 	}
@@ -111,14 +141,19 @@ func TestSearch(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	_, err := testIndex.Reconstruct(0) // todo: log the reconstructed vector (curious)
+	v := generateRandomVectors(1, DIM)
+	if err := idxPQ.Add(v); err != nil {
+		t.Errorf("Error adding vector: %v", err)
+	}
+	r, err := idxPQ.Reconstruct(0)
+	t.Logf("Reconstructed vector: %v", r) // curious
 	if err != nil {
 		t.Errorf("Error reconstructing vector: %v", err)
 	}
 }
 
 func TestIsTrained(t *testing.T) {
-	if !testIndex.IsTrained() {
+	if !idxPQ.IsTrained() {
 		t.Errorf("Index is said to not be trained when in fact it was trained in TestTrain()")
 	}
 }

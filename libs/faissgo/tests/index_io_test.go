@@ -11,7 +11,7 @@ import (
 var idxPersistPath string = "/tmp/index.bin"
 
 func TestWriteToDisk(t *testing.T) {
-	if err := testIndex.WriteToDisk(idxPersistPath); err != nil {
+	if err := idxIDMap.WriteToDisk(idxPersistPath); err != nil {
 		t.Fatalf("Error writing index to disk: %v", err)
 	}
 	if _, err := os.Stat(idxPersistPath); os.IsNotExist(err) {
@@ -20,7 +20,7 @@ func TestWriteToDisk(t *testing.T) {
 }
 
 func TestLoadFromDisk(t *testing.T) {
-	idx, err := index.IndexFactory(128, "HNSW32_PQ16x8", faiss.MetricL2)
+	idx, err := index.IndexFactory(DIM, "IDMap,HNSW32", faiss.MetricL2)
 	if err != nil {
 		t.Fatalf("Error creating index: %v", err)
 	}
@@ -31,7 +31,7 @@ func TestLoadFromDisk(t *testing.T) {
 	}
 
 	// using idx.Search() to test if the index was loaded correctly
-	queryVec := generateRandomVectors(1, 128)
+	queryVec := generateRandomVectors(1, DIM)
 	k := int64(5)
 	nnIds, nnDists, err := idx.Search(queryVec, k)
 	if err != nil {
@@ -42,16 +42,14 @@ func TestLoadFromDisk(t *testing.T) {
 	}
 }
 
-func TestLoadFromDiskInvalidIndexConfig(t *testing.T) {
-	idx, err := index.IndexFactory(128, "HNSW32", faiss.MetricL2) // HNSW32 instead of HNSW32_PQ16x8
+func TestLoadFromDiskDifferentIndexDesc(t *testing.T) {
+	idx, err := index.IndexFactory(64, "HNSW32_PQ16x8", faiss.MetricInnerProduct)
 	if err != nil {
 		t.Fatalf("Error creating index: %v", err)
 	}
 	defer idx.Free()
 
-	if err := idx.LoadFromDisk(idxPersistPath); err == nil {
-		t.Fatalf("Expected error loading index from disk with invalid index config")
-	} else {
-		t.Logf("(THIS ERROR IS ON PURPOSE) Error loading index from disk with invalid index config: %v", err)
+	if err := idx.LoadFromDisk(idxPersistPath); err != nil {
+		t.Fatalf("Error loading index from disk with different index description.\nExpected index in memory to simply be replaced by index loaded from disk: %v", err)
 	}
 }
