@@ -41,6 +41,7 @@ COPY . /app
 WORKDIR /app
 
 # install Intel MKL
+# (could probably speed up the build process by just copying in /opt/intel from the builder stage)
 RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 RUN sh -c 'echo "deb https://apt.repos.intel.com/oneapi all main" > /etc/apt/sources.list.d/oneAPI.list'
@@ -54,5 +55,6 @@ COPY --from=builder /app/faiss /usr/include/faiss
 RUN go mod tidy
 
 RUN echo "source /opt/intel/oneapi/mkl/latest/env/vars.sh" >> ~/.bashrc
+RUN echo "export PATH=/usr/local/go/bin:/go/bin:$PATH" >> ~/.bashrc
 
-ENTRYPOINT [ "/bin/bash", "-c"]
+ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
