@@ -9,6 +9,7 @@ package index
 */
 import "C"
 import (
+	"errors"
 	"unsafe"
 
 	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/faiss"
@@ -82,7 +83,7 @@ func (idx *faissIndex) AddWithIds(vecsFlat []float32, ids []int64) error {
 }
 
 func (idx *faissIndex) RemoveIds(n int64, ids []int64) error {
-	return nil
+	return errors.New("not implemented yet")
 }
 
 func (idx *faissIndex) Search(queryVecsFlat []float32, k int64) ([]int64, []float32, error) {
