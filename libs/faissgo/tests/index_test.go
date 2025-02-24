@@ -100,8 +100,18 @@ func TestIndexFactory(t *testing.T) {
 }
 
 func TestTrain(t *testing.T) {
-	vectors := generateRandomVectors(256, DIM)
-	if err := idxPQ.Train(vectors); err != nil {
+	dim := 2
+	idx, err := index.IndexFactory( // creating an index with smaller dimensionality to speed up training
+		dim,
+		"PQ2x8",
+		faiss.MetricL2,
+	)
+	if err != nil {
+		t.Errorf("Error creating index: %v", err)
+	}
+	defer idx.Free()
+	vectors := generateRandomVectors(256, dim)
+	if err := idx.Train(vectors); err != nil {
 		t.Errorf("Error training index: %v", err)
 	}
 }
