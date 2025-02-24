@@ -1,3 +1,5 @@
+# This Dockerfile is used to build an environment containing all system dependencies needed to use this library
+
 FROM debian:latest AS builder
 
 SHELL ["/bin/bash", "-c"]

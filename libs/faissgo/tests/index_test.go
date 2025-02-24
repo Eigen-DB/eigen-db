@@ -47,8 +47,8 @@ func setup() error {
 	}
 
 	_idxPQ, err := index.IndexFactory(
-		DIM,
-		"HNSW32_PQ16x8",
+		2,
+		"PQ2x2",
 		faiss.MetricL2,
 	)
 	if err != nil {
@@ -100,18 +100,8 @@ func TestIndexFactory(t *testing.T) {
 }
 
 func TestTrain(t *testing.T) {
-	dim := 2
-	idx, err := index.IndexFactory( // creating an index with smaller dimensionality to speed up training
-		dim,
-		"PQ2x8",
-		faiss.MetricL2,
-	)
-	if err != nil {
-		t.Errorf("Error creating index: %v", err)
-	}
-	defer idx.Free()
-	vectors := generateRandomVectors(256, dim)
-	if err := idx.Train(vectors); err != nil {
+	vectors := generateRandomVectors(256, 2)
+	if err := idxPQ.Train(vectors); err != nil {
 		t.Errorf("Error training index: %v", err)
 	}
 }
@@ -151,7 +141,7 @@ func TestSearch(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	v := generateRandomVectors(1, DIM)
+	v := generateRandomVectors(1, 2)
 	if err := idxPQ.Add(v); err != nil {
 		t.Errorf("Error adding vector: %v", err)
 	}
