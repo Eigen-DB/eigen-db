@@ -26,13 +26,17 @@ type Index interface {
 
 	Search(queryVectsFlat []float32, k int64) ([]int64, []float32, error)
 
-	Reconstruct(id int64) ([]float32, error)
+	Reconstruct(id int64) ([]float32, error) // can be used to fetch a vector for any type of index (i think)
+
+	ReconstructN(id int64, n int64) ([]float32, error) // Reconstruct vectors id to id + n - 1
 
 	WriteToDisk(path string) error
 
 	LoadFromDisk(path string) error
 
 	IsTrained() bool
+
+	NTotal() int64
 
 	Free()
 }
@@ -86,10 +90,18 @@ func (idx *faissIndex) RemoveIds(n int64, ids []int64) error {
 	return errors.New("not implemented yet")
 }
 
+// supports many query vectors at once
 func (idx *faissIndex) Search(queryVecsFlat []float32, k int64) ([]int64, []float32, error) {
-	n := int64(len(queryVecsFlat) / idx.dim)
-	labels := make([]int64, n*k)
-	dists := make([]float32, n*k)
+	n := int64(len(queryVecsFlat) / idx.dim) // number of query vectors
+	var labels []int64
+	var dists []float32
+	if k > idx.NTotal() {
+		labels = make([]int64, n*idx.NTotal())
+		dists = make([]float32, n*idx.NTotal())
+	} else {
+		labels = make([]int64, n*k)
+		dists = make([]float32, n*k)
+	}
 	c := C.faiss_Index_search(
 		idx.faissIdx,
 		C.idx_t(n),
@@ -115,6 +127,24 @@ func (idx *faissIndex) Reconstruct(id int64) ([]float32, error) {
 		return nil, faiss.GetLastError()
 	}
 	return v, nil
+}
+
+func (idx *faissIndex) ReconstructN(id int64, n int64) ([]float32, error) {
+	// TODO: prevent function caller from making the range of reconstructed vector out of bounds of the index
+	// simple solution: if id + n > idx.NTotal() -> truncate the range to fit within the bound of the index
+	// problem: this solution works when the index type requires vectors to be added without an ID (increasing from 0 to n-1).
+	// It is still unclear how this function will behave with an index with custom vector IDs.
+	vecs := make([]float32, n*int64(idx.dim))
+	c := C.faiss_Index_reconstruct_n(
+		idx.faissIdx,
+		C.idx_t(id),
+		C.idx_t(n),
+		(*C.float)(&vecs[0]),
+	)
+	if c != 0 {
+		return nil, faiss.GetLastError()
+	}
+	return vecs, nil
 }
 
 func (idx *faissIndex) WriteToDisk(path string) error {
@@ -150,6 +180,14 @@ func (idx *faissIndex) LoadFromDisk(path string) error {
 
 func (idx *faissIndex) IsTrained() bool {
 	return C.faiss_Index_is_trained(idx.faissIdx) != 0
+}
+
+func (idx *faissIndex) NTotal() int64 {
+	n := C.faiss_Index_ntotal(idx.faissIdx)
+	// if n < 0 {
+	// 	return 0
+	// }
+	return int64(n)
 }
 
 func (idx *faissIndex) Free() {

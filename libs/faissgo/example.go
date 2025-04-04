@@ -2,66 +2,141 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand/v2"
 
 	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/faiss"
 	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/index"
 )
 
-func main() {
-	dim := 128
-	nVec := 1000
-	idx, err := index.IndexFactory(dim, "HNSW32_PQ16x8", faiss.MetricL2)
-	if err != nil {
-		panic(err)
-	}
-	defer idx.Free()
+var dim int = 128
+var simMetric faiss.MetricType = faiss.MetricL2
+var nBits int = 4
+var bufferIdx index.Index
+var mainIdx index.Index
 
-	vectors := make([]float32, nVec*dim)
-	for i := 0; i < nVec; i++ {
-		for j := 0; j < dim; j++ {
+func addVectors(vectors []float32) error { // this is a good solution TBH
+	if mainIdx.IsTrained() {
+		fmt.Println("Main index trained!")
+		return mainIdx.Add(vectors)
+	} else {
+		fmt.Println("Main index NOT trained...")
+		if err := bufferIdx.Add(vectors); err != nil {
+			return err
+		} //bufVecs = append(bufVecs, vectors...)
+		n := bufferIdx.NTotal() //n := len(bufVecs) / dim
+
+		if n >= int64(math.Pow(2, float64(nBits))) {
+			fmt.Println("Swapping! Training main index...")
+			defer bufferIdx.Free() // freeing buffer index from memory
+
+			// get vectors from bufferIdx
+			bufVecs, err := bufferIdx.ReconstructN(0, n)
+			if err != nil {
+				return err
+			}
+
+			// train mainIdx using vectors from bufferIdx
+			if err := mainIdx.Train(bufVecs); err != nil {
+				return err
+			}
+			fmt.Println("Training done.")
+
+			// add vectors to mainIdx
+			if err := mainIdx.Add(bufVecs); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func searchANN(queryVec []float32, k int64) ([]int64, []float32, error) {
+	if mainIdx.IsTrained() {
+		return mainIdx.Search(queryVec, k)
+	}
+	return bufferIdx.Search(queryVec, k)
+}
+
+func getRandVecs(n int) []float32 {
+	vectors := make([]float32, n*dim)
+	for i := range n {
+		for j := range dim {
 			vectors[i*dim+j] = (rand.Float32() * 2.0) - 1.0 // -1.0 <= v[j] < 1.0
 		}
 	}
+	return vectors
+}
 
-	//fmt.Printf("%v\n", vectors)
-
-	fmt.Println("Training index...")
-	if err := idx.Train(vectors); err != nil { // trained on 1000 random vectors
+func main() {
+	idx1, err := index.IndexFactory(dim, fmt.Sprintf("HNSW32_PQ16x%d", nBits), simMetric)
+	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Done.")
+	mainIdx = idx1
+	defer mainIdx.Free()
 
-	// if err := idx.WriteToDisk("./index.bin"); err != nil {
-	// 	panic(err)
-	// }
+	idx2, err := index.IndexFactory(dim, "HNSW32", simMetric)
+	if err != nil {
+		panic(err)
+	}
+	bufferIdx = idx2
+	defer func() {
+		if !mainIdx.IsTrained() {
+			bufferIdx.Free()
+		}
+	}()
 
-	// fmt.Println("Loading index...")
-	// if err := idx.LoadFromDisk("./index.bin"); err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println("Done.")
-	fmt.Printf("IsTrained: %v\n", idx.IsTrained())
+	// first batch of vectors
+	v := getRandVecs(10)
+	if err := addVectors(v); err != nil {
+		panic(err)
+	}
 
-	// // insert sample vectors
-	// fmt.Println("Adding vectors...")
-	// if err := idx.Add(vectors); err != nil { // adding vectors with IDs is not implemented for the HNSW32_PQ12 index
-	// 	panic(err)
-	// }
-	// fmt.Println("Done.")
+	fmt.Println("n =", bufferIdx.NTotal())
 
-	// if err := idx.WriteToDisk("./index-1-mil.bin"); err != nil {
-	// 	panic(err)
-	// }
+	nnLabels, nnDists, err := searchANN(getRandVecs(1), 5)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Nearest neighbors labels: ", nnLabels)
+	fmt.Println("Nearest neighbors distances: ", nnDists)
 
-	// fmt.Println("Searching KNN...")
-	// k := int64(3)
-	// ids, dists, err := idx.Search(vectors[:dim*1], k)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println("Done.")
+	// second batch of vectors
+	v = getRandVecs(20)
+	if err := addVectors(v); err != nil {
+		panic(err)
+	}
 
-	// fmt.Printf("NN Ids: %v\n", ids)
-	// fmt.Printf("NN Dists: %v\n", dists)
+	nnLabels, nnDists, err = searchANN(getRandVecs(1), 5)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Nearest neighbors labels: ", nnLabels)
+	fmt.Println("Nearest neighbors distances: ", nnDists)
+
+	// third batch of vectors
+	v = getRandVecs(100)
+	if err := addVectors(v); err != nil {
+		panic(err)
+	}
+
+	nnLabels, nnDists, err = searchANN(getRandVecs(1), 5)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Nearest neighbors labels: ", nnLabels)
+	fmt.Println("Nearest neighbors distances: ", nnDists)
+
+	// third batch of vectors
+	v = getRandVecs(100)
+	if err := addVectors(v); err != nil {
+		panic(err)
+	}
+
+	// third batch of vectors
+	v = getRandVecs(100)
+	if err := addVectors(v); err != nil {
+		panic(err)
+	}
 }
