@@ -11,7 +11,11 @@ import (
 var idxPersistPath string = "/tmp/index.bin"
 
 func TestWriteToDisk(t *testing.T) {
-	if err := idxIDMap.WriteToDisk(idxPersistPath); err != nil {
+	vectors := generateRandomVectors(10, DIM)
+	if err := idxHNSW.Add(vectors); err != nil {
+		t.Errorf("Error adding vectors: %v", err)
+	}
+	if err := idxHNSW.WriteToDisk(idxPersistPath); err != nil {
 		t.Fatalf("Error writing index to disk: %v", err)
 	}
 	if _, err := os.Stat(idxPersistPath); os.IsNotExist(err) {
@@ -20,7 +24,7 @@ func TestWriteToDisk(t *testing.T) {
 }
 
 func TestLoadFromDisk(t *testing.T) {
-	idx, err := index.IndexFactory(DIM, "IDMap,HNSW32", faiss.MetricL2)
+	idx, err := index.IndexFactory(DIM, "HNSW32", faiss.MetricL2)
 	if err != nil {
 		t.Fatalf("Error creating index: %v", err)
 	}

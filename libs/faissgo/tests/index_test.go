@@ -140,6 +140,19 @@ func TestSearch(t *testing.T) {
 	}
 }
 
+func TestSearchKGreaterThanN(t *testing.T) {
+	queryVector := generateRandomVectors(1, DIM)
+	N := idxIDMap.NTotal()
+	k := N + 1                                         // we want k > N
+	ids, dists, err := idxIDMap.Search(queryVector, k) // vectors have already been added from TestAdd and TestAddWithIds
+	if err != nil {
+		t.Errorf("Error searching KNN: %v", err)
+	}
+	if int64(len(ids)) != N || int64(len(dists)) != N {
+		t.Errorf("Expected %d NNs, got %d", k, len(ids))
+	}
+}
+
 func TestReconstruct(t *testing.T) {
 	v := generateRandomVectors(1, 2)
 	if err := idxPQ.Add(v); err != nil {
