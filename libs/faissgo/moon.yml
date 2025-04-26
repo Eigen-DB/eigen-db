@@ -9,13 +9,8 @@ project:
     - '@ryan-awad'
 
 tasks:
-  build:
-    command: 'docker build -t faissgo .' 
-
   test:
-    command: 'docker run -it faissgo \"go test ./... -count=1 -v\"'
-    deps:
-      - 'faissgo:build'
+    command: 'go test ./... -count=1 -v'
 
   lint:
     command: 'proto run golangci-lint -- run --allow-parallel-runners'
