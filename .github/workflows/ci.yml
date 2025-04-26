@@ -10,6 +10,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Login to GHCR
+        uses: 'docker/login-action@v2'
+        with:
+          registry: 'ghcr.io'
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Pull base image
         run: docker pull ghcr.io/eigen-db/eigendb-base:latest
 
