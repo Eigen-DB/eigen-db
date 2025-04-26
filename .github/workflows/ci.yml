@@ -10,26 +10,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Login to GHCR
-        uses: 'docker/login-action@v2'
-        with:
-          registry: 'ghcr.io'
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull base image
-        run: docker pull ghcr.io/eigen-db/eigendb-base:latest
+      - name: Login to GHCR & pull base image
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/eigen-db/eigendb-base:latest
 
       - name: Run `moon ci` in base image
         run: |
-          docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-base:latest \
-            useradd -m ci_user \
-            && chown -R ci_user:ci_user /src \
-            && su ci_user \
-            && bash <(curl -fsSL https://moonrepo.dev/install/moon.sh) \
-            && export PATH="$HOME/.moon/bin:$PATH" \
-            && cd /src \
-            && moon ci
+          docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-base:latest "su ci_user -c \"bash -i -c 'moon ci'\""
 
       - name: Linter (apps/eigendb)
         uses: golangci/golangci-lint-action@v6
