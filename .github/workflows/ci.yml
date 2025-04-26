@@ -10,9 +10,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.23
+      - name: Pull base image
+        run: docker pull ghcr.io/eigen-db/eigendb-base:latest
+
+      - name: Run `moon ci` in base image
+        run: |
+          docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-base:latest \
+            useradd -m ci_user \
+            && chown -R ci_user:ci_user /src \
+            && su ci_user \
+            && bash <(curl -fsSL https://moonrepo.dev/install/moon.sh) \
+            && export PATH="$HOME/.moon/bin:$PATH" \
+            && cd /src \
+            && moon ci
 
       - name: Linter (apps/eigendb)
         uses: golangci/golangci-lint-action@v6
@@ -34,6 +44,13 @@ jobs:
           version: v1.60
           working-directory: libs/hnswgo
           args: --timeout=3m
+      
+      - name: Linter (libs/faissgo)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+          working-directory: libs/faissgo
+          args: --timeout=3m
 
-      - uses: 'moonrepo/setup-toolchain@v0'
-      - run: 'moon ci'
+      # - uses: 'moonrepo/setup-toolchain@v0'
+      # - run: 'moon ci'

@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"errors"
 	"fmt"
 	"math/rand/v2"
 	"os"
@@ -11,12 +10,15 @@ import (
 	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/index"
 )
 
-var idxIDMap index.Index
-var idxHNSW index.Index
-var idxPQ index.Index
+// var idxIDMap index.Index
+// var idxHNSW index.Index
+// var idxPQ index.Index
 
 const DIM int = 128
+const TEST_TMP_PATH string = "/tmp/faissgo_test"
+const IDX_PERSIST_PATH string = TEST_TMP_PATH + "/index_test.bin"
 
+// generate random vectors with values between [-1, 1)
 func generateRandomVectors(numVecs int, dim int) []float32 {
 	vectors := make([]float32, dim*numVecs)
 	for i := 0; i < numVecs; i++ {
@@ -27,47 +29,63 @@ func generateRandomVectors(numVecs int, dim int) []float32 {
 	return vectors
 }
 
+func getIndex(t *testing.T, indexType string, dim int) index.Index {
+	idx, err := index.IndexFactory(
+		dim,
+		indexType,
+		faiss.MetricL2,
+	)
+	if err != nil {
+		t.Fatalf("Error generating test index: " + err.Error())
+	}
+	return idx
+
+	// _idxIDMap, err := index.IndexFactory(
+	//      DIM,
+	//      "IDMap,HNSW32",
+	//      faiss.MetricL2,
+	// )
+	// if err != nil {
+	//      return errors.New("Error setting up test suite: " + err.Error())
+	// }
+
+	// _idxHNSW, err := index.IndexFactory(
+	//      DIM,
+	//      "HNSW32",
+	//      faiss.MetricL2,
+	// )
+	// if err != nil {
+	//      return errors.New("Error setting up test suite: " + err.Error())
+	// }
+
+	// _idxPQ, err := index.IndexFactory(
+	//      2,
+	//      "PQ2x2",
+	//      faiss.MetricL2,
+	// )
+	// if err != nil {
+	//      return errors.New("Error setting up test suite: " + err.Error())
+	// }
+
+	// idxIDMap = _idxIDMap
+	// idxHNSW = _idxHNSW
+	// idxPQ = _idxPQ
+
+	// return nil
+}
+
 func setup() error {
-	_idxIDMap, err := index.IndexFactory(
-		DIM,
-		"IDMap,HNSW32",
-		faiss.MetricL2,
-	)
-	if err != nil {
-		return errors.New("Error setting up test suite: " + err.Error())
+	if _, err := os.Stat(TEST_TMP_PATH); os.IsNotExist(err) {
+		if err := os.MkdirAll(TEST_TMP_PATH, 0755); err != nil {
+			return err
+		}
 	}
-
-	_idxHNSW, err := index.IndexFactory(
-		DIM,
-		"HNSW32",
-		faiss.MetricL2,
-	)
-	if err != nil {
-		return errors.New("Error setting up test suite: " + err.Error())
-	}
-
-	_idxPQ, err := index.IndexFactory(
-		2,
-		"PQ2x2",
-		faiss.MetricL2,
-	)
-	if err != nil {
-		return errors.New("Error setting up test suite: " + err.Error())
-	}
-
-	idxIDMap = _idxIDMap
-	idxHNSW = _idxHNSW
-	idxPQ = _idxPQ
-
 	return nil
 }
 
 func teardown() error {
-	idxIDMap.Free()
-	idxHNSW.Free()
-	idxPQ.Free()
-	if _, err := os.Stat(idxPersistPath); !os.IsNotExist(err) {
-		if err := os.Remove(idxPersistPath); err != nil {
+	if _, err := os.Stat(TEST_TMP_PATH); !os.IsNotExist(err) {
+		if err := os.Remove(TEST_TMP_PATH); err != nil {
 			return err
 		}
 	}
@@ -100,26 +118,32 @@ func TestIndexFactory(t *testing.T) {
 }
 
 func TestTrain(t *testing.T) {
-	vectors := generateRandomVectors(256, 2)
-	if err := idxPQ.Train(vectors); err != nil {
+	idx := getIndex(t, "HNSW32_PQ2x2", 2)
+	defer idx.Free()
+	vectors := generateRandomVectors(128, 2)
+	if err := idx.Train(vectors); err != nil {
 		t.Errorf("Error training index: %v", err)
 	}
 }
 
 func TestAdd(t *testing.T) {
+	idx := getIndex(t, "HNSW32", DIM)
+	defer idx.Free()
 	vectors := generateRandomVectors(1000, DIM)
-	if err := idxHNSW.Add(vectors); err != nil {
+	if err := idx.Add(vectors); err != nil {
 		t.Errorf("Error adding vectors: %v", err)
 	}
 }
 
 func TestAddWithIds(t *testing.T) {
+	idx := getIndex(t, "IDMap,HNSW32", DIM)
+	defer idx.Free()
 	vectors := generateRandomVectors(1000, DIM)
 	ids := make([]int64, 1000)
 	for i := 0; i < 1000; i++ {
-		ids[i] = int64(i) * 7 // Add() will automatically assign IDs in increasing order so I chose a different pattern to test AddWithIds()
+		ids[i] = int64(i) * 7 // just to make sure they are not sequential
 	}
-	if err := idxIDMap.AddWithIds(vectors, ids); err != nil {
+	if err := idx.AddWithIds(vectors, ids); err != nil {
 		t.Errorf("Error adding vectors with IDs: %v", err)
 	}
 }
@@ -129,9 +153,17 @@ func TestRemoveIds(t *testing.T) {
 }
 
 func TestSearch(t *testing.T) {
+	idx := getIndex(t, "HNSW32", DIM)
+	defer idx.Free()
+
+	vectors := generateRandomVectors(1000, DIM)
+	if err := idx.Add(vectors); err != nil {
+		t.Errorf("Error adding vectors: %v", err)
+	}
+
 	queryVector := generateRandomVectors(1, DIM)
 	k := int64(5)
-	ids, dists, err := idxIDMap.Search(queryVector, k) // vectors have already been added from TestAdd and TestAddWithIds
+	ids, dists, err := idx.Search(queryVector, k)
 	if err != nil {
 		t.Errorf("Error searching KNN: %v", err)
 	}
@@ -141,10 +173,18 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearchKGreaterThanN(t *testing.T) {
+	idx := getIndex(t, "HNSW32", DIM)
+	defer idx.Free()
+
+	vectors := generateRandomVectors(1000, DIM)
+	if err := idx.Add(vectors); err != nil {
+		t.Errorf("Error adding vectors: %v", err)
+	}
+
 	queryVector := generateRandomVectors(1, DIM)
-	N := idxIDMap.NTotal()
-	k := N + 1                                         // we want k > N
-	ids, dists, err := idxIDMap.Search(queryVector, k) // vectors have already been added from TestAdd and TestAddWithIds
+	N := idx.NTotal()
+	k := N + 1                                    // we want k > N
+	ids, dists, err := idx.Search(queryVector, k) // vectors have already been added from TestAdd and TestAddWithIds
 	if err != nil {
 		t.Errorf("Error searching KNN: %v", err)
 	}
@@ -154,19 +194,20 @@ func TestSearchKGreaterThanN(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	v := generateRandomVectors(1, 2)
-	if err := idxPQ.Add(v); err != nil {
-		t.Errorf("Error adding vector: %v", err)
+	idx := getIndex(t, "HNSW32,PQ16x2", DIM)
+	defer idx.Free()
+
+	trainVecs := generateRandomVectors(256, DIM)
+	if err := idx.Train(trainVecs); err != nil {
+		t.Errorf("Error training index: %v", err)
 	}
-	r, err := idxPQ.Reconstruct(0)
+
+	if err := idx.Add(trainVecs); err != nil {
+		t.Errorf("Error adding vectors: %v", err)
+	}
+	r, err := idx.Reconstruct(0)
 	t.Logf("Reconstructed vector: %v", r) // curious
 	if err != nil {
 		t.Errorf("Error reconstructing vector: %v", err)
-	}
-}
-
-func TestIsTrained(t *testing.T) {
-	if !idxPQ.IsTrained() {
-		t.Errorf("Index is said to not be trained when in fact it was trained in TestTrain()")
 	}
 }

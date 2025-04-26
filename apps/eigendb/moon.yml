@@ -41,6 +41,7 @@ tasks:
       retryCount: 3 # in-case of flaky tests
     deps:
       - 'clean'
+      - 'build'
       - '^:test'
     outputs: 
       - 'e2e/logs'

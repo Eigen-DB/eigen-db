@@ -13,7 +13,7 @@ tasks:
     command: 'docker build -t faissgo .' 
 
   test:
-    command: 'docker run -it faissgo \"go test ./... -count=1\"'
+    command: 'docker run -it faissgo \"go test ./... -count=1 -v\"'
     deps:
       - 'faissgo:build'
 
