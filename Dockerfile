@@ -35,6 +35,9 @@ FROM golang:1.23
 
 RUN go env -w GOFLAGS='-buildvcs=false'
 
+# installing golangci-lint
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.5
+
 # install Intel MKL (could probably speed up the build process by just copying in /opt/intel from the faissgo-builder stage)
 RUN apt update -y
 RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB

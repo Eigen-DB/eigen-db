@@ -13,8 +13,6 @@ tasks:
     command: 'go test ./... -count=1 -v'
 
   lint:
-    command: 'proto run golangci-lint -- run --allow-parallel-runners'
-    options:
-      runInCI: false # go linters are ran differently in CI
+    command: 'golangci-lint run --allow-parallel-runners'
     inputs:
       - '/libs/faissgo/**/*.go'
