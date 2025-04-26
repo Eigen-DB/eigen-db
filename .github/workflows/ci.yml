@@ -22,6 +22,7 @@ jobs:
 
       - name: Run `moon ci` in base image
         run: |
+          ls -la ${{ github.workspace }}
           docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-base:latest "su ci_user -c \"bash -c '~/.moon/bin/moon ci'\""
 
       - name: Linter (apps/eigendb)
