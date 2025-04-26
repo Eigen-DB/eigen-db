@@ -50,8 +50,8 @@ COPY --from=faissgo-builder /faissgo/faiss /usr/include/faiss
 RUN echo "source /opt/intel/oneapi/mkl/latest/env/vars.sh" >> ~/.bashrc
 RUN echo "export PATH=/usr/local/go/bin:/go/bin:$PATH" >> ~/.bashrc
 
-# creating user for CI
+# creating user for CI and installing Moonrepo
 RUN useradd -m ci_user -s /bin/bash
-RUN su ci_user -c "curl -fsSL https://moonrepo.dev/install/moon.sh | bash && echo 'export PATH=\"\$HOME/.moon/bin:\$PATH\"' >> ~/.bashrc"
+RUN su ci_user -c "curl -fsSL https://moonrepo.dev/install/moon.sh | bash"
 
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
