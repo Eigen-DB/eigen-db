@@ -21,7 +21,7 @@ jobs:
         run: docker pull ghcr.io/eigen-db/eigendb-base:latest
 
       - name: Run `moon ci` in base image
-        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-base:latest "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c '~/.moon/bin/moon ci\""
+        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-base:latest "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c '~/.moon/bin/moon ci'\""
 
       - name: Linter (apps/eigendb)
         uses: golangci/golangci-lint-action@v6
