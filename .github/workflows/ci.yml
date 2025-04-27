@@ -17,7 +17,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to GHCR & pull base image
+      - name: Pull base image
         run: docker pull ghcr.io/eigen-db/eigendb-base:latest
 
       - name: Run `moon ci` in base image

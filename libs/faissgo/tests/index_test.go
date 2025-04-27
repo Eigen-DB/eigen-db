@@ -10,10 +10,6 @@ import (
 	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/index"
 )
 
-// var idxIDMap index.Index
-// var idxHNSW index.Index
-// var idxPQ index.Index
-
 const DIM int = 128
 const TEST_TMP_PATH string = "/tmp/faissgo_test"
 const IDX_PERSIST_PATH string = TEST_TMP_PATH + "/index_test.bin"
@@ -36,42 +32,9 @@ func getIndex(t *testing.T, indexType string, dim int) index.Index {
 		faiss.MetricL2,
 	)
 	if err != nil {
-		t.Fatalf("Error generating test index: " + err.Error())
+		t.Errorf("Error generating test index: %s", err.Error())
 	}
 	return idx
-
-	// _idxIDMap, err := index.IndexFactory(
-	//      DIM,
-	//      "IDMap,HNSW32",
-	//      faiss.MetricL2,
-	// )
-	// if err != nil {
-	//      return errors.New("Error setting up test suite: " + err.Error())
-	// }
-
-	// _idxHNSW, err := index.IndexFactory(
-	//      DIM,
-	//      "HNSW32",
-	//      faiss.MetricL2,
-	// )
-	// if err != nil {
-	//      return errors.New("Error setting up test suite: " + err.Error())
-	// }
-
-	// _idxPQ, err := index.IndexFactory(
-	//      2,
-	//      "PQ2x2",
-	//      faiss.MetricL2,
-	// )
-	// if err != nil {
-	//      return errors.New("Error setting up test suite: " + err.Error())
-	// }
-
-	// idxIDMap = _idxIDMap
-	// idxHNSW = _idxHNSW
-	// idxPQ = _idxPQ
-
-	// return nil
 }
 
 func setup() error {
