@@ -2,17 +2,17 @@ type: 'library'
 language: 'go'
 
 project:
-  name: 'hnswgo'
-  description: 'A Go wrapper for hnswlib'
+  name: 'faissgo'
+  description: 'A Go wrapper for Faiss'
   owner: '@ryan-awad'
   maintainers:
     - '@ryan-awad'
 
 tasks:
   test:
-    command: 'go test ./... -count=1'
+    command: 'go test ./... -count=1 -v'
 
   lint:
     command: 'golangci-lint run --allow-parallel-runners'
     inputs:
-      - '/libs/hnswgo/**/*.go'
+      - '/libs/faissgo/**/*.go'

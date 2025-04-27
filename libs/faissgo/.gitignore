@@ -1,0 +1,8 @@
+.vscode/
+hnswgo
+rough_testing/
+bazel-*/
+
+# compiled binary for the example
+faissgo
+index.bin

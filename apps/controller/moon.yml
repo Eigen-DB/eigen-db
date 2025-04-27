@@ -25,9 +25,5 @@ tasks:
 
   lint:
     command: 'golangci-lint run --allow-parallel-runners'
-    options:
-      runInCI: false # go linters are ran differently in CI
-    env:
-      GO111MODULE: 'on'
     inputs:
       - '/apps/controller/**/*.go'

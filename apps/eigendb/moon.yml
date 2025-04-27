@@ -41,15 +41,12 @@ tasks:
       retryCount: 3 # in-case of flaky tests
     deps:
       - 'clean'
+      - 'build'
       - '^:test'
     outputs: 
       - 'e2e/logs'
 
   lint:
     command: 'golangci-lint run --allow-parallel-runners'
-    options:
-      runInCI: false # go linters are ran differently in CI
-    env:
-      GO111MODULE: 'on'
     inputs:
       - '/apps/eigendb/**/*.go'
