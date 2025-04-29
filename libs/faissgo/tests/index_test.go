@@ -6,8 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/faiss"
-	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/index"
+	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3"
 )
 
 const DIM int = 128
@@ -25,11 +24,11 @@ func generateRandomVectors(numVecs int, dim int) []float32 {
 	return vectors
 }
 
-func getIndex(t *testing.T, indexType string, dim int) index.Index {
-	idx, err := index.IndexFactory(
+func getIndex(t *testing.T, indexType string, dim int) faissgo.Index {
+	idx, err := faissgo.IndexFactory(
 		dim,
 		indexType,
-		faiss.MetricL2,
+		faissgo.MetricL2,
 	)
 	if err != nil {
 		t.Errorf("Error generating test index: %s", err.Error())
@@ -69,10 +68,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestIndexFactory(t *testing.T) {
-	idx, err := index.IndexFactory(
+	idx, err := faissgo.IndexFactory(
 		128,
 		"HNSW32_PQ16x8",
-		faiss.MetricL2,
+		faissgo.MetricL2,
 	)
 	if err != nil {
 		t.Errorf("Error creating index: %v", err)
