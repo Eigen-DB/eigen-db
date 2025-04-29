@@ -1,4 +1,4 @@
-package faiss
+package faissgo
 
 /*
 #cgo LDFLAGS: -lfaiss_c -lstdc++

@@ -1,4 +1,4 @@
-package index
+package faissgo
 
 /*
 #cgo LDFLAGS: -lfaiss_c -lstdc++
@@ -11,8 +11,6 @@ import "C"
 import (
 	"errors"
 	"unsafe"
-
-	"github.com/Eigen-DB/eigen-db/libs/faissgo/v3/faiss"
 )
 
 type Index interface {
@@ -54,7 +52,7 @@ func (idx *faissIndex) Train(vecsFlat []float32) error {
 		(*C.float)(&vecsFlat[0]),
 	)
 	if c != 0 {
-		return faiss.GetLastError()
+		return GetLastError()
 	}
 	return nil
 }
@@ -67,7 +65,7 @@ func (idx *faissIndex) Add(vecsFlat []float32) error {
 		(*C.float)(&vecsFlat[0]),
 	)
 	if c != 0 {
-		return faiss.GetLastError()
+		return GetLastError()
 	}
 	return nil
 }
@@ -81,7 +79,7 @@ func (idx *faissIndex) AddWithIds(vecsFlat []float32, ids []int64) error {
 		(*C.idx_t)(&ids[0]),
 	)
 	if c != 0 {
-		return faiss.GetLastError()
+		return GetLastError()
 	}
 	return nil
 }
@@ -111,7 +109,7 @@ func (idx *faissIndex) Search(queryVecsFlat []float32, k int64) ([]int64, []floa
 		(*C.idx_t)(&labels[0]),
 	)
 	if c != 0 {
-		return nil, nil, faiss.GetLastError()
+		return nil, nil, GetLastError()
 	}
 	return labels, dists, nil
 }
@@ -124,7 +122,7 @@ func (idx *faissIndex) Reconstruct(id int64) ([]float32, error) {
 		(*C.float)(&v[0]),
 	)
 	if c != 0 {
-		return nil, faiss.GetLastError()
+		return nil, GetLastError()
 	}
 	return v, nil
 }
@@ -142,7 +140,7 @@ func (idx *faissIndex) ReconstructN(id int64, n int64) ([]float32, error) {
 		(*C.float)(&vecs[0]),
 	)
 	if c != 0 {
-		return nil, faiss.GetLastError()
+		return nil, GetLastError()
 	}
 	return vecs, nil
 }
@@ -155,7 +153,7 @@ func (idx *faissIndex) WriteToDisk(path string) error {
 		fName,
 	)
 	if c != 0 {
-		return faiss.GetLastError()
+		return GetLastError()
 	}
 	return nil
 }
@@ -172,7 +170,7 @@ func (idx *faissIndex) LoadFromDisk(path string) error {
 		&idx.faissIdx,
 	)
 	if c != 0 {
-		return faiss.GetLastError()
+		return GetLastError()
 	}
 
 	return nil
