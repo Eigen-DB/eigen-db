@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v3"
+	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
 )
 
 func main() {
