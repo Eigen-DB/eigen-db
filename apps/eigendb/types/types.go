@@ -3,7 +3,7 @@ package types
 import (
 	"errors"
 
-	"github.com/Eigen-DB/hnswgo/v2"
+	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
 )
 
 type VecId = uint64

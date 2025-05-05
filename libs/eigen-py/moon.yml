@@ -18,7 +18,9 @@ tasks:
   build:
     command: python3 setup.py build
     options:
-      runInCI: true
+      runInCI: false
+    deps:
+      - setup_venv
 
   clean:
     command: 'rm -rf build/ && rm -rf dist/ && rm -rf **/*.egg-info && rm -rf **/__pycache__ || true'

@@ -5,7 +5,7 @@
 ## Installation 
 
 ```
-go get github.com/Eigen-DB/eigen-db/libs/hnswgo/v3
+go get github.com/Eigen-DB/eigen-db/libs/hnswgo/v2
 ```
 
 ## Usage
@@ -13,11 +13,11 @@ go get github.com/Eigen-DB/eigen-db/libs/hnswgo/v3
 ```go
 package examples
 
-import (
+import (					
 	"fmt"
 	"time"
 
-	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v3"
+	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
 )
 
 func main() {

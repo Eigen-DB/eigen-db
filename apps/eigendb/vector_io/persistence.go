@@ -10,7 +10,7 @@ import (
 
 	"eigen_db/cfg"
 
-	"github.com/Eigen-DB/hnswgo/v2"
+	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
 )
 
 // Persists the vector store to disk.
