@@ -15,9 +15,13 @@ E2E_TEST_MODE=1 ./dist/eigen_db&
 
 $VENOM run e2e/ --output-dir=e2e/logs
 
+E2E_EXIT_CODE=$?
+
 pkill eigen_db
 if [[ $? -ne 0 ]]; then
     echo "Failed to kill eigen_db process."
 else
     echo "eigen_db process killed successfully."
 fi
+
+exit $E2E_EXIT_CODE
