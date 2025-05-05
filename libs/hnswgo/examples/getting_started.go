@@ -7,6 +7,7 @@ import (
 	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
 )
 
+// nolint:all
 func main() {
 	dimensions := 2
 	maxElements := 10000

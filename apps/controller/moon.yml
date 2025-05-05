@@ -27,3 +27,5 @@ tasks:
     command: 'golangci-lint run --allow-parallel-runners'
     inputs:
       - '/apps/controller/**/*.go'
+    options:
+      runInCI: false # i want linters to run in a separate workflow to make them optional for passing a PR
