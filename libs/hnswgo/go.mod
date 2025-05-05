@@ -1,4 +1,4 @@
-module github.com/Eigen-DB/eigen-db/libs/hnswgo/v3
+module github.com/Eigen-DB/eigen-db/libs/hnswgo/v2
 
 go 1.23
 
