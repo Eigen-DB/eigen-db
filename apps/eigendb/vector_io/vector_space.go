@@ -7,7 +7,7 @@ import (
 	"eigen_db/constants"
 	t "eigen_db/types"
 
-	"github.com/Eigen-DB/hnswgo/v2"
+	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
 )
 
 // the actual vector store living in memory at runtime
