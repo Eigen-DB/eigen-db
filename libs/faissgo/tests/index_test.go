@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Eigen-DB/eigen-db/libs/faissgo"
+	"github.com/Eigen-DB/eigen-db/libs/faissgo/v0"
 )
 
 const DIM int = 128
