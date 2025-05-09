@@ -3,7 +3,7 @@ package api
 import (
 	"eigen_db/api/endpoints/health_check"
 	"eigen_db/api/endpoints/update_config/api"
-	"eigen_db/api/endpoints/update_config/hnsw_params"
+	"eigen_db/api/endpoints/update_config/index_config"
 	"eigen_db/api/endpoints/update_config/persistence"
 	"eigen_db/api/endpoints/vector"
 	"eigen_db/api/middleware"
@@ -22,7 +22,7 @@ func setupRouter() *gin.Engine {
 
 	updatePersistence := updateConfigRoot.Group("/persistence")
 	updateApi := updateConfigRoot.Group("/api")
-	updateHnswParams := updateConfigRoot.Group("/hnsw-params")
+	indexConfig := updateConfigRoot.Group("/hnsw-params")
 
 	// health check endpoints
 	r.GET("/health", health_check.Health)
@@ -37,10 +37,7 @@ func setupRouter() *gin.Engine {
 	updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
 	updateApi.POST("/port", api.UpdatePort)
 	updateApi.POST("/address", api.UpdateAddress)
-	updateHnswParams.POST("/similarity-metric", hnsw_params.UpdateSimilarityMetric)
-	updateHnswParams.POST("/vector-space-size", hnsw_params.UpdateSpaceSize)
-	updateHnswParams.POST("/m", hnsw_params.UpdateM)
-	updateHnswParams.POST("/ef-construction", hnsw_params.UpdateEfConstruction)
+	indexConfig.POST("/similarity-metric", index_config.UpdateSimilarityMetric)
 
 	return r
 }

@@ -20,20 +20,28 @@ var memIdx *memoryIndex
 // Where all vectors are stored, and all operations on vectors performed.
 // Stores a vector index and the ID of the vector most recently inserted.
 type memoryIndex struct {
-	index t.Index // figure out how to free index from memory when program exits
-	idMap map[t.VecId]t.VecId
+	index t.Index             // figure out how to free index from memory when program exits
+	idMap map[t.VecId]t.VecId // map of embeddng IDs -> Faiss index IDs
 }
 
-func MemoryIndexFactory(dim int, similarityMetric t.SimMetric, spaceSize uint32, M int, efConstruction int) (*memoryIndex, error) {
+func GetMemoryIndex() *memoryIndex {
+	return memIdx
+}
+
+func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	// start with a fresh vector store
 	memIdx = &memoryIndex{}
+	faissMetric, err := similarityMetric.ToFaissMetricType()
+	if err != nil {
+		return err
+	}
 	index, err := faissgo.IndexFactory(
 		dim,
 		"HNSW32", // add PQ later
-		similarityMetric,
+		faissMetric,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	memIdx.index = index
@@ -46,20 +54,21 @@ func MemoryIndexFactory(dim int, similarityMetric t.SimMetric, spaceSize uint32,
 		fmt.Println("Loaded persisted vectors in memory.")
 	}
 
-	return memIdx, nil
+	return nil
 }
 
 // Gets a vector from the in-memory vector store using its ID.
 //
 // Returns the vector or an error if one occured.
 func (idx *memoryIndex) getVector(id t.VecId) (*Embedding, error) {
-	indexId := idx.idMap[id]
-	vector, err := idx.index.Reconstruct(indexId)
-	if err != nil {
-		return nil, err
+	if indexId, ok := idx.idMap[id]; ok {
+		embedding, err := idx.index.Reconstruct(indexId)
+		if err != nil {
+			return nil, err
+		}
+		return EmbeddingFactory(embedding, id)
 	}
-
-	return VectorFactory(vector, id)
+	return nil, fmt.Errorf("embedding with ID %d does not exist", id)
 }
 
 // Deletes a vector from the in-memory vector store using its ID.
@@ -76,6 +85,9 @@ func (idx *memoryIndex) getVector(id t.VecId) (*Embedding, error) {
 //
 // Returns an error if one occured.
 func (idx *memoryIndex) InsertVector(v *Embedding) error {
+	if _, ok := idx.idMap[v.Id]; ok {
+		return fmt.Errorf("embedding with ID %d already exists", v.Id)
+	}
 	idx.idMap[v.Id] = idx.index.NTotal()
 	return idx.index.Add(v.Data)
 }

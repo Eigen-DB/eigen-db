@@ -22,12 +22,9 @@ func SetupConfig(configPath string) error {
 		fmt.Println("Making E2E test config")
 		_ = config.SetPersistenceTimeInterval(3 * time.Second)
 		_ = config.SetAPIPort(8080)
-		_ = config.SetAPIAddress("0.0.0.0")
+		_ = config.SetAPIAddress("0.0.0.0") // wouldn't 127.0.0.1 be better ?
 		_ = config.SetDimensions(2)
-		_ = config.SetSimilarityMetric(types.EUCLIDEAN)
-		_ = config.SetSpaceSize(10000)
-		_ = config.SetM(32)
-		_ = config.SetEfConstruction(400)
+		_ = config.SetSimilarityMetric(types.MetricL2)
 		if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
 			return err
 		}
@@ -131,81 +128,14 @@ func startConfigMenu() error {
 	_, result, err = (&promptui.Select{
 		Label: "Similarity metric",
 		Items: []string{
-			types.COSINE.ToString(),
-			types.EUCLIDEAN.ToString(),
-			types.INNER_PRODUCT.ToString(),
+			types.MetricInnerProduct.String(),
+			types.MetricL2.String(), // add more metrics from faissgo later
 		},
 	}).Run()
 	if err != nil {
 		return err
 	}
 	if err := config.SetSimilarityMetric(types.SimMetric(result)); err != nil {
-		return err
-	}
-
-	// setting vector space size
-	result, err = (&promptui.Prompt{
-		Label: "Vector space size (>= 1)",
-		Validate: func(input string) error {
-			val, err := strconv.ParseUint(input, 10, 32)
-			if err != nil || val <= 0 { // i know
-				return errors.New("value must be a valid positive integer")
-			}
-			return nil
-		},
-		Default: "10000",
-	}).Run()
-	if err != nil {
-		return err
-	}
-	size, _ := strconv.ParseUint(result, 10, 32)
-	if err := config.SetSpaceSize(uint32(size)); err != nil {
-		return err
-	}
-
-	// setting M value
-	result, err = (&promptui.Prompt{
-		Label: "M value (>= 2)",
-		Validate: func(input string) error {
-			val, err := validateInt32(input)
-			if err != nil {
-				return err
-			}
-			if val < 2 {
-				return errors.New("m must be >= 2")
-			}
-			return nil
-		},
-		Default: "32",
-	}).Run()
-	if err != nil {
-		return err
-	}
-	m, _ := strconv.ParseInt(result, 10, 32)
-	if err := config.SetM(int(m)); err != nil {
-		return err
-	}
-
-	// setting efConstruction value
-	result, err = (&promptui.Prompt{
-		Label: "efConstruction value (>= 0)",
-		Validate: func(input string) error {
-			val, err := validateInt32(input)
-			if err != nil {
-				return err
-			}
-			if val < 0 {
-				return errors.New("efConstruction must be >= 0")
-			}
-			return nil
-		},
-		Default: "400",
-	}).Run()
-	if err != nil {
-		return err
-	}
-	ef, _ := strconv.ParseInt(result, 10, 32)
-	if err := config.SetEfConstruction(int(ef)); err != nil {
 		return err
 	}
 

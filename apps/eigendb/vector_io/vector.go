@@ -17,7 +17,7 @@ type Embedding struct {
 // Creates a new vector with the specified embedding.
 //
 // Returns a pointer to the new Vector, or an error if one occured.
-func VectorFactory(data t.EmbeddingData, id t.VecId) (*Embedding, error) {
+func EmbeddingFactory(data t.EmbeddingData, id t.VecId) (*Embedding, error) {
 	dimensions := cfg.GetConfig().GetDimensions()
 	if len(data) == dimensions {
 		return &Embedding{
