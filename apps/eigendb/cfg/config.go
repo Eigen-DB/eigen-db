@@ -20,13 +20,10 @@ type Config struct {
 		Port    int    `yaml:"port"`
 		Address string `yaml:"address"`
 	} `yaml:"api"`
-	HNSWParams struct {
+	IndexConfig struct {
 		Dimensions       int         `yaml:"dimensions"`
 		SimilarityMetric t.SimMetric `yaml:"similarityMetric"`
-		SpaceSize        uint32      `yaml:"vectorSpaceSize"`
-		M                int         `yaml:"M"`
-		EfConstruction   int         `yaml:"efConstruction"`
-	} `yaml:"hnswParams"`
+	} `yaml:"indexConfig"`
 }
 
 var config *Config // the config that lives in memory
@@ -90,23 +87,11 @@ func (c *Config) GetAPIAddress() string {
 }
 
 func (c *Config) GetDimensions() int {
-	return c.HNSWParams.Dimensions
+	return c.IndexConfig.Dimensions
 }
 
 func (c *Config) GetSimilarityMetric() t.SimMetric {
-	return c.HNSWParams.SimilarityMetric
-}
-
-func (c *Config) GetSpaceSize() uint32 {
-	return c.HNSWParams.SpaceSize
-}
-
-func (c *Config) GetM() int {
-	return c.HNSWParams.M
-}
-
-func (c *Config) GetEfConstruction() int {
-	return c.HNSWParams.EfConstruction
+	return c.IndexConfig.SimilarityMetric
 }
 
 func (c *Config) SetPersistenceTimeInterval(timeInterval time.Duration) error {
@@ -137,38 +122,14 @@ func (c *Config) SetDimensions(dimensions int) error {
 	if dimensions < 2 {
 		return errors.New("dimensions must be >= 2")
 	}
-	c.HNSWParams.Dimensions = dimensions
+	c.IndexConfig.Dimensions = dimensions
 	return nil
 }
 
 func (c *Config) SetSimilarityMetric(similarityMetric t.SimMetric) error {
 	if err := similarityMetric.Validate(); err != nil {
-		return errors.New("invalid similarity metric")
+		return err
 	}
-	c.HNSWParams.SimilarityMetric = similarityMetric
-	return nil
-}
-
-func (c *Config) SetSpaceSize(spaceSize uint32) error {
-	if spaceSize == 0 {
-		return errors.New("space size must be > 0")
-	}
-	c.HNSWParams.SpaceSize = spaceSize
-	return nil
-}
-
-func (c *Config) SetM(M int) error {
-	if M < 2 {
-		return errors.New("m must be >= 2")
-	}
-	c.HNSWParams.M = M
-	return nil
-}
-
-func (c *Config) SetEfConstruction(efConstruction int) error {
-	if efConstruction < 0 {
-		return errors.New("efConstruction must be >= 0")
-	}
-	c.HNSWParams.EfConstruction = efConstruction
+	c.IndexConfig.SimilarityMetric = similarityMetric
 	return nil
 }

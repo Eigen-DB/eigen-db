@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/Eigen-DB/eigen-db/libs/faissgo"
 )
 
@@ -9,21 +11,53 @@ type EmbeddingData = []float32
 type Index = faissgo.Index
 
 // Config types
-type SimMetric = faissgo.MetricType
+type SimMetric string
 
-// func (metric SimMetric) Validate() error {
-// 	switch metric {
-// 	case COSINE:
-// 		return nil
-// 	case EUCLIDEAN:
-// 		return nil
-// 	case INNER_PRODUCT:
-// 		return nil
-// 	default:
-// 		return errors.New("invalid similarity metric")
-// 	}
-// }
+const (
+	// Similarity metrics
+	MetricInnerProduct  SimMetric = "ip"
+	MetricL2            SimMetric = "l2"
+	MetricL1            SimMetric = "l1"
+	MetricLinf          SimMetric = "linf"
+	MetricLp            SimMetric = "lp"
+	MetricCanberra      SimMetric = "canberra"
+	MetricBrayCurtis    SimMetric = "bc"
+	MetricJensenShannon SimMetric = "js"
+)
 
-// func (metric SimMetric) ToString() string {
-// 	return string(metric)
-// }
+func (m SimMetric) String() string {
+	return string(m)
+}
+
+func (m SimMetric) Validate() error {
+	switch m {
+	case MetricInnerProduct, MetricL2, MetricL1, MetricLinf, MetricLp,
+		MetricCanberra, MetricBrayCurtis, MetricJensenShannon:
+		return nil
+	default:
+		return fmt.Errorf("invalid similarity metric: %s", m)
+	}
+}
+
+func (m SimMetric) ToFaissMetricType() (faissgo.MetricType, error) {
+	switch m {
+	case MetricInnerProduct:
+		return faissgo.MetricInnerProduct, nil
+	case MetricL2:
+		return faissgo.MetricL2, nil
+	case MetricL1:
+		return faissgo.MetricL1, nil
+	case MetricLinf:
+		return faissgo.MetricLinf, nil
+	case MetricLp:
+		return faissgo.MetricLp, nil
+	case MetricCanberra:
+		return faissgo.MetricCanberra, nil
+	case MetricBrayCurtis:
+		return faissgo.MetricBrayCurtis, nil
+	case MetricJensenShannon:
+		return faissgo.MetricJensenShannon, nil
+	default:
+		return -1, fmt.Errorf("invalid similarity metric: %s", m)
+	}
+}

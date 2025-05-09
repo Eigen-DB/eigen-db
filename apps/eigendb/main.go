@@ -11,7 +11,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -25,11 +24,8 @@ func main() {
 	var persistenceTimeInterval time.Duration
 	var apiPort int
 	var apiAddress string
-	var hnswDimensions int
-	var hnswSimilarityMetric string
-	var hnswVectorSpaceSize string // take argument as string and cast as uint32
-	var hnswM int
-	var hnswEfConstruction int
+	var indexDimensions int
+	var indexSimilarityMetric string
 
 	flag.StringVar(&apiKey, "api-key", "", "EigenDB API key")
 	flag.BoolVar(&regenApiKey, "regen-api-key", false, "Regenerate the API key")
@@ -37,11 +33,8 @@ func main() {
 	flag.DurationVar(&persistenceTimeInterval, "persistence-time-interval", time.Duration(0), "How often should data be persisted to disk (secs)")
 	flag.IntVar(&apiPort, "api-port", 0, "API port")
 	flag.StringVar(&apiAddress, "api-address", "", "API address")
-	flag.IntVar(&hnswDimensions, "dimensions", 0, "Dimensions")
-	flag.StringVar(&hnswSimilarityMetric, "similarity-metric", "", "Similarity metric")
-	flag.StringVar(&hnswVectorSpaceSize, "vector-space-size", "", "Vector space size")
-	flag.IntVar(&hnswM, "m", 0, "m parameter")
-	flag.IntVar(&hnswEfConstruction, "efConstruction", 0, "efConstruction parameter")
+	flag.IntVar(&indexDimensions, "dimensions", 0, "Dimensions")
+	flag.StringVar(&indexSimilarityMetric, "similarity-metric", "", "Similarity metric")
 	flag.Parse()
 
 	// checking if EigenDB is running in E2E_TEST_MODE
@@ -60,25 +53,16 @@ func main() {
 	// create a map of config setters
 	configSetters := map[bool]func() error{
 		persistenceTimeInterval != time.Duration(0): func() error { return config.SetPersistenceTimeInterval(persistenceTimeInterval) },
-		apiPort != 0:        func() error { return config.SetAPIPort(apiPort) },
-		apiAddress != "":    func() error { return config.SetAPIAddress(apiAddress) },
-		hnswDimensions != 0: func() error { return config.SetDimensions(hnswDimensions) },
-		hnswSimilarityMetric != "": func() error {
-			metric := types.SimMetric(hnswSimilarityMetric)
+		apiPort != 0:         func() error { return config.SetAPIPort(apiPort) },
+		apiAddress != "":     func() error { return config.SetAPIAddress(apiAddress) },
+		indexDimensions != 0: func() error { return config.SetDimensions(indexDimensions) },
+		indexSimilarityMetric != "": func() error {
+			metric := types.SimMetric(indexSimilarityMetric)
 			if err := metric.Validate(); err != nil {
 				return err
 			}
 			return config.SetSimilarityMetric(metric)
 		},
-		hnswVectorSpaceSize != "": func() error {
-			spaceSize, err := strconv.ParseUint(hnswVectorSpaceSize, 10, 32)
-			if err != nil {
-				return err
-			}
-			return config.SetSpaceSize(uint32(spaceSize))
-		},
-		hnswM != 0:              func() error { return config.SetM(hnswM) },
-		hnswEfConstruction != 0: func() error { return config.SetEfConstruction(hnswEfConstruction) },
 	}
 
 	for condition, setter := range configSetters {
@@ -95,12 +79,9 @@ func main() {
 	}
 
 	// setting up the in-memory vector store
-	if err := vector_io.VectorStoreFactory(
+	if err := vector_io.MemoryIndexInit(
 		config.GetDimensions(),
 		config.GetSimilarityMetric(),
-		config.GetSpaceSize(),
-		config.GetM(),
-		config.GetEfConstruction(),
 	); err != nil {
 		panic(err)
 	}
@@ -110,10 +91,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("API KEY: %s\n", apiKey)
+	fmt.Printf("API KEY: %s\n", apiKey) // find different way to give this to the user
 
 	// starting the persistence loop
-	if err := vector_io.StartPersistenceLoop(config); err != nil {
+	if err := vector_io.GetMemoryIndex().StartPersistenceLoop(config); err != nil {
 		panic(err)
 	}
 

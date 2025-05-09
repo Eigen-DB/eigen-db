@@ -6,8 +6,8 @@ import (
 
 const EIGEN_DIR string = "eigen"
 const API_KEY_FILE_PATH string = EIGEN_DIR + "/api_key.txt"
-const STORE_PERSIST_PATH string = EIGEN_DIR + "/vector_space.vec"
-const INDEX_PERSIST_PATH string = EIGEN_DIR + "/hnsw_index.bin"
+const STORE_PERSIST_PATH string = EIGEN_DIR + "/eigendb-index.egn"
+const INDEX_PERSIST_PATH string = EIGEN_DIR + "/faissgo-index.egn"
 const API_KEY_FILE_CHMOD fs.FileMode = 0600 // rw-------
 const DB_PERSIST_CHMOD fs.FileMode = 0600   // rw-------
 const CONFIG_CHMOD fs.FileMode = 0600       // rw-------

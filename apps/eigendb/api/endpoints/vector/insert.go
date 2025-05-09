@@ -18,7 +18,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	v, err := vector_io.VectorFactory(body.Vector.Data, body.Vector.Id)
+	v, err := vector_io.EmbeddingFactory(body.Vector.Data, body.Vector.Id)
 	if err != nil {
 		utils.SendResponse(
 			c,
@@ -30,7 +30,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	if err := vector_io.InsertVector(v); err != nil { // causes nil pointer deference bug when empty body
+	if err := vector_io.GetMemoryIndex().InsertVector(v); err != nil { // causes nil pointer deference bug when empty body
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

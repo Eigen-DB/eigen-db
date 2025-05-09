@@ -2,7 +2,6 @@ package vector
 
 import (
 	"eigen_db/api/utils"
-	t "eigen_db/types"
 	"eigen_db/vector_io"
 	"net/http"
 
@@ -10,8 +9,8 @@ import (
 )
 
 type searchRequestBody struct {
-	QueryVectorId t.VecId `json:"queryVectorId" binding:"required"`
-	K             int     `json:"k" binding:"required,gt=0"`
+	QueryVector vector_io.Embedding `json:"queryVector" binding:"required"`
+	K           int64               `json:"k" binding:"required,gt=0"`
 }
 
 func Search(c *gin.Context) {
@@ -20,7 +19,7 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	nnIds, err := vector_io.SimilaritySearch(body.QueryVectorId, body.K)
+	nnIds, err := vector_io.GetMemoryIndex().Search(&body.QueryVector, body.K)
 	if err != nil {
 		utils.SendResponse(
 			c,
