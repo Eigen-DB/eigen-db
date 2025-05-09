@@ -95,7 +95,7 @@ func main() {
 	}
 
 	// setting up the in-memory vector store
-	if err := vector_io.InstantiateVectorStore(
+	if err := vector_io.VectorStoreFactory(
 		config.GetDimensions(),
 		config.GetSimilarityMetric(),
 		config.GetSpaceSize(),

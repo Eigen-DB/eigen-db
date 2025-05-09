@@ -40,7 +40,7 @@ hnswParams:
 	}
 }
 
-func generateDummySerializedData(t *testing.T, outputStorePath string, outputIndexPath string, dummyStore *vectorStore) {
+func generateDummySerializedData(t *testing.T, outputStorePath string, outputIndexPath string, dummyStore *memoryIndex) {
 	buf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buf)
 	if err := encoder.Encode(dummyStore); err != nil {
@@ -57,7 +57,7 @@ func generateDummySerializedData(t *testing.T, outputStorePath string, outputInd
 	}
 }
 
-func generateDummyVectorStore(t *testing.T) *vectorStore {
+func generateDummyVectorStore(t *testing.T) *memoryIndex {
 	index, err := hnswgo.New(2, 2, 1, 42, 100, "cosine")
 	if err != nil {
 		t.Fatalf("An error occured when creating index: %s", err.Error())
@@ -69,7 +69,7 @@ func generateDummyVectorStore(t *testing.T) *vectorStore {
 		{5, 6},
 	}
 
-	dummyStore := &vectorStore{
+	dummyStore := &memoryIndex{
 		LatestId: 0,
 		index:    index,
 	}

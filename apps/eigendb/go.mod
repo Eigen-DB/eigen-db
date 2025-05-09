@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.2
 
 require (
+	github.com/Eigen-DB/eigen-db/libs/faissgo v0.1.0
 	github.com/Eigen-DB/eigen-db/libs/hnswgo/v2 v2.2.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/manifoldco/promptui v0.9.0
@@ -12,6 +13,9 @@ require (
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+replace github.com/Eigen-DB/eigen-db/libs/faissgo => ../../libs/faissgo
+replace github.com/Eigen-DB/eigen-db/libs/hnswgo/v2 => ../../libs/hnswgo
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect

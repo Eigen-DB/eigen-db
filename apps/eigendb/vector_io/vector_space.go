@@ -1,129 +1,161 @@
 package vector_io
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
+	"os"
 	"time"
 
+	"eigen_db/cfg"
 	"eigen_db/constants"
 	t "eigen_db/types"
 
-	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
+	"github.com/Eigen-DB/eigen-db/libs/faissgo"
 )
 
-// the actual vector store living in memory at runtime
-var store *vectorStore
+// the actual vector memIdx living in memory at runtime
+var memIdx *memoryIndex
 
 // Where all vectors are stored, and all operations on vectors performed.
 // Stores a vector index and the ID of the vector most recently inserted.
-type vectorStore struct {
-	index    t.Index
-	LatestId t.VecId
+type memoryIndex struct {
+	index t.Index // figure out how to free index from memory when program exits
+	idMap map[t.VecId]t.VecId
+}
+
+func MemoryIndexFactory(dim int, similarityMetric t.SimMetric, spaceSize uint32, M int, efConstruction int) (*memoryIndex, error) {
+	// start with a fresh vector store
+	memIdx = &memoryIndex{}
+	index, err := faissgo.IndexFactory(
+		dim,
+		"HNSW32", // add PQ later
+		similarityMetric,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	memIdx.index = index
+	memIdx.idMap = make(map[t.VecId]t.VecId)
+
+	// attempt loading persisted data into the store
+	if err = memIdx.loadPersistedStore(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH); err != nil {
+		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
+	} else {
+		fmt.Println("Loaded persisted vectors in memory.")
+	}
+
+	return memIdx, nil
 }
 
 // Gets a vector from the in-memory vector store using its ID.
 //
 // Returns the vector or an error if one occured.
-func getVector(id t.VecId) (*Vector, error) {
-	vector, err := store.index.GetVector(id)
+func (idx *memoryIndex) getVector(id t.VecId) (*Embedding, error) {
+	indexId := idx.idMap[id]
+	vector, err := idx.index.Reconstruct(indexId)
 	if err != nil {
 		return nil, err
 	}
 
-	v, err := NewVector(vector, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return v, nil
+	return VectorFactory(vector, id)
 }
 
 // Deletes a vector from the in-memory vector store using its ID.
 //
+// NOTE: might cause issues with the idMap, but look into it later.
+//
 // Returns an error if one occured.
 // nolint:all
-func deleteVector(id t.VecId) error {
-	return store.index.DeleteVector(id)
-}
+// func deleteVector(id t.VecId) error {
+// 	return store.index.DeleteVector(id)
+// }
 
 // Inserts a vector from the in-memory vector store using its ID.
 //
 // Returns an error if one occured.
-func InsertVector(v *Vector) error {
-	err := store.index.InsertVector(v.Embedding, uint64(v.Id))
-	if err != nil {
-		return err
-	}
-	return nil
+func (idx *memoryIndex) InsertVector(v *Embedding) error {
+	idx.idMap[v.Id] = idx.index.NTotal()
+	return idx.index.Add(v.Data)
 }
 
-// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
-// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
-// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
-
-// Performs similarity search using the query vector's ID and the specified k value.
-//
-// Similarity search is performed using the HNSW algorithm with a time complexity of O(log n).
-// When performing the algorithm, we always find the k+1 nearesr neighbors as the k-nearest neighbors
-// will always include the query vector itself. Therefore we simply perform the search for k+1 nearest
-// neighbors and remove the query vector from the output.
-//
 // Returns the IDs of the nearest vectors or an error if one occured.
-func SimilaritySearch(queryVectorId t.VecId, k int) ([]t.VecId, error) {
-	queryVector, err := getVector(queryVectorId)
+func (idx *memoryIndex) Search(queryVector *Embedding, k int64) ([]t.VecId, error) {
+	nnIds, _, err := idx.index.Search(queryVector.Data, k)
 	if err != nil {
 		return nil, err
 	}
-
-	ids, _, err := store.index.SearchKNN(queryVector.Embedding, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
-	if err != nil {
-		return nil, err
-	}
-
-	// might just need to pop the first or last neighbor if I can confirm that hnswgo will return the neighbors in order
-	idsExcludingQuery := make([]t.VecId, 0)
-	for _, id := range ids {
-		if id != queryVectorId {
-			idsExcludingQuery = append(idsExcludingQuery, id)
-		}
-	}
-	return idsExcludingQuery, nil
+	return nnIds, nil
 }
 
-// Instantiates the in-memory vector store.
+// Persists the vector store to disk.
 //
-// Instantiates the store using the passed in dimension count, similarity metric,
-// maximum vector count (spaceSize), m and efConstruction parameters.
+// Works by storing the serialized form of the vector store as one
+// file at "storePersistPath", and the index within the vector
+// store as another file at "indexPersistPath".
 //
-// Attempts to load in a previously persisted vector store. If one does not
-// exist, a fresh store is loaded into memory.
+// The index is persisted separately as the vector store only contains
+// a pointer to the index. This means that serializing the vector store
+// will only serialize the pointer to the index, and not the index itself.
 //
 // Returns an error if one occured.
-func InstantiateVectorStore(dim int, similarityMetric t.SimMetric, spaceSize uint32, M int, efConstruction int) error {
-	if err := similarityMetric.Validate(); err != nil {
+func (idx *memoryIndex) persistToDisk(storePersistPath string, indexPersistPath string) error {
+	// persist the actual index
+	if err := idx.index.WriteToDisk(indexPersistPath); err != nil {
 		return err
 	}
 
-	// start with a fresh vector store
-	store = &vectorStore{}
-	index, err := hnswgo.New(
-		dim,
-		M,
-		efConstruction,
-		int(time.Now().Unix()),
-		spaceSize,
-		similarityMetric.ToString(),
-	)
+	// persist the vector store
+	buf := new(bytes.Buffer)
+	encoder := gob.NewEncoder(buf)
+	err := encoder.Encode(idx)
 	if err != nil {
 		return err
 	}
+	serializedData := buf.Bytes()
 
-	store.index = index
+	return os.WriteFile(storePersistPath, serializedData, constants.DB_PERSIST_CHMOD)
+}
 
-	// attempt loading persisted data into ther store
-	if err = store.loadPersistedStore(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH); err != nil {
-		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
-	} else {
-		fmt.Println("Loaded persisted vectors in memory.")
+// Loads a vector store persisted on disk into memory.
+//
+// Loads in the actual vector store from "storePersistPath" first,
+// then loads in the index into the vector store from "indexPersistPath".
+//
+// Returns an error if one occured.
+func (idx *memoryIndex) loadPersistedStore(storePersistPath string, indexPersistPath string) error {
+	// load the store
+	serializedIndex, err := os.ReadFile(storePersistPath)
+	if err != nil {
+		return err
 	}
+	buf := bytes.NewBuffer(serializedIndex)
+	decoder := gob.NewDecoder(buf)
+	err = decoder.Decode(idx)
+	if err != nil {
+		return err
+	}
+	return idx.index.LoadFromDisk(indexPersistPath)
+}
+
+// Creates a Goroutine that periodically persists data to disk.
+//
+// The time interval at which data is persisted on disk is set
+// in the "config" at persistence.timeInterval.
+//
+// Returns an error if one occured.
+func (idx *memoryIndex) StartPersistenceLoop(config *cfg.Config) error {
+	go func() {
+		for {
+			err := memIdx.persistToDisk(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH)
+			if err != nil {
+				fmt.Printf("Failed to persist data to disk: %s\n", err)
+			}
+
+			time.Sleep(cfg.GetConfig().GetPersistenceTimeInterval())
+		}
+	}()
+
 	return nil
 }

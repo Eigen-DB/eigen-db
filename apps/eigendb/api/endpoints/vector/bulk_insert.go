@@ -10,7 +10,7 @@ import (
 )
 
 type bulkInsertRequestBody struct {
-	Vectors []vector_io.Vector `json:"vectors" binding:"required"`
+	Vectors []vector_io.Embedding `json:"vectors" binding:"required"`
 }
 
 func BulkInsert(c *gin.Context) {
@@ -22,7 +22,7 @@ func BulkInsert(c *gin.Context) {
 	vectorsInserted := 0
 	errors := make([]string, 0)
 	for _, vector := range body.Vectors {
-		v, err := vector_io.NewVector(vector.Embedding, vector.Id)
+		v, err := vector_io.VectorFactory(vector.Data, vector.Id)
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("vector with ID %d was skipped - %s", vector.Id, err.Error()))
 			continue
