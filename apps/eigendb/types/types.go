@@ -8,6 +8,7 @@ import (
 
 type VecId = int64
 type EmbeddingData = []float32
+type Metadata = map[string]string
 type Index = faissgo.Index
 
 // Config types

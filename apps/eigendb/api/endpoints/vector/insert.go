@@ -9,7 +9,7 @@ import (
 )
 
 type insertRequestBody struct {
-	Vector vector_io.Embedding `json:"vector" binding:"required"`
+	Vector vector_io.Embedding `json:"embedding" binding:"required"`
 }
 
 func Insert(c *gin.Context) {
@@ -30,7 +30,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	if err := vector_io.GetMemoryIndex().InsertVector(v); err != nil { // causes nil pointer deference bug when empty body
+	if err := vector_io.GetMemoryIndex().Insert(v); err != nil { // causes nil pointer deference bug when empty body
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,

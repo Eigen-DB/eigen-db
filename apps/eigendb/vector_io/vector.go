@@ -12,6 +12,7 @@ import (
 type Embedding struct {
 	Id   t.VecId         `json:"id" binding:"required"`
 	Data t.EmbeddingData `json:"data" binding:"required"`
+	//Metadata t.Metadata      `json:"metadata,omitempty"`
 }
 
 // Creates a new vector with the specified embedding.

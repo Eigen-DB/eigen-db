@@ -15,6 +15,8 @@ import (
 )
 
 func main() {
+	e2e_test_mode := os.Getenv("E2E_TEST_MODE") == "1"
+
 	// initialize the metrics
 	metrics.Init()
 
@@ -38,7 +40,7 @@ func main() {
 	flag.Parse()
 
 	// checking if EigenDB is running in E2E_TEST_MODE
-	if os.Getenv("E2E_TEST_MODE") == "1" {
+	if e2e_test_mode {
 		fmt.Println("*** EigenDB running in E2E_TEST_MODE, if this was not intentional, please run EigenDB in standard mode. ***\nSetting the API key = \"test\"")
 		apiKey = "test"
 	}
