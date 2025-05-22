@@ -81,7 +81,7 @@ func (idx *memoryIndex) Get(id t.VecId) (*Embedding, error) {
 //
 // Returns an error if one occured.
 func (idx *memoryIndex) Insert(v *Embedding) error {
-	embedding, err := idx.Get(v.Id)
+	embedding, err := idx.Get(v.Id) // ISSUE: even when error is stored in err, the error is printed to stdout, but doesn't cause a panic. this is a Faiss/faissgo specific issue
 	if embedding != nil && err == nil {
 		return fmt.Errorf("embedding with ID %d already exists", v.Id)
 	}

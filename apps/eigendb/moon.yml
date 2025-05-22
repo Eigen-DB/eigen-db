@@ -2,7 +2,7 @@ type: 'application'
 language: 'go'
 
 dependsOn:
-  - id: 'hnswgo'
+  - id: 'faissgo'
 
 project:
   name: 'eigendb'
@@ -26,7 +26,7 @@ tasks:
       cache: false
 
   clean:
-    command: 'rm -rf dist/; rm -rf eigen/api_key.txt; rm -rf eigen/hnsw_index.bin; rm -rf eigen/vector_space.vec; rm -rf eigen/config.yml; rm -rf e2e/logs'
+    command: 'rm -rf dist/; rm -rf eigen/* || true'
     options:
       cache: false
   
