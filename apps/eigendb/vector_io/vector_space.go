@@ -21,7 +21,7 @@ var memIdx *memoryIndex
 // Stores a vector index and the ID of the vector most recently inserted.
 type memoryIndex struct {
 	index    t.Index                // figure out how to free index from memory when program exits
-	Metadata map[t.VecId]t.Metadata // map of embedding IDs to metadata (implement later)
+	Metadata map[t.EmbId]t.Metadata // map of embedding IDs to metadata (implement later)
 }
 
 func GetMemoryIndex() *memoryIndex {
@@ -59,7 +59,7 @@ func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 // Gets a vector from the in-memory vector store using its ID.
 //
 // Returns the vector or an error if one occured.
-func (idx *memoryIndex) Get(id t.VecId) (*Embedding, error) {
+func (idx *memoryIndex) Get(id t.EmbId) (*Embedding, error) {
 	embedding, err := idx.index.Reconstruct(id)
 	if err != nil {
 		return nil, err
@@ -85,11 +85,11 @@ func (idx *memoryIndex) Insert(v *Embedding) error {
 	if embedding != nil && err == nil {
 		return fmt.Errorf("embedding with ID %d already exists", v.Id)
 	}
-	return idx.index.AddWithIds(v.Data, []t.VecId{v.Id})
+	return idx.index.AddWithIds(v.Data, []t.EmbId{v.Id})
 }
 
 // Returns the IDs of the nearest vectors or an error if one occured.
-func (idx *memoryIndex) Search(queryVector *Embedding, k int64) ([]t.VecId, error) {
+func (idx *memoryIndex) Search(queryVector *Embedding, k int64) ([]t.EmbId, error) {
 	nnIds, _, err := idx.index.Search(queryVector.Data, k)
 	if err != nil {
 		return nil, err

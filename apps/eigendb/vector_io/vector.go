@@ -10,7 +10,7 @@ import (
 //
 // Each vector has an ID and an embedding.
 type Embedding struct {
-	Id   t.VecId         `json:"id" binding:"required"`
+	Id   t.EmbId         `json:"id" binding:"required"`
 	Data t.EmbeddingData `json:"data" binding:"required"`
 	//Metadata t.Metadata      `json:"metadata,omitempty"`
 }
@@ -18,7 +18,7 @@ type Embedding struct {
 // Creates a new vector with the specified embedding.
 //
 // Returns a pointer to the new Vector, or an error if one occured.
-func EmbeddingFactory(data t.EmbeddingData, id t.VecId) (*Embedding, error) {
+func EmbeddingFactory(data t.EmbeddingData, id t.EmbId) (*Embedding, error) {
 	dimensions := cfg.GetConfig().GetDimensions()
 	if len(data) == dimensions {
 		return &Embedding{

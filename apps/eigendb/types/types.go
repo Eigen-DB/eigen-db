@@ -6,7 +6,7 @@ import (
 	"github.com/Eigen-DB/eigen-db/libs/faissgo"
 )
 
-type VecId = int64
+type EmbId = int64
 type EmbeddingData = []float32
 type Metadata = map[string]string
 type Index = faissgo.Index
