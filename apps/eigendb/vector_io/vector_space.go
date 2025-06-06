@@ -31,6 +31,7 @@ func GetMemoryIndex() *memoryIndex {
 func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	// start with a fresh vector store
 	memIdx = &memoryIndex{}
+	memIdx.Metadata = make(map[t.EmbId]t.Metadata)
 	faissMetric, err := similarityMetric.ToFaissMetricType()
 	if err != nil {
 		return err
@@ -60,11 +61,14 @@ func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 //
 // Returns the vector or an error if one occured.
 func (idx *memoryIndex) Get(id t.EmbId) (*Embedding, error) {
+	// get embedding data from index
 	embedding, err := idx.index.Reconstruct(id)
 	if err != nil {
 		return nil, err
 	}
-	return EmbeddingFactory(embedding, id)
+	// get embedding metadata if it exists
+	metadata := idx.Metadata[id] // we can assume the metadata exists if the embedding exists in the index
+	return EmbeddingFactory(embedding, metadata, id)
 }
 
 // Deletes a vector from the in-memory vector store using its ID.
@@ -81,20 +85,58 @@ func (idx *memoryIndex) Get(id t.EmbId) (*Embedding, error) {
 //
 // Returns an error if one occured.
 func (idx *memoryIndex) Insert(v *Embedding) error {
+	// check if the embedding already exists in the index
 	embedding, err := idx.Get(v.Id) // ISSUE: even when error is stored in err, the error is printed to stdout, but doesn't cause a panic. this is a Faiss/faissgo specific issue
 	if embedding != nil && err == nil {
 		return fmt.Errorf("embedding with ID %d already exists", v.Id)
 	}
-	return idx.index.AddWithIds(v.Data, []t.EmbId{v.Id})
+	// insert the embedding into the index
+	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
+		return err
+	}
+	// store the metadata for the embedding
+	idx.Metadata[v.Id] = v.Metadata
+	return nil
 }
 
-// Returns the IDs of the nearest vectors or an error if one occured.
-func (idx *memoryIndex) Search(queryVector *Embedding, k int64) ([]t.EmbId, error) {
-	nnIds, _, err := idx.index.Search(queryVector.Data, k)
+// Performs nearest neighbor search on the given query vector.
+// Returns a map of nearest neighbor IDs, their metadata and rank.
+// Example return value:
+//
+//	{
+//		"863": {
+//			"metadata": {
+//				"key1": "value1",
+//				"key2": "value2"
+//			},
+//			"rank": 0
+//		},
+//		"934": {
+//			"metadata": {
+//				"key1": "value1",
+//				"key2": "value2"
+//			},
+//			"rank": 1
+//		},
+//		...
+//	}
+func (idx *memoryIndex) Search(queryVector t.EmbeddingData, k int64) (map[t.EmbId]map[string]any, error) {
+	nearestNeighbors := make(map[t.EmbId]map[string]any, k)
+
+	// get the nearest neighbors IDs
+	nnIds, _, err := idx.index.Search(queryVector, k)
 	if err != nil {
 		return nil, err
 	}
-	return nnIds, nil
+	rank := 0
+	for _, id := range nnIds {
+		nearestNeighbors[id] = map[string]any{
+			"metadata": idx.Metadata[id],
+			"rank":     rank,
+		}
+		rank++
+	}
+	return nearestNeighbors, nil
 }
 
 // Persists the vector store to disk.

@@ -8,7 +8,7 @@ if [[ $? -ne 0 ]]; then
     ls ~/venom # checking if i was already installed from a previous run
     if [[ $? -ne 0 ]]; then
         echo "Venom is not installed. Installing venom binary."
-        curl https://github.com/ovh/venom/releases/download/v1.1.0/venom.linux-amd64 -L -o ~/venom && chmod +x ~/venom
+        curl https://github.com/ovh/venom/releases/download/v1.2.0/venom.linux-amd64 -L -o ~/venom && chmod +x ~/venom
     fi
     VENOM=~/venom
 else

@@ -22,7 +22,7 @@ func BulkInsert(c *gin.Context) {
 	vectorsInserted := 0
 	errors := make([]string, 0)
 	for _, vector := range body.Vectors {
-		v, err := vector_io.EmbeddingFactory(vector.Data, vector.Id)
+		v, err := vector_io.EmbeddingFactory(vector.Data, vector.Metadata, vector.Id)
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("vector with ID %d was skipped - %s", vector.Id, err.Error()))
 			continue

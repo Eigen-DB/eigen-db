@@ -18,7 +18,7 @@ func Insert(c *gin.Context) {
 		return
 	}
 
-	v, err := vector_io.EmbeddingFactory(body.Vector.Data, body.Vector.Id)
+	v, err := vector_io.EmbeddingFactory(body.Vector.Data, body.Vector.Metadata, body.Vector.Id)
 	if err != nil {
 		utils.SendResponse(
 			c,
