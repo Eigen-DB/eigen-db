@@ -1,0 +1,86 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Official EigenDB Documentation",
+  "colors": {
+    "primary": "#0400A3",
+    "light": "#AFADFF",
+    "dark": "#FFF"
+  },
+  "favicon": "/logo/Final Logo Circular.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Content",
+            "pages": [
+              "overview",
+              "quickstart",
+              "how-fast-is-it",
+              "our-mission",
+              "cusec-devs-den-reloaded-2025",
+              {
+                "group": "Vector databases explained",
+                "icon": "database",
+                "pages": [
+                  "vector-databases/vector-databases",
+                  "vector-databases/similarity-search"
+                ]
+              },
+              {
+                "group": "Reducing memory consumption",
+                "icon": "microchip",
+                "pages": [
+                  "reducing-memory-consumption/overview",
+                  "reducing-memory-consumption/quantization",
+                  "reducing-memory-consumption/hnswlib-to-faiss"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": {
+          "source": "https://raw.githubusercontent.com/Eigen-DB/docs/refs/heads/main/api-reference/openapi.json",
+          "directory": "api-reference"
+        },
+        "groups": [
+          {
+            "group": "EigenDB's REST API",
+            "pages": [
+              "api-reference/api"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/Eigen-DB",
+          "icon": "github"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/Final Logo Text Transparent Light.svg",
+    "dark": "/logo/Final Logo Text Transparent.svg"
+  },
+  "background": {
+    "color": {
+      "light": "#FFF",
+      "dark": "#000"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Eigen-DB"
+    }
+  }
+}

@@ -10,7 +10,7 @@ project:
 
 tasks:
   run:
-    command: 'npx mintlify dev'
+    command: 'npx mint dev'
     options:
       runInCI: false
       cache: false

@@ -1,0 +1,27 @@
+---
+title: Overview
+description: Reducing memory consumption in EigenDB.
+icon: memory
+---
+
+After [my win at CUSEC](/cusec-devs-den-reloaded-2025), one of the biggest pieces of feedback I received was that EigenDB was consuming too much memory. This was a very valid point, as the cost of storing high-dimensional vectors in memory can quickly add up due to the nature of high-dimensional vectors. 
+
+## Why vectors consume so much memory
+
+When using a vector database, you typically use an embedding model to convert data (text, audio, etc.) into a vector representation. These vectors are often high-dimensional (384, 768, 1024, etc.) which starts to consume huge amounts of memory. 
+
+For example:
+
+Let's say you're using OpenAI's `text-embedding-3-small` embedding model to convert text into 1536-dimensional vectors. 
+
+In memory, a single 1536-dimensional vector is represented as a list of 1536 float32 values. Meaning that a single vector consumes $$$\frac{1536 * 32}{8} = 6144 \text{ bytes} = 6 \text{ kilobytes}$$$. 
+
+Now let's assume you have 1,000,000 vectors in your database. The total memory consumption would be: $$$6 * 10^6 = 6,000,000 \text{ kilobytes} \approx 5.72 \text{ gigabytes}$$$. 
+
+And if you wanted to story 1,000,000,000 vectors, the memory consumption would come out to: $$$\approx 5722.04 \text{ gigabytes}$$$.
+
+So it is clear that memory consumption can quickly go through the roof when dealing with high-dimensional vectors at large scales. 
+
+## How I planned to reduce memory consumption
+
+To address this issue, I started to research possible ways to "compress" vectors in memory. This is when I stumbled upon vector quantization. Vector quantization is a technique that allows you to reduce the dimensionality of a vector while still retaining its semantic meaning. This means that you can store vectors in a more memory-efficient way without losing too much information. [This is where I started.](/reducing-memory-consumption/quantization)

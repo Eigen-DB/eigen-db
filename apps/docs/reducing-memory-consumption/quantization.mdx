@@ -1,0 +1,39 @@
+---
+title: Vector quantization
+description: Compressing high-dimensional vectors using quantization methods.
+icon: atom
+---
+
+Vector quantization is a technique used to compress high-dimensional vectors, which can significantly reduce memory consumption in vector databases. This is particularly useful when dealing with large datasets or when deploying models on resource-constrained devices.
+
+## Quantization methods
+
+There are several quantization methods that can be employed to reduce the memory footprint of vectors:
+
+### Binary quantization
+
+Binary quantization is the simplest form of quantization, where each components in a vector is converted from a float32 to a single bit. This is done by rounding each component in a given vector to $$$0$$$ or $$$1$$$. This converts a float32 component to a single bit (0 or 1), which greatly reduces the memory consumption of the vector. 
+
+For example: 
+
+Here we will use binary quantization on a 5-dimensional vector:
+
+```py
+[0.62  -0.14   0.31   0.97  -0.53]
+  ↓      ↓      ↓      ↓      ↓
+[ 1      0      0      1      0 ]   
+```
+
+If I had a 1536-dimensional vector, it would originally consume $$$\frac{1536 * 32}{8} = 6144 \text{ bytes}$$$. After binary quantization, it would only consume $$$\frac{1536 * 1}{8} = 192 \text{ bytes}$$$. That's a reduction of $$$\approx 97\%$$$ in memory consumption!
+
+The trade-off with binary quantization is that it can lead to a loss of semantic meaning, as the original values are not entirely preserved. However, it can still be effective for certain applications where high precision is not critical.
+
+### Scalar quantization
+
+
+
+### Product 
+
+## Comparison of quantization methods
+
+...
