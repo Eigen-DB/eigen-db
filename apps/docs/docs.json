@@ -7,7 +7,7 @@
     "light": "#AFADFF",
     "dark": "#FFF"
   },
-  "favicon": "/logo/Final Logo Circular.svg",
+  "favicon": "/assets/logo/Final Logo Circular.svg",
   "navigation": {
     "tabs": [
       {
@@ -69,8 +69,8 @@
     }
   },
   "logo": {
-    "light": "/logo/Final Logo Text Transparent Light.svg",
-    "dark": "/logo/Final Logo Text Transparent.svg"
+    "light": "/assets/logo/Final Logo Text Transparent Light.svg",
+    "dark": "/assets/logo/Final Logo Text Transparent.svg"
   },
   "background": {
     "color": {
