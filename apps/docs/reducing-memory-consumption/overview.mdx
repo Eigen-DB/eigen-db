@@ -14,9 +14,9 @@ For example:
 
 Let's say you're using OpenAI's `text-embedding-3-small` embedding model to convert text into 1536-dimensional vectors. 
 
-In memory, a single 1536-dimensional vector is represented as a list of 1536 float32 values. Meaning that a single vector consumes $$$\frac{1536 * 32}{8} = 6144 \text{ bytes} = 6 \text{ kilobytes}$$$. 
+In memory, a single 1536-dimensional vector is represented as a list of 1536 float32 values. Meaning that a single vector consumes $$$\frac{1536 \times 32}{8} = 6144 \text{ bytes} = 6 \text{ kilobytes}$$$. 
 
-Now let's assume you have 1,000,000 vectors in your database. The total memory consumption would be: $$$6 * 10^6 = 6,000,000 \text{ kilobytes} \approx 5.72 \text{ gigabytes}$$$. 
+Now let's assume you have 1,000,000 vectors in your database. The total memory consumption would be: $$$6 \times 10^6 = 6,000,000 \text{ kilobytes} \approx 5.72 \text{ gigabytes}$$$. 
 
 And if you wanted to story 1,000,000,000 vectors, the memory consumption would come out to: $$$\approx 5722.04 \text{ gigabytes}$$$.
 
