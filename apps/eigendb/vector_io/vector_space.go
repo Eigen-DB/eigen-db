@@ -38,7 +38,7 @@ func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	}
 	index, err := faissgo.IndexFactory(
 		dim,
-		"HNSW32,IDMap2", // add PQ later
+		"HNSW32,IDMap2", // add more index types
 		faissMetric,
 	)
 	if err != nil {
@@ -77,7 +77,7 @@ func (idx *memoryIndex) Get(id t.EmbId) (*Embedding, error) {
 //
 // Returns an error if one occured.
 // nolint:all
-// func deleteVector(id t.VecId) error {
+// func Delete(id t.EmbId) error {
 // 	return store.index.DeleteVector(id)
 // }
 
@@ -91,6 +91,16 @@ func (idx *memoryIndex) Insert(v *Embedding) error {
 		return fmt.Errorf("embedding with ID %d already exists", v.Id)
 	}
 	// insert the embedding into the index
+	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
+		return err
+	}
+	// store the metadata for the embedding
+	idx.Metadata[v.Id] = v.Metadata
+	return nil
+}
+
+func (idx *memoryIndex) Upsert(v *Embedding) error {
+	// upsert the embedding into the index
 	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
 		return err
 	}
@@ -124,7 +134,7 @@ func (idx *memoryIndex) Search(queryVector t.EmbeddingData, k int64) (map[t.EmbI
 	nearestNeighbors := make(map[t.EmbId]map[string]any, k)
 
 	// get the nearest neighbors IDs
-	nnIds, _, err := idx.index.Search(queryVector, k)
+	nnIds, _, err := idx.index.Search(queryVector, k) // maybe check if the order is correct by getting the distances as well
 	if err != nil {
 		return nil, err
 	}

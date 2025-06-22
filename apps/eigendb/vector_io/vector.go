@@ -27,5 +27,5 @@ func EmbeddingFactory(data t.EmbeddingData, metadata t.Metadata, id t.EmbId) (*E
 			Metadata: metadata,
 		}, nil
 	}
-	return nil, fmt.Errorf("provided a %d-dimensional vector while the vector space is %d-dimensional", len(data), dimensions)
+	return nil, fmt.Errorf("provided a %d-dimensional embedding while the index is %d-dimensional", len(data), dimensions)
 }

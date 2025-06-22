@@ -4,11 +4,11 @@ vars:
   url: http://localhost:8080
 
 testcases:
-- name: Test vector bulk-insertion (successful)
+- name: Test vector insertion (successful)
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/vector/bulk-insert"
+    url: "{{.url}}/embeddings/insert"
     body: > 
       {
         "embeddings": [
@@ -68,14 +68,14 @@ testcases:
     timeout: 5
     assertions:
     - result.statuscode ShouldEqual 200
-    - result.bodyjson.message ShouldEqual "49/49 vectors successfully inserted."
+    - result.bodyjson.message ShouldEqual "49/49 embeddings successfully inserted."
     - result.bodyjson.status ShouldEqual 200
 
 - name: Test similarity search (successful)
   steps:
   - type: http
     method: GET
-    url: "{{.url}}/vector/search"
+    url: "{{.url}}/embeddings/search"
     body: >
       {
         "queryVector": [1.0, 2.0],
@@ -94,7 +94,7 @@ testcases:
   steps:
   - type: http
     method: GET
-    url: "{{.url}}/vector/search"
+    url: "{{.url}}/embeddings/search"
     body: >
       {
         "data": "test",
@@ -114,7 +114,7 @@ testcases:
   steps:
   - type: http
     method: GET
-    url: "{{.url}}/vector/search"
+    url: "{{.url}}/embeddings/search"
     body: "{\"hello\": \"world\"}"
     headers:
       X-Eigen-API-Key: test
@@ -126,105 +126,34 @@ testcases:
     - result.bodyjson.error.code ShouldEqual "INVALID_REQUEST_BODY"
     - result.bodyjson.error.description ShouldEqual "The body you provided in your request is invalid."
 
-- name: Test vector insertion (successful)
-  steps:
-  - type: http
-    method: PUT
-    url: "{{.url}}/vector/insert"
-    body: >
-      {
-        "embedding": {
-          "data": [1,2], 
-          "id": 200,
-          "metadata": {
-            "foo": "bar"
-          }
-        }
-      }
-    headers:
-      X-Eigen-API-Key: test
-    timeout: 5
-    assertions:
-    - result.statuscode ShouldEqual 200
-    - result.bodyjson.message ShouldEqual "Vector successfully inserted."
-    - result.bodyjson.status ShouldEqual 200
-
-- name: Test vector insertion (empty metadata field - should still succeed)
-  steps:
-  - type: http
-    method: PUT
-    url: "{{.url}}/vector/insert"
-    body: >
-      {
-        "embedding": {
-          "data": [1,2], 
-          "id": 300,
-          "metadata": {}
-        }
-      }
-    headers:
-      X-Eigen-API-Key: test
-    timeout: 5
-    assertions:
-    - result.statuscode ShouldEqual 200
-    - result.bodyjson.message ShouldEqual "Vector successfully inserted."
-    - result.bodyjson.status ShouldEqual 200
-  
-- name: Test vector insertion (incorrect dimensions)
-  steps:
-  - type: http
-    method: PUT
-    url: "{{.url}}/vector/insert"
-    body: >
-      {
-        "embedding": {
-          "data": [1,2,3],
-          "id": 201,
-          "metadata": {
-            "foo": "baz"
-          }
-        }
-      }
-    headers:
-      X-Eigen-API-Key: test
-    timeout: 5
-    assertions:
-    - result.statuscode ShouldEqual 400
-    - result.bodyjson.message ShouldEqual "The vector you provided is invalid."
-    - result.bodyjson.status ShouldEqual 400
-    - result.bodyjson.error.code ShouldEqual "INVALID_VECTOR_PROVIDED"
-    - result.bodyjson.error.description ShouldEqual "provided a 3-dimensional vector while the vector space is 2-dimensional"
-
 - name: Test vector insertion (ID already exists)
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/vector/insert"
+    url: "{{.url}}/embeddings/insert"
     body: >
       {
-        "embedding": {
-          "data": [3,4],
-          "id": 1,
-          "metadata": {
-            "foo": "baz"
-          }
-        }
+        "embeddings": [
+          {"data": [3.2, -1.5], "id": 1, "metadata": {"already": "exists"}},
+          {"data": [4.7, 2.1], "id": 201, "metadata": {}},
+          {"data": [-6.3, 3.4], "id": 202, "metadata": {"color": "red"}}
+        ]
       }
     headers:
       X-Eigen-API-Key: test
     timeout: 5
     assertions:
     - result.statuscode ShouldEqual 500
-    - result.bodyjson.message ShouldEqual "An error occured when inserting your vector."
+    - result.bodyjson.message ShouldEqual "2/3 embeddings successfully inserted."
     - result.bodyjson.status ShouldEqual 500
-    - result.bodyjson.error.code ShouldEqual "CANNOT_INSERT_VECTOR"
-    - result.bodyjson.error.description ShouldEqual "embedding with ID 1 already exists"
+    - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+    - result.bodyjson.error.description ShouldContain "embedding with ID 1 was not inserted - embedding with ID 1 already exists"
 
 - name: Test vector insertion (invalid request body)
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/vector/insert"
+    url: "{{.url}}/embeddings/insert"
     body: "{\"hello\": \"world\"}"
     headers:
       X-Eigen-API-Key: test
@@ -236,11 +165,11 @@ testcases:
     - result.bodyjson.error.code ShouldEqual "INVALID_REQUEST_BODY"
     - result.bodyjson.error.description ShouldEqual "The body you provided in your request is invalid."
   
-- name: Test vector bulk-insertion (incorrect dimensions)
+- name: Test vector insertion (incorrect dimensions)
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/vector/bulk-insert"
+    url: "{{.url}}/embeddings/insert"
     body: >
       {
         "embeddings": [
@@ -254,17 +183,37 @@ testcases:
     timeout: 5
     assertions:
     - result.statuscode ShouldEqual 500
-    - result.bodyjson.message ShouldEqual "1/3 vectors successfully inserted."
+    - result.bodyjson.message ShouldEqual "1/3 embeddings successfully inserted."
     - result.bodyjson.status ShouldEqual 500
-    - result.bodyjson.error.code ShouldEqual "VECTORS_SKIPPED"
-    - result.bodyjson.error.description ShouldContain "vector with ID 100 was skipped - provided a 3-dimensional vector while the vector space is 2-dimensional"
-    - result.bodyjson.error.description ShouldContain "vector with ID 101 was skipped - provided a 3-dimensional vector while the vector space is 2-dimensional"
+    - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+    - result.bodyjson.error.description ShouldContain "embedding with ID 100 was not inserted - provided a 3-dimensional embedding while the index is 2-dimensional"
+    - result.bodyjson.error.description ShouldContain "embedding with ID 101 was not inserted - provided a 3-dimensional embedding while the index is 2-dimensional"
 
-- name: Test vector bulk-insertion (invalid request body)
+- name: Test vector upsertion (successful)
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/vector/bulk-insert"
+    url: "{{.url}}/embeddings/upsert"
+    body: >
+      {
+        "embeddings": [
+          {"data": [-4.2, 8.5], "id": 1, "metadata": {"hello": "world"}},
+          {"data": [0.3, -9.4], "id": 2, "metadata": {"color": "blue"}}
+        ]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "2/2 embeddings successfully upserted."
+    - result.bodyjson.status ShouldEqual 200
+
+- name: Test vector upsertion (invalid request body)
+  steps:
+  - type: http
+    method: PUT
+    url: "{{.url}}/embeddings/upsert"
     body: "{\"hello\": \"world\"}"
     headers:
       X-Eigen-API-Key: test
@@ -275,5 +224,62 @@ testcases:
     - result.bodyjson.status ShouldEqual 400
     - result.bodyjson.error.code ShouldEqual "INVALID_REQUEST_BODY"
     - result.bodyjson.error.description ShouldEqual "The body you provided in your request is invalid."
+  
+- name: Test vector upsertion (incorrect dimensions)
+  steps:
+  - type: http
+    method: PUT
+    url: "{{.url}}/embeddings/upsert"
+    body: >
+      {
+        "embeddings": [
+          {"data": [3.2, -1.5, 1], "id": 100, "metadata": {"foo": "baz"}},
+          {"data": [4.7, 2.1, 1], "id": 101, "metadata": {}},
+          {"data": [-6.3, 3.4], "id": 102, "metadata": {"color": "red"}}
+        ]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "1/3 embeddings successfully upserted."
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+    - result.bodyjson.error.description ShouldContain "embedding with ID 100 was not upserted - provided a 3-dimensional embedding while the index is 2-dimensional"
+    - result.bodyjson.error.description ShouldContain "embedding with ID 101 was not upserted - provided a 3-dimensional embedding while the index is 2-dimensional"
 
+- name: Test vector retrieval (successful)
+  steps:
+  - type: http
+    method: GET
+    url: "{{.url}}/embeddings/retrieve"
+    body: >
+      {
+        "ids": [1, 2, 3, 4, 5]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "5/5 embeddings successfully retrieved."
+    - result.bodyjson.status ShouldEqual 200
 
+- name: Test vector retrieval (invalid id)
+  steps:
+  - type: http
+    method: GET
+    url: "{{.url}}/embeddings/retrieve"
+    body: >
+      {
+        "ids": [1, 2, 3, 4, 5, 8394279]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "5/6 embeddings successfully retrieved."
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"

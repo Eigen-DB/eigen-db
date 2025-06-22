@@ -9,29 +9,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type insertRequestBody struct {
+type upsertRequestBody struct {
 	Embeddings []vector_io.Embedding `json:"embeddings" binding:"required"`
 }
 
-func Insert(c *gin.Context) {
-	var body insertRequestBody
+func Upsert(c *gin.Context) {
+	var body upsertRequestBody
 	if err := utils.ValidateBody(c, &body); err != nil {
 		return
 	}
 
-	embeddingsInserted := 0
+	embeddingsUpserted := 0
 	errors := make([]string, 0)
 	for _, embedding := range body.Embeddings {
 		v, err := vector_io.EmbeddingFactory(embedding.Data, embedding.Metadata, embedding.Id)
 		if err != nil {
-			errors = append(errors, fmt.Sprintf("embedding with ID %d was not inserted - %s", embedding.Id, err.Error()))
+			errors = append(errors, fmt.Sprintf("embedding with ID %d was not upserted - %s", embedding.Id, err.Error()))
 			continue
 		}
 
-		if err := vector_io.GetMemoryIndex().Insert(v); err != nil {
-			errors = append(errors, fmt.Sprintf("embedding with ID %d was not inserted - %s", embedding.Id, err.Error()))
+		if err := vector_io.GetMemoryIndex().Upsert(v); err != nil {
+			errors = append(errors, fmt.Sprintf("embedding with ID %d was not upserted - %s", embedding.Id, err.Error()))
 		} else {
-			embeddingsInserted++
+			embeddingsUpserted++
 		}
 	}
 
@@ -39,7 +39,7 @@ func Insert(c *gin.Context) {
 		utils.SendResponse(
 			c,
 			http.StatusInternalServerError,
-			fmt.Sprintf("%d/%d embeddings successfully inserted.", embeddingsInserted, len(body.Embeddings)),
+			fmt.Sprintf("%d/%d embeddings successfully upserted.", embeddingsUpserted, len(body.Embeddings)),
 			nil,
 			utils.CreateError("EMBEDDINGS_SKIPPED", errors),
 		)
@@ -47,7 +47,7 @@ func Insert(c *gin.Context) {
 		utils.SendResponse(
 			c,
 			http.StatusOK,
-			fmt.Sprintf("%d/%d embeddings successfully inserted.", embeddingsInserted, len(body.Embeddings)),
+			fmt.Sprintf("%d/%d embeddings successfully upserted.", embeddingsUpserted, len(body.Embeddings)),
 			nil,
 			nil,
 		)

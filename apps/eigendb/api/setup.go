@@ -17,7 +17,7 @@ import (
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	vectors := r.Group("/vector", middleware.AuthMiddleware())
+	vectors := r.Group("/embeddings", middleware.AuthMiddleware())
 	updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware())
 
 	updatePersistence := updateConfigRoot.Group("/persistence")
@@ -30,9 +30,9 @@ func setupRouter() *gin.Engine {
 
 	// vector operation endpoints
 	vectors.PUT("/insert", vector.Insert)
-	vectors.PUT("/bulk-insert", vector.BulkInsert)
+	vectors.PUT("/upsert", vector.Upsert)
+	vectors.GET("/retrieve", vector.Retrieve)
 	vectors.GET("/search", vector.Search)
-
 	// config setter endpoints
 	updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
 	updateApi.POST("/port", api.UpdatePort)

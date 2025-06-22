@@ -33,7 +33,7 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	// converting nn map from EmbId->Metadata, to string->Metadata for coventional JSON
+	// converting EmbId to string in nn map for coventional JSON
 	nnFormatted := make(map[string]map[string]any, len(nn))
 	for k, v := range nn {
 		nnFormatted[fmt.Sprint(k)] = v
