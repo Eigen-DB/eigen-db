@@ -128,8 +128,9 @@ func startConfigMenu() error {
 	_, result, err = (&promptui.Select{
 		Label: "Similarity metric",
 		Items: []string{
+			types.MetricCosine.String(),
 			types.MetricInnerProduct.String(),
-			types.MetricL2.String(), // add more metrics from faissgo later
+			types.MetricL2.String(),
 		},
 	}).Run()
 	if err != nil {

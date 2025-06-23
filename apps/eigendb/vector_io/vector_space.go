@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"math"
 	"os"
 	"time"
 
@@ -20,8 +21,9 @@ var memIdx *memoryIndex
 // Where all vectors are stored, and all operations on vectors performed.
 // Stores a vector index and the ID of the vector most recently inserted.
 type memoryIndex struct {
-	index    t.Index                // figure out how to free index from memory when program exits
-	Metadata map[t.EmbId]t.Metadata // map of embedding IDs to metadata (implement later)
+	index      t.Index                // figure out how to free index from memory when program exits
+	Normalized bool                   // whether the index is normalized or not (used for cosine similarity)
+	Metadata   map[t.EmbId]t.Metadata // map of embedding IDs to metadata
 }
 
 func GetMemoryIndex() *memoryIndex {
@@ -32,6 +34,11 @@ func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	// start with a fresh vector store
 	memIdx = &memoryIndex{}
 	memIdx.Metadata = make(map[t.EmbId]t.Metadata)
+	if similarityMetric.String() == "cosine" {
+		memIdx.Normalized = true // cosine similarity requires normalized vectors
+	} else {
+		memIdx.Normalized = false
+	}
 	faissMetric, err := similarityMetric.ToFaissMetricType()
 	if err != nil {
 		return err
@@ -55,6 +62,20 @@ func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	}
 
 	return nil
+}
+
+// Normalizes a vector in place.
+// normalize(v) = (1/|v|)*v
+func (idx *memoryIndex) normalize(vector t.EmbeddingData) {
+	var magnitude float32
+	for i := range vector {
+		magnitude += vector[i] * vector[i]
+	}
+	magnitude = float32(math.Sqrt(float64(magnitude)))
+
+	for i := range vector {
+		vector[i] *= 1.0 / magnitude
+	}
 }
 
 // Gets a vector from the in-memory vector store using its ID.
@@ -90,6 +111,10 @@ func (idx *memoryIndex) Insert(v *Embedding) error {
 	if embedding != nil && err == nil {
 		return fmt.Errorf("embedding with ID %d already exists", v.Id)
 	}
+	// if the index is normalized, normalize the embedding
+	if idx.Normalized {
+		idx.normalize(v.Data)
+	}
 	// insert the embedding into the index
 	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
 		return err
@@ -100,6 +125,10 @@ func (idx *memoryIndex) Insert(v *Embedding) error {
 }
 
 func (idx *memoryIndex) Upsert(v *Embedding) error {
+	// if the index is normalized, normalize the embedding
+	if idx.Normalized {
+		idx.normalize(v.Data)
+	}
 	// upsert the embedding into the index
 	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
 		return err
@@ -133,6 +162,10 @@ func (idx *memoryIndex) Upsert(v *Embedding) error {
 func (idx *memoryIndex) Search(queryVector t.EmbeddingData, k int64) (map[t.EmbId]map[string]any, error) {
 	nearestNeighbors := make(map[t.EmbId]map[string]any, k)
 
+	// if the index is normalized, normalize the query vector
+	if idx.Normalized {
+		idx.normalize(queryVector)
+	}
 	// get the nearest neighbors IDs
 	nnIds, _, err := idx.index.Search(queryVector, k) // maybe check if the order is correct by getting the distances as well
 	if err != nil {

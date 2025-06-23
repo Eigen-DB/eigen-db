@@ -16,6 +16,7 @@ type SimMetric string
 
 const (
 	// Similarity metrics
+	MetricCosine        SimMetric = "cosine"
 	MetricInnerProduct  SimMetric = "ip"
 	MetricL2            SimMetric = "l2"
 	MetricL1            SimMetric = "l1"
@@ -32,7 +33,7 @@ func (m SimMetric) String() string {
 
 func (m SimMetric) Validate() error {
 	switch m {
-	case MetricInnerProduct, MetricL2, MetricL1, MetricLinf, MetricLp,
+	case MetricCosine, MetricInnerProduct, MetricL2, MetricL1, MetricLinf, MetricLp,
 		MetricCanberra, MetricBrayCurtis, MetricJensenShannon:
 		return nil
 	default:
@@ -42,7 +43,7 @@ func (m SimMetric) Validate() error {
 
 func (m SimMetric) ToFaissMetricType() (faissgo.MetricType, error) {
 	switch m {
-	case MetricInnerProduct:
+	case MetricCosine, MetricInnerProduct:
 		return faissgo.MetricInnerProduct, nil
 	case MetricL2:
 		return faissgo.MetricL2, nil
