@@ -12,9 +12,20 @@ There are several quantization methods that can be employed to reduce the memory
 
 ### Binary quantization
 
-# FIX INCORRECT EXAMPLE AND USE MATH TO DEFINE A $$$Q(v)$$$
+Binary quantization is the simplest form of quantization, where each component in a vector is converted from a float32 to a single bit. This is done by rounding each component in a given vector to $$$0$$$ if it is $$$\le 0$$$ or $$$1$$$ if it is $$$\gt 0$$$. This converts a float32 component to a single bit (0 or 1), which greatly reduces the memory consumption of the vector.
 
-Binary quantization is the simplest form of quantization, where each components in a vector is converted from a float32 to a single bit. This is done by rounding each component in a given vector to $$$0$$$ or $$$1$$$. This converts a float32 component to a single bit (0 or 1), which greatly reduces the memory consumption of the vector. 
+Binary quantization can be defined as:
+
+$$$
+Q(v) = \begin{cases}
+0 & \text{if } v_i \le 0, \\
+1 & \text{if } v_i \gt 0
+\end{cases}
+
+\\
+
+\text{where } v_i \text{ is the } i\text{-th component of vector } v \in \mathbb{R}^D \text{ for } 0 \le i \lt D
+$$$
 
 #### Example
 
@@ -23,7 +34,7 @@ Here we will use binary quantization on a 5-dimensional vector:
 ```py
 [0.62  -0.14   0.31   0.97  -0.53]
   ↓      ↓      ↓      ↓      ↓
-[ 1      0      0      1      0 ]   
+[ 1      0      1      1      0 ]
 ```
 
 If I had a 1536-dimensional vector, it would originally consume $$$\frac{1536 * 32}{8} = 6144 \text{ bytes}$$$. After binary quantization, it would only consume $$$\frac{1536 * 1}{8} = 192 \text{ bytes}$$$. That's a reduction of $$$\approx 97\%$$$ in memory consumption!
@@ -32,11 +43,14 @@ The trade-off with binary quantization is that it can lead to a loss of semantic
 
 ### Scalar quantization
 
-...
+$$$
+Q(v) = \frac{|v - m|}{\Delta} + 1 \\
+\text{Where } m \text{ is the min of each dimension, } \Delta \text{ is the size of the quantization bins}
+$$$
 
 ### Product quantization
 
-Product quantization is a more advanced quantization method which uses a technique called _sub-vector quantization_ to compress high-dimensional vectors using a set of centroids. This method is particularly useful for large datasets and can achieve significant memory savings while maintaining a reasonable level of accuracy. 
+Product quantization is a more advanced quantization method which uses a technique called _sub-vector quantization_ to compress high-dimensional vectors using a set of centroids. This method is particularly useful for large datasets and can achieve significant memory savings while maintaining a reasonable level of accuracy.
 
 #### Example:
 
@@ -101,7 +115,7 @@ $$$
 
 Where $$$c_{i_j}$$$ is a $$$D'$$$-dimensional centroid used to approximate the $$$i$$$-th sub-vector of any given vector.
 
-Note: the number of centroids generated per sub-vector is $$$= 2^{\text{nbits}}$$$ where $$$\text{nbits}$$$ is the number of bits allocated to each single value in our outputted compressed vector. Currently, in an uncompressed vector like $$$v$$$, $$$\text{nbits} = 32$$$ as vectors originally store float32 values. In the example above, we set $$$\text{nbits} = 2$$$ which creates $$$2^\text{nbits} = 4$$$ centroids per codebook. 
+Note: the number of centroids generated per sub-vector is $$$= 2^{\text{nbits}}$$$ where $$$\text{nbits}$$$ is the number of bits allocated to each single value in our outputted compressed vector. Currently, in an uncompressed vector like $$$v$$$, $$$\text{nbits} = 32$$$ as vectors originally store float32 values. In the example above, we set $$$\text{nbits} = 2$$$ which creates $$$2^\text{nbits} = 4$$$ centroids per codebook.
 
 4. Given our sub-vectors above, we can then approximate each sub-vector by finding the closest centroid in each codebook using simple Euclidean distance. Let's say after computing the nearest centroids to each sub-vector, we approximate them as follows:
 $$$
@@ -167,9 +181,9 @@ A common approach for generating codebooks is to use a clustering algorithm, lik
   <sub>Visual example of k-means clustering. [Source](https://sandipanweb.wordpress.com/2016/08/)</sub>
 </div>
 
-Given a dataset of many vectors, when using product quantization, you must split all vectors in the dataset each into $$$m$$$ sub-vectors. This creates $$$m$$$ sub-spaces, each of dimension $$$D'$$$. K-means clustering can then be applied to each of these sub-spaces to learn the shape of the sub-vectors in each created sub-space, generating centroids that best approximate the sub-vectors in that sub-space. This will result in $$$m$$$ codebooks that greatly reduce the loss when approximating sub-vectors to centroids. 
+Given a dataset of many vectors, when using product quantization, you must split all vectors in the dataset each into $$$m$$$ sub-vectors. This creates $$$m$$$ sub-spaces, each of dimension $$$D'$$$. K-means clustering can then be applied to each of these sub-spaces to learn the shape of the sub-vectors in each created sub-space, generating centroids that best approximate the sub-vectors in that sub-space. This will result in $$$m$$$ codebooks that greatly reduce the loss when approximating sub-vectors to centroids.
 
-Since k-means clustering is a machine learning algorithm which needs to "learn" the shape of data, it is important to note that a vector database using product quantization will need to be trained on a given dataset of vectors before it can be used effectively. This training process involves running k-means clustering on the dataset to generate the codebooks, which can then be used for accurate quantization. Although, if a different dataset is used on the same trained database, the database must be re-trained to regenerate the codebooks as it needs to "re-learn" the shape of the new data to ensure accurate quantization. 
+Since k-means clustering is a machine learning algorithm which needs to "learn" the shape of data, it is important to note that a vector database using product quantization will need to be trained on a given dataset of vectors before it can be used effectively. This training process involves running k-means clustering on the dataset to generate the codebooks, which can then be used for accurate quantization. Although, if a different dataset is used on the same trained database, the database must be re-trained to regenerate the codebooks as it needs to "re-learn" the shape of the new data to ensure accurate quantization.
 
 ## Comparison of quantization methods
 
