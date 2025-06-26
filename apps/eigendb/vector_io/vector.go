@@ -9,21 +9,23 @@ import (
 // A representation of a vector.
 //
 // Each vector has an ID and an embedding.
-type Vector struct {
-	Id        t.VecId     `json:"id" binding:"required"`
-	Embedding t.Embedding `json:"embedding" binding:"required"`
+type Embedding struct {
+	Id       t.EmbId         `json:"id" binding:"required"`
+	Data     t.EmbeddingData `json:"data" binding:"required"`
+	Metadata t.Metadata      `json:"metadata" binding:"required"`
 }
 
 // Creates a new vector with the specified embedding.
 //
 // Returns a pointer to the new Vector, or an error if one occured.
-func NewVector(embedding t.Embedding, id t.VecId) (*Vector, error) {
+func EmbeddingFactory(data t.EmbeddingData, metadata t.Metadata, id t.EmbId) (*Embedding, error) {
 	dimensions := cfg.GetConfig().GetDimensions()
-	if len(embedding) == dimensions {
-		v := &Vector{}
-		v.Embedding = embedding
-		v.Id = id
-		return v, nil
+	if len(data) == dimensions {
+		return &Embedding{
+			Id:       id,
+			Data:     data,
+			Metadata: metadata,
+		}, nil
 	}
-	return nil, fmt.Errorf("provided a %d-dimensional vector while the vector space is %d-dimensional", len(embedding), dimensions)
+	return nil, fmt.Errorf("provided a %d-dimensional embedding while the index is %d-dimensional", len(data), dimensions)
 }

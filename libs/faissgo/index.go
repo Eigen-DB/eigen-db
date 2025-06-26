@@ -5,11 +5,11 @@ package faissgo
 
 #include <stdlib.h>
 #include <faiss/c_api/Index_c.h>
+#include <faiss/c_api/impl/AuxIndexStructures_c.h>
 #include <faiss/c_api/index_io_c.h>
 */
 import "C"
 import (
-	"errors"
 	"unsafe"
 )
 
@@ -20,7 +20,7 @@ type Index interface {
 
 	AddWithIds(vecsFlat []float32, ids []int64) error
 
-	RemoveIds(n int64, ids []int64) error
+	RemoveIds(selector *IDSelector) (int, error)
 
 	Search(queryVectsFlat []float32, k int64) ([]int64, []float32, error)
 
@@ -70,6 +70,8 @@ func (idx *faissIndex) Add(vecsFlat []float32) error {
 	return nil
 }
 
+// if ID already exists, it will be overwritten, but the old vector will not be removed, but just marked as deleted.
+// this means that NTotal() will still return the total number of vectors added to the index, even if some of them are marked as deleted.
 func (idx *faissIndex) AddWithIds(vecsFlat []float32, ids []int64) error {
 	n := int64(len(vecsFlat) / idx.dim)
 	c := C.faiss_Index_add_with_ids(
@@ -84,8 +86,17 @@ func (idx *faissIndex) AddWithIds(vecsFlat []float32, ids []int64) error {
 	return nil
 }
 
-func (idx *faissIndex) RemoveIds(n int64, ids []int64) error {
-	return errors.New("not implemented yet")
+func (idx *faissIndex) RemoveIds(selector *IDSelector) (int, error) {
+	var nRemoved C.size_t
+	c := C.faiss_Index_remove_ids(
+		idx.faissIdx,
+		selector.sel,
+		&nRemoved,
+	)
+	if c != 0 {
+		return 0, GetLastError()
+	}
+	return int(nRemoved), nil
 }
 
 // supports many query vectors at once

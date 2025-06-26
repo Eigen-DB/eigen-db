@@ -1,17 +1,18 @@
-package vector
+package embeddings
 
 import (
 	"eigen_db/api/utils"
-	t "eigen_db/types"
+	"eigen_db/types"
 	"eigen_db/vector_io"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type searchRequestBody struct {
-	QueryVectorId t.VecId `json:"queryVectorId" binding:"required"`
-	K             int     `json:"k" binding:"required,gt=0"`
+	QueryVector types.EmbeddingData `json:"queryVector" binding:"required"`
+	K           int64               `json:"k" binding:"required,gt=0"`
 }
 
 func Search(c *gin.Context) {
@@ -20,7 +21,7 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	nnIds, err := vector_io.SimilaritySearch(body.QueryVectorId, body.K)
+	nn, err := vector_io.GetMemoryIndex().Search(body.QueryVector, body.K)
 	if err != nil {
 		utils.SendResponse(
 			c,
@@ -32,12 +33,18 @@ func Search(c *gin.Context) {
 		return
 	}
 
+	// converting EmbId to string in nn map for coventional JSON
+	nnFormatted := make(map[string]map[string]any, len(nn))
+	for k, v := range nn {
+		nnFormatted[fmt.Sprint(k)] = v
+	}
+
 	utils.SendResponse(
 		c,
 		http.StatusOK,
 		"Similarity search successfully performed.",
 		map[string]any{
-			"nearest_neighbor_ids": nnIds,
+			"nearest_neighbors": nnFormatted,
 		},
 		nil,
 	)

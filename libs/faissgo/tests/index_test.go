@@ -110,8 +110,31 @@ func TestAddWithIds(t *testing.T) {
 	}
 }
 
-func TestRemoveIds(t *testing.T) {
-	t.Skip("Not implemented")
+func TestRemoveIdsRange(t *testing.T) {
+	idx := getIndex(t, "LSH,IDMap2", DIM) // ISSUE: HNSW indexes do not support removing IDs as it would destroy the graph structure. Using LSH index instead.
+	defer idx.Free()
+
+	vectors := generateRandomVectors(1000, DIM)
+	ids := make([]int64, 1000)
+	for i := 0; i < 1000; i++ {
+		ids[i] = int64(i)
+	}
+
+	if err := idx.AddWithIds(vectors, ids); err != nil {
+		t.Errorf("Error adding vectors: %v", err)
+	}
+
+	sel, err := faissgo.NewIDSelectorRange(100, 200) // does it remove (100, 200] or [100, 200)?
+	if err != nil {
+		t.Errorf("Error creating ID selector: %v", err)
+	}
+	nRemoved, err := idx.RemoveIds(sel)
+	if err != nil {
+		t.Errorf("Error removing IDs: %v", err)
+	}
+	if nRemoved != 100 {
+		t.Errorf("Expected to remove 100 IDs, but removed %d", nRemoved)
+	}
 }
 
 func TestSearch(t *testing.T) {

@@ -1,129 +1,254 @@
 package vector_io
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
+	"math"
+	"os"
 	"time"
 
+	"eigen_db/cfg"
 	"eigen_db/constants"
 	t "eigen_db/types"
 
-	"github.com/Eigen-DB/eigen-db/libs/hnswgo/v2"
+	"github.com/Eigen-DB/eigen-db/libs/faissgo"
 )
 
-// the actual vector store living in memory at runtime
-var store *vectorStore
+// the actual vector memIdx living in memory at runtime
+var memIdx *memoryIndex
 
 // Where all vectors are stored, and all operations on vectors performed.
 // Stores a vector index and the ID of the vector most recently inserted.
-type vectorStore struct {
-	index    t.Index
-	LatestId t.VecId
+type memoryIndex struct {
+	index      t.Index                // figure out how to free index from memory when program exits
+	Normalized bool                   // whether the index is normalized or not (used for cosine similarity)
+	Metadata   map[t.EmbId]t.Metadata // map of embedding IDs to metadata
 }
 
-// Gets a vector from the in-memory vector store using its ID.
-//
-// Returns the vector or an error if one occured.
-func getVector(id t.VecId) (*Vector, error) {
-	vector, err := store.index.GetVector(id)
-	if err != nil {
-		return nil, err
-	}
-
-	v, err := NewVector(vector, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return v, nil
+func GetMemoryIndex() *memoryIndex {
+	return memIdx
 }
 
-// Deletes a vector from the in-memory vector store using its ID.
-//
-// Returns an error if one occured.
-// nolint:all
-func deleteVector(id t.VecId) error {
-	return store.index.DeleteVector(id)
-}
-
-// Inserts a vector from the in-memory vector store using its ID.
-//
-// Returns an error if one occured.
-func InsertVector(v *Vector) error {
-	err := store.index.InsertVector(v.Embedding, uint64(v.Id))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// we perform similarity search using the HNSW algorithm with a time complexity of O(log n)
-// when performing the algorithm, we use k+1 as the resulting k-nearest neighbors will always include the query vector itself.
-// therefore we simply perform the search for k+1 nearest neighbors and remove the queryVectorId from the output
-
-// Performs similarity search using the query vector's ID and the specified k value.
-//
-// Similarity search is performed using the HNSW algorithm with a time complexity of O(log n).
-// When performing the algorithm, we always find the k+1 nearesr neighbors as the k-nearest neighbors
-// will always include the query vector itself. Therefore we simply perform the search for k+1 nearest
-// neighbors and remove the query vector from the output.
-//
-// Returns the IDs of the nearest vectors or an error if one occured.
-func SimilaritySearch(queryVectorId t.VecId, k int) ([]t.VecId, error) {
-	queryVector, err := getVector(queryVectorId)
-	if err != nil {
-		return nil, err
-	}
-
-	ids, _, err := store.index.SearchKNN(queryVector.Embedding, k+1) // returns ids of resulting vectors and the vectors' distances from the query vector
-	if err != nil {
-		return nil, err
-	}
-
-	// might just need to pop the first or last neighbor if I can confirm that hnswgo will return the neighbors in order
-	idsExcludingQuery := make([]t.VecId, 0)
-	for _, id := range ids {
-		if id != queryVectorId {
-			idsExcludingQuery = append(idsExcludingQuery, id)
-		}
-	}
-	return idsExcludingQuery, nil
-}
-
-// Instantiates the in-memory vector store.
-//
-// Instantiates the store using the passed in dimension count, similarity metric,
-// maximum vector count (spaceSize), m and efConstruction parameters.
-//
-// Attempts to load in a previously persisted vector store. If one does not
-// exist, a fresh store is loaded into memory.
-//
-// Returns an error if one occured.
-func InstantiateVectorStore(dim int, similarityMetric t.SimMetric, spaceSize uint32, M int, efConstruction int) error {
-	if err := similarityMetric.Validate(); err != nil {
-		return err
-	}
-
+func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	// start with a fresh vector store
-	store = &vectorStore{}
-	index, err := hnswgo.New(
+	memIdx = &memoryIndex{}
+	memIdx.Metadata = make(map[t.EmbId]t.Metadata)
+	if similarityMetric.String() == "cosine" {
+		memIdx.Normalized = true // cosine similarity requires normalized vectors
+	} else {
+		memIdx.Normalized = false
+	}
+	faissMetric, err := similarityMetric.ToFaissMetricType()
+	if err != nil {
+		return err
+	}
+	index, err := faissgo.IndexFactory(
 		dim,
-		M,
-		efConstruction,
-		int(time.Now().Unix()),
-		spaceSize,
-		similarityMetric.ToString(),
+		"HNSW32,IDMap2", // add more index types
+		faissMetric,
 	)
 	if err != nil {
 		return err
 	}
 
-	store.index = index
+	memIdx.index = index
 
-	// attempt loading persisted data into ther store
-	if err = store.loadPersistedStore(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH); err != nil {
+	// attempt loading persisted data into the store
+	if err = memIdx.loadPersistedStore(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH); err != nil {
 		fmt.Printf("Loaded empty vector space into memory -> error loading persisted vectors: %s\n", err)
 	} else {
 		fmt.Println("Loaded persisted vectors in memory.")
 	}
+
+	return nil
+}
+
+// Normalizes a vector in place.
+// normalize(v) = (1/|v|)*v
+func (idx *memoryIndex) normalize(vector t.EmbeddingData) {
+	var magnitude float32
+	for i := range vector {
+		magnitude += vector[i] * vector[i]
+	}
+	magnitude = float32(math.Sqrt(float64(magnitude)))
+
+	for i := range vector {
+		vector[i] *= 1.0 / magnitude
+	}
+}
+
+// Gets a vector from the in-memory vector store using its ID.
+//
+// Returns the vector or an error if one occured.
+func (idx *memoryIndex) Get(id t.EmbId) (*Embedding, error) {
+	// get embedding data from index
+	embedding, err := idx.index.Reconstruct(id)
+	if err != nil {
+		return nil, err
+	}
+	// get embedding metadata if it exists
+	metadata := idx.Metadata[id] // we can assume the metadata exists if the embedding exists in the index
+	return EmbeddingFactory(embedding, metadata, id)
+}
+
+// Deletes a vector from the in-memory vector store using its ID.
+//
+// NOTE: might cause issues with the idMap, but look into it later.
+//
+// Returns an error if one occured.
+// nolint:all
+// func Delete(id t.EmbId) error {
+// 	return store.index.DeleteVector(id)
+// }
+
+// Inserts a vector from the in-memory vector store using its ID.
+//
+// Returns an error if one occured.
+func (idx *memoryIndex) Insert(v *Embedding) error {
+	// check if the embedding already exists in the index
+	embedding, err := idx.Get(v.Id) // ISSUE: even when error is stored in err, the error is printed to stdout, but doesn't cause a panic. this is a Faiss/faissgo specific issue
+	if embedding != nil && err == nil {
+		return fmt.Errorf("embedding with ID %d already exists", v.Id)
+	}
+	// if the index is normalized, normalize the embedding
+	if idx.Normalized {
+		idx.normalize(v.Data)
+	}
+	// insert the embedding into the index
+	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
+		return err
+	}
+	// store the metadata for the embedding
+	idx.Metadata[v.Id] = v.Metadata
+	return nil
+}
+
+func (idx *memoryIndex) Upsert(v *Embedding) error {
+	// if the index is normalized, normalize the embedding
+	if idx.Normalized {
+		idx.normalize(v.Data)
+	}
+	// upsert the embedding into the index
+	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
+		return err
+	}
+	// store the metadata for the embedding
+	idx.Metadata[v.Id] = v.Metadata
+	return nil
+}
+
+// Performs nearest neighbor search on the given query vector.
+// Returns a map of nearest neighbor IDs, their metadata and rank.
+// Example return value:
+//
+//	{
+//		"863": {
+//			"metadata": {
+//				"key1": "value1",
+//				"key2": "value2"
+//			},
+//			"rank": 0
+//		},
+//		"934": {
+//			"metadata": {
+//				"key1": "value1",
+//				"key2": "value2"
+//			},
+//			"rank": 1
+//		},
+//		...
+//	}
+func (idx *memoryIndex) Search(queryVector t.EmbeddingData, k int64) (map[t.EmbId]map[string]any, error) {
+	nearestNeighbors := make(map[t.EmbId]map[string]any, k)
+
+	// if the index is normalized, normalize the query vector
+	if idx.Normalized {
+		idx.normalize(queryVector)
+	}
+	// get the nearest neighbors IDs
+	nnIds, _, err := idx.index.Search(queryVector, k) // maybe check if the order is correct by getting the distances as well
+	if err != nil {
+		return nil, err
+	}
+	rank := 0
+	for _, id := range nnIds {
+		nearestNeighbors[id] = map[string]any{
+			"metadata": idx.Metadata[id],
+			"rank":     rank,
+		}
+		rank++
+	}
+	return nearestNeighbors, nil
+}
+
+// Persists the vector store to disk.
+//
+// Works by storing the serialized form of the vector store as one
+// file at "storePersistPath", and the index within the vector
+// store as another file at "indexPersistPath".
+//
+// The index is persisted separately as the vector store only contains
+// a pointer to the index. This means that serializing the vector store
+// will only serialize the pointer to the index, and not the index itself.
+//
+// Returns an error if one occured.
+func (idx *memoryIndex) persistToDisk(storePersistPath string, indexPersistPath string) error {
+	// persist the actual index
+	if err := idx.index.WriteToDisk(indexPersistPath); err != nil {
+		return err
+	}
+
+	// persist the vector store
+	buf := new(bytes.Buffer)
+	encoder := gob.NewEncoder(buf)
+	err := encoder.Encode(idx)
+	if err != nil {
+		return err
+	}
+	serializedData := buf.Bytes()
+
+	return os.WriteFile(storePersistPath, serializedData, constants.DB_PERSIST_CHMOD)
+}
+
+// Loads a vector store persisted on disk into memory.
+//
+// Loads in the actual vector store from "storePersistPath" first,
+// then loads in the index into the vector store from "indexPersistPath".
+//
+// Returns an error if one occured.
+func (idx *memoryIndex) loadPersistedStore(storePersistPath string, indexPersistPath string) error {
+	// load the store
+	serializedIndex, err := os.ReadFile(storePersistPath)
+	if err != nil {
+		return err
+	}
+	buf := bytes.NewBuffer(serializedIndex)
+	decoder := gob.NewDecoder(buf)
+	err = decoder.Decode(idx)
+	if err != nil {
+		return err
+	}
+	return idx.index.LoadFromDisk(indexPersistPath)
+}
+
+// Creates a Goroutine that periodically persists data to disk.
+//
+// The time interval at which data is persisted on disk is set
+// in the "config" at persistence.timeInterval.
+//
+// Returns an error if one occured.
+func (idx *memoryIndex) StartPersistenceLoop(config *cfg.Config) error {
+	go func() {
+		for {
+			err := memIdx.persistToDisk(constants.STORE_PERSIST_PATH, constants.INDEX_PERSIST_PATH)
+			if err != nil {
+				fmt.Printf("Failed to persist data to disk: %s\n", err)
+			}
+
+			time.Sleep(cfg.GetConfig().GetPersistenceTimeInterval())
+		}
+	}()
+
 	return nil
 }

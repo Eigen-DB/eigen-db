@@ -12,7 +12,6 @@ import (
 TODO:
 - Check for unusual resource usage
 - Check that all endpoints function correctly
-- Return DB uptime
 */
 func Health(c *gin.Context) {
 	uptime := metrics.GetUptime()
