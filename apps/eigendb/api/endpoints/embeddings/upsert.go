@@ -1,4 +1,4 @@
-package vector
+package embeddings
 
 import (
 	"eigen_db/api/utils"

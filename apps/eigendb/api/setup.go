@@ -1,11 +1,11 @@
 package api
 
 import (
+	"eigen_db/api/endpoints/embeddings"
 	"eigen_db/api/endpoints/health_check"
 	"eigen_db/api/endpoints/update_config/api"
 	"eigen_db/api/endpoints/update_config/index_config"
 	"eigen_db/api/endpoints/update_config/persistence"
-	"eigen_db/api/endpoints/vector"
 	"eigen_db/api/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -29,10 +29,10 @@ func setupRouter() *gin.Engine {
 	r.GET("/test-auth", middleware.AuthMiddleware(), health_check.TestAuth)
 
 	// vector operation endpoints
-	vectors.PUT("/insert", vector.Insert)
-	vectors.PUT("/upsert", vector.Upsert)
-	vectors.GET("/retrieve", vector.Retrieve)
-	vectors.GET("/search", vector.Search)
+	vectors.PUT("/insert", embeddings.Insert)
+	vectors.PUT("/upsert", embeddings.Upsert)
+	vectors.GET("/retrieve", embeddings.Retrieve)
+	vectors.GET("/search", embeddings.Search)
 	// config setter endpoints
 	updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
 	updateApi.POST("/port", api.UpdatePort)
