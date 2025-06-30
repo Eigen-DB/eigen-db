@@ -2,7 +2,7 @@
 
 ### TO ADD TO THE DOCS 
 * ~~The win at CUSEC~~
-* Future plans/TODO
+* ~~Future plans/TODO~~
 * Reducing memory consumption
     * The switch from hnswlib to Faiss
     * Employing quantization methods
