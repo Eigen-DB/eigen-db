@@ -43,18 +43,47 @@ The trade-off with binary quantization is that it can lead to a loss of semantic
 
 ### Scalar quantization
 
+Scalar quantization is a method that reduces the precision of each component in a vector by mapping it to a smaller set of values. This is done by dividing the range of values into intervals and assigning each interval a representative value. The number of bits allocated to each component determines the number of intervals.
+
+#### Example
+
+Let's say we have a $$$N$$$-dimensional vector
 $$$
-Q(v) = \frac{|v - m|}{\Delta} + 1 \\
-\text{Where } m \text{ is the min of each dimension, } \Delta \text{ is the size of the quantization bins}
+v = \begin{bmatrix}
+v_0 \\
+v_1 \\
+v_2 \\
+... \\
+v_{N-1}
+\end{bmatrix}
 $$$
 
-...
+Where each component $$$v_i$$$ is a continuous float32 value between $$[-1, 1]$$. We can apply scalar quantization by mapping each component to a smaller set of values, such as integers or fixed-point numbers.
+
+For this example, we will map each float32 component to a 8-bit integer.
+
+1. We first define the number of bits to allocate to each component, which in this case is $$$\text{nbits} = 8$$$.
+
+2. We then calculate the number of intervals as $$$\text{intervals} = 2^{\text{nbits}} = 256$$$.
+
+3. Next, we map each component of our original float32 vector to the nearest interval in the discrete range $$$[0, 256)$$$. To achieve this, we can use [min-max normalization](https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)) to scale our values linearly.
+
+$$$
+x' = a + \frac{(x - \min(x))(b - a)}{\max(x) - \min(x)} \text{ to scale } x \text{ to the range } [a, b]
+$$$
+
+In our case, we can set $$$a = 0$$$ and $$$b = 2^{\text{nbits}}-1 = 255$$$ to map our float32 values to the range of an 8-bit integer $$$[0, 256)$$$.
+
+4. After passing each component through the min-max normalization, we can round each value to the nearest integer in the range $$$[0, 255]$$$.
+
+5. Finally, we can represent each component as an 8-bit integer, which reduces the memory consumption of the vector. Our initial $$$N$$$-dimensional vector $$$v$$$ consumed $$$N \times 32$$$ bits, but now only consumes $$$N \times 8$$$ bits which is a 4X reduction in memory consumption!
+
 
 ### Product quantization
 
 Product quantization is a more advanced quantization method which uses a technique called _sub-vector quantization_ to compress high-dimensional vectors using a set of centroids. This method is particularly useful for large datasets and can achieve significant memory savings while maintaining a reasonable level of accuracy.
 
-#### Example:
+#### Example
 
 1. We have a 6-dimensional index ($$$D = 6$$$) where we would like to apply product quantization to the following vector:
 
@@ -189,4 +218,8 @@ Since k-means clustering is a machine learning algorithm which needs to "learn" 
 
 ## Comparison of quantization methods
 
-...
+| Method               | Memory Reduction | Lossiness | Complexity |
+|----------------------|------------------|-----------|------------|
+| Binary Quantization  | High             | High      | Low        |
+| Scalar Quantization  | Moderate         | Moderate  | Moderate   |
+| Product Quantization | Very High        | Low       | High       |

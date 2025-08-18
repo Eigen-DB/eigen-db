@@ -4,3 +4,18 @@ description: Why I decided to power EigenDB with [FAISS](https://github.com/face
 icon: meta
 ---
 
+Previously, EigenDB was built on top of [HNSWlib](https://github.com/nmslib/hnswlib), a popular C library for working with HNSW (Hierarchical Navigable Small World) graphs. However, I have recently made the decision to switch to Meta's [FAISS](https://github.com/facebookresearch/faiss)!
+
+I initially chose to use HNSWlib as the library's API was very simple and straight-forward. This made it extremely easy for me to build [_hnswgo_](https://github.com/Eigen-DB/eigen-db/tree/6f269d37e85e0ef2d5f1085c79c731a2b2dcf498/libs/hnswgo), a Go wrapper for HNSWlib.
+
+However, after concerns about the memory consumption of EigenDB were brought up during [CUSEC's Dev's Den 2025](/cusec-devs-den-reloaded-2025), I came to realize that HNSW graphs do consume a large amount of memory.
+
+After some research on how I could reduce my HNSW graph's memory consumption, I came [vector quantization methods](/reducing-memory-consumption/quantization), which allow me to compress the high-dimensional vectors stored in my HNSW graph.
+
+Initially I thought of implementing the vector quantization myself (which is not very hard), but realized that I would have to modify the HNSWlib library itself to support vector quantization. This made the task exponentially more complex. I did some more digging and found [FAISS](https://github.com/facebookresearch/faiss), a popular library created by Meta for efficient similarity search and clustering of dense vectors.
+
+FAISS supports a variety of index types including HNSW, and most importantly, it has built-in support for vector quantization methods such as Product Quantization, Scalar Quantization, Binary Quantization, and more! Swapping out HNSWlib for FAISS would grant me more freedom in the underlying index and quantization methods used in EigenDB.
+
+This concluded my decision to switch the underlying library powering EigenDB from HNSWlib to FAISS.
+
+And with that, [_faissgo_](https://github.com/Eigen-DB/eigen-db/tree/6f269d37e85e0ef2d5f1085c79c731a2b2dcf498/libs/faissgo) was born! 🎉
