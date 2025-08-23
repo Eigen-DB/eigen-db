@@ -13,7 +13,7 @@ import (
 
 // Setups up the API router
 //
-// Returns the router at a pointer to a Gin Engine instance.
+// Returns the router as a pointer to a Gin Engine instance.
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
@@ -30,7 +30,7 @@ func setupRouter() *gin.Engine {
 
 	// vector operation endpoints
 	vectors.PUT("/insert", embeddings.Insert)
-	vectors.PUT("/upsert", embeddings.Upsert)
+	//vectors.PUT("/upsert", embeddings.Upsert) WORK IN PROGRESS
 	vectors.GET("/retrieve", embeddings.Retrieve)
 	vectors.GET("/search", embeddings.Search)
 	// config setter endpoints
