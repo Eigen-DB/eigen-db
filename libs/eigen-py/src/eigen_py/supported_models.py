@@ -1,6 +1,27 @@
 SUPPORTED_MODEL_PROVIDERS = ["openai", "ollama_local", "ollama_cloud", "none"]
 SUPPORTED_MODELS = [
     {
+        "name": "all-minilm:22m",
+        "supported_providers": ["ollama_local", "ollama_cloud"],
+        "dimensions": 384,
+        "metric": "cosine",
+        "metadata": {}
+    },
+    {
+        "name": "nomic-embed-text:v1.5",
+        "supported_providers": ["ollama_local", "ollama_cloud"],
+        "dimensions": 768,
+        "metric": "cosine",
+        "metadata": {}
+    },
+    {
+        "name": "mxbai-embed-large:335m",
+        "supported_providers": ["ollama_local", "ollama_cloud"],
+        "dimensions": 1024,
+        "metric": "cosine",
+        "metadata": {}
+    },
+    {
         "name": "snowflake-arctic-embed2:568m",
         "supported_providers": ["ollama_local", "ollama_cloud"],
         "dimensions": 1024,

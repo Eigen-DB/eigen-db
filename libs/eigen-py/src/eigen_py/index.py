@@ -35,6 +35,15 @@ class EigenIndex:
         self.test_auth()
         if self.model_provider == "openai":
             self.openai_client = openai.Client(api_key=self.model_provider_api_key)
+        elif self.model_provider == "ollama_local":
+            self.ollama_client = ollama
+        elif self.model_provider == "ollama_cloud":
+            self.ollama_client = ollama.Client(
+                host="https://ollama.com",
+                headers={
+                    "Authorization": self.model_provider_api_key
+                }
+            )
 
     def test_auth(self) -> bool:
         res = get(
@@ -55,8 +64,8 @@ class EigenIndex:
     
     def vectorize_text(self, texts: list[Text]) -> list[Embedding]:
         output_embeddings: list[Embedding] = []
-        if self.model_provider == "ollama_local":
-            response = ollama.embed(
+        if self.model_provider in ["ollama_local", "ollama_cloud"]: # TEST OLLAMA TURBO
+            response = self.ollama_client.embed(
                 model=self.model['name'],
                 input=[text.data for text in texts],
                 truncate=True
@@ -69,9 +78,6 @@ class EigenIndex:
                         metadata=texts[i].metadata
                     )
                 )
-        elif self.model_provider == "ollama_cloud":
-            # ...
-            pass
         elif self.model_provider == "openai":
             enc = tiktoken.get_encoding("cl100k_base") # should work for all openai embedding models we support at the moment: https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
             token_limit = self.model['metadata']['token_limit']
