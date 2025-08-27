@@ -2,6 +2,12 @@ from requests import Response
 import json
 
 class ResponseParser:
+    '''
+    Parses the response from an EigenDB instance.
+    Args:
+        response: The Response object from the requests library received from a request to the EigenDB API.
+    '''
+
     def __init__(self, response: Response) -> None:
         if response.status_code != 200:
             error_message = json.loads(response.content.decode('utf-8'))
@@ -15,6 +21,9 @@ class ResponseParser:
         self.error_desc: str = ""
 
     def parse(self) -> None:
+        '''
+        Parses the response and extracts relevant information.
+        '''
         self.status = self.response['status'] if 'status' in self.response else -1
         self.message = self.response['message'] if 'message' in self.response else ""
         self.data = self.response['data'] if 'data' in self.response else {}

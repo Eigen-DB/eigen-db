@@ -1,4 +1,4 @@
-SUPPORTED_MODEL_PROVIDERS = ["openai", "ollama_local", "ollama_cloud", "none"]
+SUPPORTED_MODEL_PROVIDERS = ["openai", "ollama", "none"]
 SUPPORTED_MODELS = [
     {
         "name": "all-minilm:22m",
