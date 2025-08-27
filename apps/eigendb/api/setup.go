@@ -30,7 +30,8 @@ func setupRouter() *gin.Engine {
 
 	// vector operation endpoints
 	vectors.PUT("/insert", embeddings.Insert)
-	//vectors.PUT("/upsert", embeddings.Upsert) WORK IN PROGRESS
+	vectors.PUT("/upsert", embeddings.Upsert)
+	vectors.DELETE("/delete", embeddings.Delete)
 	vectors.GET("/retrieve", embeddings.Retrieve)
 	vectors.GET("/search", embeddings.Search)
 	// config setter endpoints
