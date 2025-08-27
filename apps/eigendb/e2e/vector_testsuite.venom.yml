@@ -349,3 +349,39 @@ testcases:
     - result.bodyjson.message ShouldEqual "5/6 embeddings successfully retrieved."
     - result.bodyjson.status ShouldEqual 500
     - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+
+- name: Test vector deletion (successful)
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/embeddings/delete"
+    body: >
+      {
+        "ids": [1, 2, 3, 4, 5]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "5/5 embeddings successfully deleted."
+    - result.bodyjson.status ShouldEqual 200
+
+- name: Test vector deletion (invalid id)
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/embeddings/delete"
+    body: >
+      {
+        "ids": [6, 7, 8, 9, 10, 8394279]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "5/6 embeddings successfully deleted."
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+
