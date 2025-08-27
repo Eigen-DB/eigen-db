@@ -1,4 +1,4 @@
-from requests import get, put
+from requests import get, put, delete
 from typing import Literal
 import json
 import ollama
@@ -125,6 +125,23 @@ class EigenIndex:
         sentence_embeddings = self.vectorize_text(texts)
         self.insert(embeddings=sentence_embeddings)
 
+    def upsert(self, embeddings: list[Embedding]) -> None:
+        res = put(
+            url=self.url + '/embeddings/upsert',
+            headers={
+                'X-Eigen-API-Key': self.api_key
+            },
+            data=json.dumps({
+                "embeddings": [e.to_dict() for e in embeddings]
+            })
+        )
+        parser = ResponseParser(res)
+        parser.parse()
+
+    def upsert_text(self, texts: list[Text]) -> None:
+        sentence_embeddings = self.vectorize_text(texts)
+        self.upsert(embeddings=sentence_embeddings)
+
     def search(self, query: Embedding, k: int) -> dict[str, dict]:
         res = get(
             url=self.url + '/embeddings/search',
@@ -173,12 +190,19 @@ class EigenIndex:
             )
 
         return results
-    
-    def upsert(self, embeddings: list[Embedding]) -> None:
-        raise Exception("Upsertions are not supported at the moment. Use the .insert method instead.")
 
     def delete(self, ids: list[int]) -> None:
-        raise Exception("Deletions are not supported at the moment.")
+        res = delete(
+            url=self.url + '/embeddings/delete',
+            headers={
+                'X-Eigen-API-Key': self.api_key
+            },
+            data=json.dumps({
+                "ids": ids
+            })
+        )
+        parser = ResponseParser(res)
+        parser.parse()
 
     def __repr__(self) -> str:
         return f"EigenIndex(url={self.url})"

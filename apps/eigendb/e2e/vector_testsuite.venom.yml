@@ -90,10 +90,6 @@ testcases:
     - result.bodyjson.status ShouldEqual 200
     - result.bodyjson.data.nearest_neighbors ShouldJSONEqual '{"38":{"metadata":{},"rank":0},"15":{"metadata":{"team":"alpha"},"rank":1},"33":{"metadata":{"city":"berlin"},"rank":2},"45":{"metadata":{"foo":"qux"},"rank":3},"41":{"metadata":{},"rank":4}}'
 
-
-
-
-
 - name: Test vector upsertion (whole initial dataset)
   steps:
   - type: http
@@ -158,7 +154,7 @@ testcases:
     timeout: 5
     assertions:
     - result.statuscode ShouldEqual 200
-    - result.bodyjson.message ShouldEqual "49/49 embeddings successfully inserted."
+    - result.bodyjson.message ShouldEqual "49/49 embeddings successfully upserted."
     - result.bodyjson.status ShouldEqual 200
 
 - name: Test similarity search (successful with upserted whole dataset)
@@ -179,15 +175,6 @@ testcases:
     - result.bodyjson.message ShouldEqual "Similarity search successfully performed."
     - result.bodyjson.status ShouldEqual 200
     - result.bodyjson.data.nearest_neighbors ShouldJSONEqual '{"38":{"metadata":{},"rank":0},"15":{"metadata":{"team":"alpha"},"rank":1},"33":{"metadata":{"city":"berlin"},"rank":2},"45":{"metadata":{"foo":"qux"},"rank":3},"41":{"metadata":{},"rank":4}}'
-
-
-
-
-
-
-
-
-
 
 - name: Test similarity search (invalid values)
   steps:
@@ -288,26 +275,6 @@ testcases:
     - result.bodyjson.error.description ShouldContain "embedding with ID 100 was not inserted - provided a 3-dimensional embedding while the index is 2-dimensional"
     - result.bodyjson.error.description ShouldContain "embedding with ID 101 was not inserted - provided a 3-dimensional embedding while the index is 2-dimensional"
 
-- name: Test vector upsertion (successful)
-  steps:
-  - type: http
-    method: PUT
-    url: "{{.url}}/embeddings/upsert"
-    body: >
-      {
-        "embeddings": [
-          {"data": [-4.2, 8.5], "id": 1, "metadata": {"hello": "world"}},
-          {"data": [0.3, -9.4], "id": 2, "metadata": {"color": "blue"}}
-        ]
-      }
-    headers:
-      X-Eigen-API-Key: test
-    timeout: 5
-    assertions:
-    - result.statuscode ShouldEqual 200
-    - result.bodyjson.message ShouldEqual "2/2 embeddings successfully upserted."
-    - result.bodyjson.status ShouldEqual 200
-
 - name: Test vector upsertion (invalid request body)
   steps:
   - type: http
@@ -382,3 +349,39 @@ testcases:
     - result.bodyjson.message ShouldEqual "5/6 embeddings successfully retrieved."
     - result.bodyjson.status ShouldEqual 500
     - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+
+- name: Test vector deletion (successful)
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/embeddings/delete"
+    body: >
+      {
+        "ids": [1, 2, 3, 4, 5]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "5/5 embeddings successfully deleted."
+    - result.bodyjson.status ShouldEqual 200
+
+- name: Test vector deletion (invalid id)
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/embeddings/delete"
+    body: >
+      {
+        "ids": [6, 7, 8, 9, 10, 8394279]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "5/6 embeddings successfully deleted."
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+
