@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='eigen-py',
-    version='0.1.0',
+    name='eigen-client',
+    version='1.0.2',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     install_requires=[

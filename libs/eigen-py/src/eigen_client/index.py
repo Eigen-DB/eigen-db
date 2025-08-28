@@ -5,9 +5,9 @@ import ollama
 import openai
 import tiktoken
 
-from eigen_py.response import ResponseParser
-from eigen_py.data_types import Embedding, Document
-from eigen_py.supported_models import SUPPORTED_MODEL_PROVIDERS, SUPPORTED_MODELS
+from eigen_client.response import ResponseParser
+from eigen_client.data_types import Embedding, Document
+from eigen_client.supported_models import SUPPORTED_MODEL_PROVIDERS, SUPPORTED_MODELS
 
 #logging.set_verbosity_error()
 
