@@ -90,6 +90,92 @@ testcases:
     - result.bodyjson.status ShouldEqual 200
     - result.bodyjson.data.nearest_neighbors ShouldJSONEqual '{"38":{"metadata":{},"rank":0},"15":{"metadata":{"team":"alpha"},"rank":1},"33":{"metadata":{"city":"berlin"},"rank":2},"45":{"metadata":{"foo":"qux"},"rank":3},"41":{"metadata":{},"rank":4}}'
 
+- name: Test vector upsertion (whole initial dataset)
+  steps:
+  - type: http
+    method: PUT
+    url: "{{.url}}/embeddings/upsert"
+    body: > 
+      {
+        "embeddings": [
+          {"data": [3.2, -1.5], "id": 1, "metadata": {"foo": "baz"}},
+          {"data": [4.7, 2.1], "id": 2, "metadata": {}},
+          {"data": [-6.3, 3.4], "id": 3, "metadata": {"color": "red"}},
+          {"data": [0.9, -4.8], "id": 4, "metadata": {"shape": "circle"}},
+          {"data": [-2.7, 5.6], "id": 5, "metadata": {}},
+          {"data": [1.3, -3.9], "id": 6, "metadata": {"animal": "cat"}},
+          {"data": [2.4, 6.1], "id": 7, "metadata": {"bar": "foo"}},
+          {"data": [-1.1, 3.0], "id": 8, "metadata": {}},
+          {"data": [5.5, -2.2], "id": 9, "metadata": {"fruit": "apple"}},
+          {"data": [0.0, 4.4], "id": 10, "metadata": {"city": "paris"}},
+          {"data": [-3.6, -0.7], "id": 11, "metadata": {}},
+          {"data": [4.1, 5.3], "id": 12, "metadata": {"lang": "go"}},
+          {"data": [-2.9, 2.8], "id": 13, "metadata": {"os": "linux"}},
+          {"data": [3.7, -3.6], "id": 14, "metadata": {}},
+          {"data": [1.0, 0.5], "id": 15, "metadata": {"team": "alpha"}},
+          {"data": [5.9, 1.7], "id": 16, "metadata": {"env": "prod"}},
+          {"data": [-4.4, -3.2], "id": 17, "metadata": {}},
+          {"data": [2.8, 4.9], "id": 18, "metadata": {"user": "bob"}},
+          {"data": [-1.5, -2.4], "id": 19, "metadata": {"status": "active"}},
+          {"data": [3.3, 1.6], "id": 20, "metadata": {}},
+          {"data": [4.6, -1.3], "id": 21, "metadata": {"type": "vector"}},
+          {"data": [-2.1, 3.7], "id": 22, "metadata": {"code": "xyz"}},
+          {"data": [1.8, -5.4], "id": 23, "metadata": {}},
+          {"data": [3.9, 2.5], "id": 24, "metadata": {"foo": "bar"}},
+          {"data": [-1.4, 4.2], "id": 25, "metadata": {"bar": "baz"}},
+          {"data": [0.2, -3.1], "id": 26, "metadata": {}},
+          {"data": [5.1, 1.3], "id": 27, "metadata": {"fruit": "banana"}},
+          {"data": [-2.8, -1.7], "id": 28, "metadata": {"animal": "dog"}},
+          {"data": [3.0, 5.5], "id": 29, "metadata": {}},
+          {"data": [1.5, -2.8], "id": 30, "metadata": {"shape": "square"}},
+          {"data": [-4.9, 3.1], "id": 31, "metadata": {"lang": "python"}},
+          {"data": [2.6, -4.5], "id": 32, "metadata": {}},
+          {"data": [0.7, 3.8], "id": 33, "metadata": {"city": "berlin"}},
+          {"data": [-3.3, 2.2], "id": 34, "metadata": {"env": "dev"}},
+          {"data": [4.0, -0.9], "id": 35, "metadata": {}},
+          {"data": [-1.2, 4.9], "id": 36, "metadata": {"team": "beta"}},
+          {"data": [3.4, -2.6], "id": 37, "metadata": {"os": "windows"}},
+          {"data": [0.6, 1.8], "id": 38, "metadata": {}},
+          {"data": [-2.5, -3.9], "id": 39, "metadata": {"status": "inactive"}},
+          {"data": [5.3, 2.0], "id": 40, "metadata": {"user": "alice"}},
+          {"data": [-0.8, 3.3], "id": 41, "metadata": {}},
+          {"data": [2.1, -4.2], "id": 42, "metadata": {"code": "abc"}},
+          {"data": [4.5, 1.4], "id": 43, "metadata": {"type": "matrix"}},
+          {"data": [-3.7, -2.5], "id": 44, "metadata": {}},
+          {"data": [1.9, 3.6], "id": 45, "metadata": {"foo": "qux"}},
+          {"data": [0.3, -5.1], "id": 46, "metadata": {"bar": "quux"}},
+          {"data": [4.8, -3.0], "id": 47, "metadata": {}},
+          {"data": [-1.6, 2.9], "id": 48, "metadata": {"fruit": "pear"}},
+          {"data": [2.9, -4.0], "id": 49, "metadata": {"animal": "fox"}}
+        ]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "49/49 embeddings successfully upserted."
+    - result.bodyjson.status ShouldEqual 200
+
+- name: Test similarity search (successful with upserted whole dataset)
+  steps:
+  - type: http
+    method: GET
+    url: "{{.url}}/embeddings/search"
+    body: >
+      {
+        "queryVector": [1.0, 2.0],
+        "k": 5
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "Similarity search successfully performed."
+    - result.bodyjson.status ShouldEqual 200
+    - result.bodyjson.data.nearest_neighbors ShouldJSONEqual '{"38":{"metadata":{},"rank":0},"15":{"metadata":{"team":"alpha"},"rank":1},"33":{"metadata":{"city":"berlin"},"rank":2},"45":{"metadata":{"foo":"qux"},"rank":3},"41":{"metadata":{},"rank":4}}'
+
 - name: Test similarity search (invalid values)
   steps:
   - type: http
@@ -189,26 +275,6 @@ testcases:
     - result.bodyjson.error.description ShouldContain "embedding with ID 100 was not inserted - provided a 3-dimensional embedding while the index is 2-dimensional"
     - result.bodyjson.error.description ShouldContain "embedding with ID 101 was not inserted - provided a 3-dimensional embedding while the index is 2-dimensional"
 
-- name: Test vector upsertion (successful)
-  steps:
-  - type: http
-    method: PUT
-    url: "{{.url}}/embeddings/upsert"
-    body: >
-      {
-        "embeddings": [
-          {"data": [-4.2, 8.5], "id": 1, "metadata": {"hello": "world"}},
-          {"data": [0.3, -9.4], "id": 2, "metadata": {"color": "blue"}}
-        ]
-      }
-    headers:
-      X-Eigen-API-Key: test
-    timeout: 5
-    assertions:
-    - result.statuscode ShouldEqual 200
-    - result.bodyjson.message ShouldEqual "2/2 embeddings successfully upserted."
-    - result.bodyjson.status ShouldEqual 200
-
 - name: Test vector upsertion (invalid request body)
   steps:
   - type: http
@@ -283,3 +349,39 @@ testcases:
     - result.bodyjson.message ShouldEqual "5/6 embeddings successfully retrieved."
     - result.bodyjson.status ShouldEqual 500
     - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+
+- name: Test vector deletion (successful)
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/embeddings/delete"
+    body: >
+      {
+        "ids": [1, 2, 3, 4, 5]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "5/5 embeddings successfully deleted."
+    - result.bodyjson.status ShouldEqual 200
+
+- name: Test vector deletion (invalid id)
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/embeddings/delete"
+    body: >
+      {
+        "ids": [6, 7, 8, 9, 10, 8394279]
+      }
+    headers:
+      X-Eigen-API-Key: test
+    timeout: 5
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "5/6 embeddings successfully deleted."
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.error.code ShouldEqual "EMBEDDINGS_SKIPPED"
+

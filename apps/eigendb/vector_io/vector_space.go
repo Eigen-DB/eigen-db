@@ -18,12 +18,18 @@ import (
 // the actual vector memIdx living in memory at runtime
 var memIdx *memoryIndex
 
+const INDEX_TYPE string = "HNSW32,IDMap2"
+
 // Where all vectors are stored, and all operations on vectors performed.
 // Stores a vector index and the ID of the vector most recently inserted.
 type memoryIndex struct {
-	index      t.Index                // figure out how to free index from memory when program exits
-	Normalized bool                   // whether the index is normalized or not (used for cosine similarity)
-	Metadata   map[t.EmbId]t.Metadata // map of embedding IDs to metadata
+	index         t.Index // figure out how to free index from memory when program exits
+	Dimensions    int
+	Metric        t.SimMetric
+	EmbeddingsMap map[t.EmbId]t.EmbeddingData
+	Metadata      map[t.EmbId]t.Metadata // map of embedding IDs to metadata
+	Normalized    bool                   // whether the index is normalized or not (used for cosine similarity)
+	RebuildIndex  bool
 }
 
 func GetMemoryIndex() *memoryIndex {
@@ -34,6 +40,11 @@ func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	// start with a fresh vector store
 	memIdx = &memoryIndex{}
 	memIdx.Metadata = make(map[t.EmbId]t.Metadata)
+	memIdx.EmbeddingsMap = make(map[t.EmbId]t.EmbeddingData)
+	memIdx.Dimensions = dim
+	memIdx.Metric = similarityMetric
+	memIdx.RebuildIndex = false
+
 	if similarityMetric.String() == "cosine" {
 		memIdx.Normalized = true // cosine similarity requires normalized vectors
 	} else {
@@ -45,7 +56,7 @@ func MemoryIndexInit(dim int, similarityMetric t.SimMetric) error {
 	}
 	index, err := faissgo.IndexFactory(
 		dim,
-		"HNSW32,IDMap2", // add more index types
+		INDEX_TYPE, // add more index types
 		faissMetric,
 	)
 	if err != nil {
@@ -78,16 +89,47 @@ func (idx *memoryIndex) normalize(vector t.EmbeddingData) {
 	}
 }
 
+func (idx *memoryIndex) rebuildIndex() error {
+	fmt.Println("Rebuilding index...") // for testing
+	// get all embeddings and their IDs
+	var allEmbeddings t.EmbeddingData
+	var allIds []t.EmbId
+	for id, embedding := range idx.EmbeddingsMap {
+		allEmbeddings = append(allEmbeddings, embedding...)
+		allIds = append(allIds, id)
+	}
+
+	// reset the index
+	faissMetric, err := idx.Metric.ToFaissMetricType()
+	if err != nil {
+		return err
+	}
+	idx.index.Free() // free old index from memory
+	newIdx, err := faissgo.IndexFactory(
+		idx.Dimensions,
+		INDEX_TYPE,
+		faissMetric,
+	)
+	if err != nil {
+		return err
+	}
+	idx.index = newIdx
+
+	// add all embeddings back into the index
+	if err := idx.index.AddWithIds(allEmbeddings, allIds); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Gets a vector from the in-memory vector store using its ID.
 //
 // Returns the vector or an error if one occured.
 func (idx *memoryIndex) Get(id t.EmbId) (*Embedding, error) {
-	// get embedding data from index
-	embedding, err := idx.index.Reconstruct(id)
-	if err != nil {
-		return nil, err
+	embedding, exists := idx.EmbeddingsMap[id]
+	if !exists {
+		return nil, fmt.Errorf("embedding with ID %d does not exist", id)
 	}
-	// get embedding metadata if it exists
 	metadata := idx.Metadata[id] // we can assume the metadata exists if the embedding exists in the index
 	return EmbeddingFactory(embedding, metadata, id)
 }
@@ -98,19 +140,27 @@ func (idx *memoryIndex) Get(id t.EmbId) (*Embedding, error) {
 //
 // Returns an error if one occured.
 // nolint:all
-// func Delete(id t.EmbId) error {
-// 	return store.index.DeleteVector(id)
-// }
+func (idx *memoryIndex) Delete(id t.EmbId) error {
+	_, exists := idx.EmbeddingsMap[id]
+	if !exists {
+		return fmt.Errorf("embedding with ID %d does not exist", id)
+	}
+	delete(idx.EmbeddingsMap, id)
+	delete(idx.Metadata, id)
+	idx.RebuildIndex = true
+	return nil
+}
 
 // Inserts a vector from the in-memory vector store using its ID.
 //
 // Returns an error if one occured.
 func (idx *memoryIndex) Insert(v *Embedding) error {
 	// check if the embedding already exists in the index
-	embedding, err := idx.Get(v.Id) // ISSUE: even when error is stored in err, the error is printed to stdout, but doesn't cause a panic. this is a Faiss/faissgo specific issue
-	if embedding != nil && err == nil {
+	_, exists := idx.EmbeddingsMap[v.Id]
+	if exists {
 		return fmt.Errorf("embedding with ID %d already exists", v.Id)
 	}
+
 	// if the index is normalized, normalize the embedding
 	if idx.Normalized {
 		idx.normalize(v.Data)
@@ -119,7 +169,7 @@ func (idx *memoryIndex) Insert(v *Embedding) error {
 	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
 		return err
 	}
-	// store the metadata for the embedding
+	idx.EmbeddingsMap[v.Id] = v.Data // keep the index and embedding map in sync
 	idx.Metadata[v.Id] = v.Metadata
 	return nil
 }
@@ -129,12 +179,9 @@ func (idx *memoryIndex) Upsert(v *Embedding) error {
 	if idx.Normalized {
 		idx.normalize(v.Data)
 	}
-	// upsert the embedding into the index
-	if err := idx.index.AddWithIds(v.Data, []t.EmbId{v.Id}); err != nil {
-		return err
-	}
-	// store the metadata for the embedding
+	idx.EmbeddingsMap[v.Id] = v.Data
 	idx.Metadata[v.Id] = v.Metadata
+	idx.RebuildIndex = true
 	return nil
 }
 
@@ -160,8 +207,13 @@ func (idx *memoryIndex) Upsert(v *Embedding) error {
 //		...
 //	}
 func (idx *memoryIndex) Search(queryVector t.EmbeddingData, k int64) (map[t.EmbId]map[string]any, error) {
-	nearestNeighbors := make(map[t.EmbId]map[string]any, k)
+	if idx.RebuildIndex {
+		if err := idx.rebuildIndex(); err != nil {
+			return nil, err
+		}
+	}
 
+	nearestNeighbors := make(map[t.EmbId]map[string]any, k)
 	// if the index is normalized, normalize the query vector
 	if idx.Normalized {
 		idx.normalize(queryVector)
@@ -179,6 +231,7 @@ func (idx *memoryIndex) Search(queryVector t.EmbeddingData, k int64) (map[t.EmbI
 		}
 		rank++
 	}
+	idx.RebuildIndex = false
 	return nearestNeighbors, nil
 }
 
