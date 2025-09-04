@@ -1,4 +1,4 @@
-from requests import get, put, delete
+from requests import get, put, delete, post
 from typing import Literal
 import json
 import ollama
@@ -30,7 +30,7 @@ class Index:
         model_provider_api_key: str = None,
     ) -> None:
         # checking model params
-        model_names = [model['name'] for model in SUPPORTED_MODELS if model_provider in model['supported_providers']]
+        model_names = [model['name'] for model in SUPPORTED_MODELS if model_provider == model['supported_provider']]
         if model_provider not in SUPPORTED_MODEL_PROVIDERS:
             raise ValueError(f"Invalid model provider: {model_provider}. Supported providers are: {', '.join(SUPPORTED_MODEL_PROVIDERS)}.")
         if model_name not in model_names:
@@ -190,7 +190,7 @@ class Index:
         Returns:
             A dictionary mapping embedding IDs to their corresponding nearest neighbor information.
         '''
-        res = get(
+        res = post(
             url=self.url + '/embeddings/search',
             headers={
                 'X-Eigen-API-Key': self.api_key
@@ -233,7 +233,7 @@ class Index:
         Returns:
             A dictionary mapping embedding IDs to their corresponding Embedding objects.
         '''
-        res = get(
+        res = post(
             url=self.url + '/embeddings/retrieve',
             headers={
                 'X-Eigen-API-Key': self.api_key

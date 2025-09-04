@@ -1,0 +1,10 @@
+services:
+  eigendb:
+    image: ghcr.io/eigen-db/eigendb-base:latest
+    working_dir: /src
+    volumes:
+      - .:/src
+    command: 
+
+volumes:
+  eigendb_data:

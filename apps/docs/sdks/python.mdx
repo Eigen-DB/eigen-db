@@ -1,0 +1,59 @@
+---
+title: EigenDB's Python SDK
+description: Seamlessly integrate EigenDB into your Python applications
+icon: python
+---
+
+## Installation
+
+```bash
+pip install eigen-client
+```
+
+## Usage
+
+```python
+import os
+from eigen_client.index import Index
+from eigen_client.data_types import Document
+
+index = Index(
+    url="http://localhost:8080",
+    api_key="your eigendb api key...",
+    model_name="text-embedding-3-small",
+    model_provider="openai",
+    model_provider_api_key="your openai api key..."
+)
+
+documents = [
+    Document(id=1, data="Fresh herbs boost flavor.", metadata={"recipe_id": "123"}),
+    Document(id=2, data="Slow simmer blends soup.", metadata={"recipe_id": "456"}),
+    Document(id=3, data="Homemade bread smells great.", metadata={"recipe_id": "789"}),
+    Document(id=4, data="Grilled veggies taste sweeter.", metadata={"recipe_id": "987"}),
+    Document(id=5, data="Cast iron sears steak well.", metadata={"recipe_id": "654"})
+]
+
+index.upsert_docs(documents)
+
+results = index.search_docs(
+    string="Baking",
+    k=3
+)
+
+print(results)
+```
+
+## Supported embedding models
+
+| Model Name                     | Provider  | Dimensions | Similarity Metric |
+|--------------------------------|-----------|------------|-------------------|
+| text-embedding-3-small         | OpenAI    | 1536       | cosine            |
+| text-embedding-3-large         | OpenAI    | 3072       | cosine            |
+| text-embedding-ada-002         | OpenAI    | 1536       | cosine            |
+| all-minilm:22m                 | Ollama    | 384        | cosine            |
+| nomic-embed-text:v1.5          | Ollama    | 768        | cosine            |
+| mxbai-embed-large:335m         | Ollama    | 1024       | cosine            |
+| snowflake-arctic-embed2:568m   | Ollama    | 1024       | cosine            |
+| snowflake-arctic-embed:335m    | Ollama    | 1024       | cosine            |
+| bge-m3:567m                    | Ollama    | 1024       | cosine            |
+| bge-large:335m                 | Ollama    | 1024       | cosine            |

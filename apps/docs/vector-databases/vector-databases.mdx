@@ -6,17 +6,74 @@ icon: database
 
 ## What is it?
 
-A vector database is simply a database that has the capability to store vectors (pretty obvious, I know). For example, a vector database supporting vectors of 2 dimensions could store the following vectors: $$(1,2), (6,2), (7,2)$$. That's it.
+A vector database allows you to many forms of data (text, image, audio, etc.) and lets you query through the data based on _similarity_. 
+
+For example, let's say we have a vector database storing a bunch of news article titles. 
+
+If you take a title, for example:
+
+```
+"NASA's Perseverance Rover Discovers New Rock Formations on Mars"
+```
+
+and query the vector database for the 3 most similar titles, the vector database will return titles that are _semantically_ similar to the title you provided.
+
+An example output could be: 
+
+```
+1. "New Discoveries by NASA's Perseverance Rover on the Martian Surface"
+2. "Mars Rover Uncovers Ancient Rock Formations"
+3. "NASA's Perseverance Rover Finds Evidence of Water on Mars"
+```
+
+## What is it used for? 
+
+Vector databases has many uses such as:
+* Retrieval-Augmented Generation (RAG)
+* AI Agents
+* Content-based recommendation engines
+* Semantic search
+
+A great example of an active use of vector databases is Spotify's recommendation engine ([check it out](https://spotify.github.io/voyager/), it's really cool and open-source\~ ❤️). Spotify is well-known for it amazing music recommendations. Music recommendations in Spotify are done with search operations using a vector database. Songs in Spotify are stored in a vector database, which allows Spotify to easily compute the `k`-most similar songs to a target song, where all songs are represented as vectors.
+
+There is a [great episode of the _NerdOut@Spotify_ podcast](https://open.spotify.com/episode/3NLpNXBFC5bX5Oy5KlF5CL?si=WRSOasBeSQiHogF\_ME1Lew) that talks about their recommendation engine and vector databases as a whole. Highly recommend it. 
 
 
+## How does it actually work? Why vectors?
 
-## Why does it exist?
+Vector databases allow you to store multiple forms of data, but as _vectors_. This is because vectors are an efficient way of universally storing _features_ or _characteristics_ about a piece of data.
 
-The primary use for a vector database is to perform _similarity search_. Given a specific vector in the database, usually referred to as the _query vector_, and an integer `k`,  similarity search is the process of finding the `k`-nearest vectors to your query vector. When calculating how "close" two vectors are from each other, we can use one of the three similarity metrics supported in EigenDB.
+Data is converted into a vector by passing it through machine-learning models (referred to as _embedding models_) which extracts features from your data and generates a vector (also referred to as an _embedding_) containing the extracted features. 
 
+When comparing the similarity between two pieces of data, the vector database compares the vectors representing each piece of data. **The closer the vectors are from each other, the more similar is the data.**
 
+For example, let's represent three fruits as 3-dimensional vectors. We'll define each fruit by three simple features:
 
-Similarity metrics are mathematical methods of defining the distance between two vectors. You are probably most familiar with the Euclidean similarity metric.
+* Sweetness (scale of 0 to 10)
+* Sourness (scale of 0 to 10)
+* Size (scale of 0 to 10)
+
+Now, let's create our vectors:
+
+**Orange:** Sweet(6), Sour(5), Size(5) --> $$[6, 5, 5]$$
+
+**Lemon:** Sweet(2), Sour(9), Size(4) --> $$[2, 9, 4]$$
+
+**Lime:** Sweet(3), Sour(8), Size(3) --> $$[3, 8, 3]$$
+
+[We can visualize these vectors in a 3-dimensional space](https://www.desmos.com/3d/67b8q6h5vk)
+
+Notice how the vectors representing the lemon and lime are closer to each other than the orange. This indicates that the lemon and lime are more similar to each other than to the orange, which makes sense given their taste profiles.
+
+It is important to note that in real-world applications, vectors (embeddings) are usually of much higher dimensions (e.g., 3072 dimensions) and are generated using embedding models. These high-dimensional vectors can capture intricate features and nuances of the data, allowing for more accurate similarity comparisons. The same logic applies: the closer the vectors are from each other, the more similar the data is, regardless of the dimensions. I used 3 dimensions here for simplicity and visualization purposes.
+
+For example, OpenAI's [text-embedding-3-large model](https://platform.openai.com/docs/models/text-embedding-3-large) generates 3072-dimensional vectors for text data.
+
+For more visualizations for vector similarity, check out this great visual tool by [TensorFlow](https://projector.tensorflow.org/)! I personally love the MNIST visual.
+
+## How is similarilty between vectors calculated?
+
+Vector databases usually support various _similarity metrics_, which are mathematical methods of defining the distance between two vectors. 
 
 * Euclidean
 
@@ -24,9 +81,7 @@ $$
 d(\vec{u}, \vec{v})=\sqrt{\sum_{i=1}^n (v_i - u_i)^2}
 $$
 
-*   Cosine
-
-
+* Cosine
 
 $$
 \cos(\theta) = \frac{\vec{u} \cdot \vec{v}}{|\vec{u}||\vec{v}|} = \frac{\sum_{i=1}^{n} u_i v_i}{\sqrt{\sum_{i=1}^{n} u_i^2} \sqrt{\sum_{i=1}^{n} v_i^2}}
@@ -38,22 +93,10 @@ $$
 \vec{u} \cdot \vec{v} = \sum_{i=1}^n u_i v_i
 $$
 
+Different embedding models may work better with different similarity metrics, so it's important to consider this when choosing an embedding model.
 
+For more in-depth information on how similarity search is performed specifically in EigenDB, read take a look at <a href="./similarity-search/">this</a>.
 
-For more information on how similarity search is performed in EigenDB, read <a href="./similarity-search/">this</a>.
+## Further reading
 
-
-
-## What can you do with similarity search?
-
-TL;DR: Given a specific piece of data (audio, video, anything), similarity search is a method of efficiently finding similar pieces of data.
-
-[**This page**](https://www.pinecone.io/learn/what-is-similarity-search/) **explains it in-depth. I highly recommend reading it to get a good understanding of similarity search.**
-
-
-
-Similarity search has many uses like: content-based recommendation engines, semantic search, image, video and text search, etc.
-
-A great example of an active use of vector databases is Spotify's recommendation engine ([check it out](https://spotify.github.io/voyager/), it's really cool and open-source\~ ❤️).  Spotify is well-known for it amazing music recommendations. Music recommendations in Spotify are done with similarity search using a vector database. Songs in Spotify are vectorized (turned into vectors using machine learning) and stored in a vector database. This allows Spotify to easily compute the `k`-most similar songs to a target song, where all songs are represented as vectors.
-
-There is a [great episode of the _NerdOut@Spotify_ podcast](https://open.spotify.com/episode/3NLpNXBFC5bX5Oy5KlF5CL?si=WRSOasBeSQiHogF\_ME1Lew) that talks about their recommendation engine and vector databases as a whole. Highly recommend it. 
+* [The Illustrated Word2Vec](https://jalammar.github.io/illustrated-word2vec/)

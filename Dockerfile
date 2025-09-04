@@ -1,7 +1,7 @@
 # this Dockerfile defines the base image for the eigendb monorepo
 
 # setting up faissgo deps
-FROM debian:latest AS faissgo-builder
+FROM debian:bookworm-slim AS faissgo-builder
 
 SHELL ["/bin/bash", "-c"]
 

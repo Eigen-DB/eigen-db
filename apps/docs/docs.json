@@ -18,10 +18,6 @@
             "pages": [
               "overview",
               "quickstart",
-              "how-fast-is-it",
-              "our-mission",
-              "whats-next",
-              "cusec-devs-den-reloaded-2025",
               {
                 "group": "Vector databases explained",
                 "icon": "database",
@@ -30,6 +26,8 @@
                   "vector-databases/similarity-search"
                 ]
               },
+              "cusec-devs-den-reloaded-2025",
+              "whats-next",
               {
                 "group": "Reducing memory consumption",
                 "icon": "microchip",
@@ -38,7 +36,8 @@
                   "reducing-memory-consumption/quantization",
                   "reducing-memory-consumption/hnswlib-to-faiss"
                 ]
-              }
+              },
+              "our-mission"
             ]
           }
         ]
@@ -46,14 +45,25 @@
       {
         "tab": "API Reference",
         "openapi": {
-          "source": "https://raw.githubusercontent.com/Eigen-DB/docs/refs/heads/main/api-reference/openapi.json",
+          "source": "/api-reference/openapi.yaml",
           "directory": "api-reference"
         },
         "groups": [
           {
-            "group": "EigenDB's REST API",
+            "group": "Getting started",
             "pages": [
-              "api-reference/api"
+              "api-reference/auth"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDKs",
+        "groups": [
+          {
+            "group": "SDKs",
+            "pages": [
+              "sdks/python"
             ]
           }
         ]

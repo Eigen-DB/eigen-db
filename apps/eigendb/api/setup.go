@@ -32,8 +32,8 @@ func setupRouter() *gin.Engine {
 	vectors.PUT("/insert", embeddings.Insert)
 	vectors.PUT("/upsert", embeddings.Upsert)
 	vectors.DELETE("/delete", embeddings.Delete)
-	vectors.GET("/retrieve", embeddings.Retrieve)
-	vectors.GET("/search", embeddings.Search)
+	vectors.POST("/retrieve", embeddings.Retrieve)
+	vectors.POST("/search", embeddings.Search)
 	// config setter endpoints
 	updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
 	updateApi.POST("/port", api.UpdatePort)
