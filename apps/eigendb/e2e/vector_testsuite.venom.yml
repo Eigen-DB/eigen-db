@@ -74,7 +74,7 @@ testcases:
 - name: Test similarity search (successful)
   steps:
   - type: http
-    method: GET
+    method: POST
     url: "{{.url}}/embeddings/search"
     body: >
       {
@@ -160,7 +160,7 @@ testcases:
 - name: Test similarity search (successful with upserted whole dataset)
   steps:
   - type: http
-    method: GET
+    method: POST
     url: "{{.url}}/embeddings/search"
     body: >
       {
@@ -179,7 +179,7 @@ testcases:
 - name: Test similarity search (invalid values)
   steps:
   - type: http
-    method: GET
+    method: POST
     url: "{{.url}}/embeddings/search"
     body: >
       {
@@ -199,7 +199,7 @@ testcases:
 - name: Test similarity search (invalid request body)
   steps:
   - type: http
-    method: GET
+    method: POST
     url: "{{.url}}/embeddings/search"
     body: "{\"hello\": \"world\"}"
     headers:
@@ -318,7 +318,7 @@ testcases:
 - name: Test vector retrieval (successful)
   steps:
   - type: http
-    method: GET
+    method: POST
     url: "{{.url}}/embeddings/retrieve"
     body: >
       {
@@ -335,7 +335,7 @@ testcases:
 - name: Test vector retrieval (invalid id)
   steps:
   - type: http
-    method: GET
+    method: POST
     url: "{{.url}}/embeddings/retrieve"
     body: >
       {
