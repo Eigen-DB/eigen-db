@@ -2,9 +2,12 @@ services:
   eigendb:
     image: ghcr.io/eigen-db/eigendb-base:latest
     working_dir: /src
+    stdin_open: true
+    tty: true
     volumes:
       - .:/src
     command: 
+      - moon run eigendb:build && cd apps/eigendb && ./dist/eigen_db
 
 volumes:
   eigendb_data:
