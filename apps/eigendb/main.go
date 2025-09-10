@@ -93,7 +93,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("API KEY: %s\n", apiKey) // find different way to give this to the user
+	fmt.Printf("IMPORTANT: API key has been generated and saved to %s\n", constants.API_KEY_FILE_PATH)
+	fmt.Printf("API KEY: %s\n", apiKey)
 
 	// starting the persistence loop
 	if err := vector_io.GetMemoryIndex().StartPersistenceLoop(config); err != nil {

@@ -3,9 +3,6 @@ package api
 import (
 	"eigen_db/api/endpoints/embeddings"
 	"eigen_db/api/endpoints/health_check"
-	"eigen_db/api/endpoints/update_config/api"
-	"eigen_db/api/endpoints/update_config/index_config"
-	"eigen_db/api/endpoints/update_config/persistence"
 	"eigen_db/api/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -18,11 +15,11 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	vectors := r.Group("/embeddings", middleware.AuthMiddleware())
-	updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware())
+	// updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware())
 
-	updatePersistence := updateConfigRoot.Group("/persistence")
-	updateApi := updateConfigRoot.Group("/api")
-	indexConfig := updateConfigRoot.Group("/hnsw-params")
+	// updatePersistence := updateConfigRoot.Group("/persistence")
+	// updateApi := updateConfigRoot.Group("/api")
+	// indexConfig := updateConfigRoot.Group("/hnsw-params")
 
 	// health check endpoints
 	r.GET("/health", health_check.Health)
@@ -35,10 +32,10 @@ func setupRouter() *gin.Engine {
 	vectors.POST("/retrieve", embeddings.Retrieve)
 	vectors.POST("/search", embeddings.Search)
 	// config setter endpoints
-	updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
-	updateApi.POST("/port", api.UpdatePort)
-	updateApi.POST("/address", api.UpdateAddress)
-	indexConfig.POST("/similarity-metric", index_config.UpdateSimilarityMetric)
+	// updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
+	// updateApi.POST("/port", api.UpdatePort)
+	// updateApi.POST("/address", api.UpdateAddress)
+	// indexConfig.POST("/similarity-metric", index_config.UpdateSimilarityMetric)
 
 	return r
 }

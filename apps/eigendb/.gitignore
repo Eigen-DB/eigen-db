@@ -8,7 +8,7 @@ benchmarks/*.log
 benchmarks/*_mean_*.csv
 notebooks/
 
-!eigen/.keep
+#!eigen/config.yml
 
 # --- BAZEL STUFF ---
 # Ignore backup files.

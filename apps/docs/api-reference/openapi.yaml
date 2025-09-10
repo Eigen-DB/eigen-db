@@ -372,173 +372,173 @@ paths:
                 error:
                   code: SIMILARITY_SEARCH_ERROR
                   description: detailed description of the error...
-  /update-config/persistence/time-interval:
-    post:
-      summary: Update persistence interval
-      operationId: updatePersistenceTimeInterval
-      description: Modify the time interval at which vectors in memory are persisted on disk.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - updatedValueSecs
-              properties:
-                updatedValueSecs:
-                  type: number
-                  format: float
-                  description: The new time interval in seconds
-      responses:
-        '200':
-          description: Time interval successfully updated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 200
-                message: Time interval updated.
-        '500':
-          description: An error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 500
-                message: An error occured.
-                error:
-                  code: ERROR_UPDATING_PERSISTENCE_TIME_INTERVAL
-                  description: detailed description of the error...
-  /update-config/api/port:
-    post:
-      summary: Update the API port
-      operationId: updateApiPort
-      description: Update the port on which the API runs (default = 8080). EigenDB must be restarted this to take effect.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - updatedPort
-              properties:
-                updatedPort:
-                  type: number
-                  format: int
-                  description: The new port number
-      responses:
-        '200':
-          description: API port successfully updated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 200
-                message: API port updated. Please restart the database for it to take effect.
-        '500':
-          description: An error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 500
-                message: An error occured.
-                error:
-                  code: ERROR_UPDATING_API_PORT
-                  description: detailed description of the error...
-  /update-config/api/address:
-    post:
-      summary: Update the API address
-      operationId: updateApiAddress
-      description: Update the address on which the API runs (default = 0.0.0.0). EigenDB must be restarted this to take effect.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - updatedAddress
-              properties:
-                updatedAddress:
-                  type: string
-                  description: The new API address
-      responses:
-        '200':
-          description: API address successfully updated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 200
-                message: API address updated. Please restart the database for it to take effect.
-        '500':
-          description: An error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 500
-                message: An error occured.
-                error:
-                  code: ERROR_UPDATING_API_ADDRESS
-                  description: detailed description of the error...
-  /update-config/hnsw-params/similarity-metric:
-    post:
-      summary: Update the similarity metric
-      operationId: updateSimilarityMetric
-      description: Update the similarity metric used in similarity search (default = euclidean). EigenDB must be restarted this to take effect.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - updatedMetric
-              properties:
-                updatedMetric:
-                  type: string
-                  description: The new similarity metric (cosine, euclidean, ip)
-      responses:
-        '200':
-          description: Similarity metric successfully updated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 200
-                message: Vector similarity metric updated. Please restart the database for it to take effect.
-        '400':
-          description: Invalid similarity metric.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 400
-                message: Something went wrong when trying to update the similarity metric.
-                error:
-                  code: INVALID_SIMILARITY_METRIC
-                  description: detailed description of the error...
-        '500':
-          description: An error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseSchema'
-              example:
-                status: 500
-                message: An error occured.
-                error:
-                  code: ERROR_UPDATING_SIMILARITY_METRIC
-                  description: detailed description of the error...
+  # /update-config/persistence/time-interval:
+  #   post:
+  #     summary: Update persistence interval
+  #     operationId: updatePersistenceTimeInterval
+  #     description: Modify the time interval at which vectors in memory are persisted on disk.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             required:
+  #               - updatedValueSecs
+  #             properties:
+  #               updatedValueSecs:
+  #                 type: number
+  #                 format: float
+  #                 description: The new time interval in seconds
+  #     responses:
+  #       '200':
+  #         description: Time interval successfully updated.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 200
+  #               message: Time interval updated.
+  #       '500':
+  #         description: An error occured.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 500
+  #               message: An error occured.
+  #               error:
+  #                 code: ERROR_UPDATING_PERSISTENCE_TIME_INTERVAL
+  #                 description: detailed description of the error...
+  # /update-config/api/port:
+  #   post:
+  #     summary: Update the API port
+  #     operationId: updateApiPort
+  #     description: Update the port on which the API runs (default = 8080). EigenDB must be restarted this to take effect.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             required:
+  #               - updatedPort
+  #             properties:
+  #               updatedPort:
+  #                 type: number
+  #                 format: int
+  #                 description: The new port number
+  #     responses:
+  #       '200':
+  #         description: API port successfully updated.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 200
+  #               message: API port updated. Please restart the database for it to take effect.
+  #       '500':
+  #         description: An error occured.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 500
+  #               message: An error occured.
+  #               error:
+  #                 code: ERROR_UPDATING_API_PORT
+  #                 description: detailed description of the error...
+  # /update-config/api/address:
+  #   post:
+  #     summary: Update the API address
+  #     operationId: updateApiAddress
+  #     description: Update the address on which the API runs (default = 0.0.0.0). EigenDB must be restarted this to take effect.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             required:
+  #               - updatedAddress
+  #             properties:
+  #               updatedAddress:
+  #                 type: string
+  #                 description: The new API address
+  #     responses:
+  #       '200':
+  #         description: API address successfully updated.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 200
+  #               message: API address updated. Please restart the database for it to take effect.
+  #       '500':
+  #         description: An error occured.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 500
+  #               message: An error occured.
+  #               error:
+  #                 code: ERROR_UPDATING_API_ADDRESS
+  #                 description: detailed description of the error...
+  # /update-config/hnsw-params/similarity-metric:
+  #   post:
+  #     summary: Update the similarity metric
+  #     operationId: updateSimilarityMetric
+  #     description: Update the similarity metric used in similarity search (default = euclidean). EigenDB must be restarted this to take effect.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             required:
+  #               - updatedMetric
+  #             properties:
+  #               updatedMetric:
+  #                 type: string
+  #                 description: The new similarity metric (cosine, euclidean, ip)
+  #     responses:
+  #       '200':
+  #         description: Similarity metric successfully updated.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 200
+  #               message: Vector similarity metric updated. Please restart the database for it to take effect.
+  #       '400':
+  #         description: Invalid similarity metric.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 400
+  #               message: Something went wrong when trying to update the similarity metric.
+  #               error:
+  #                 code: INVALID_SIMILARITY_METRIC
+  #                 description: detailed description of the error...
+  #       '500':
+  #         description: An error occured.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/responseSchema'
+  #             example:
+  #               status: 500
+  #               message: An error occured.
+  #               error:
+  #                 code: ERROR_UPDATING_SIMILARITY_METRIC
+  #                 description: detailed description of the error...
