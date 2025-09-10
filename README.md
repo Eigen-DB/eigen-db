@@ -24,32 +24,36 @@
 ![C++](https://img.shields.io/badge/C++-%2300599C.svg?style=flat&logo=c%2B%2B&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3670A0?style=flat&logo=python&logoColor=ffdd54)
 ![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-%23326ce5.svg?style=flat&logo=kubernetes&logoColor=white)
-[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-FFD21E?logo=huggingface&logoColor=000)](#)
+![OpenAI](https://img.shields.io/badge/OpenAI-fff?style=flat&logo=openai&logoColor=black) [![Ollama](https://img.shields.io/badge/Ollama-fff?logo=ollama&style=flat&logoColor=000)](#)
 
 </div>
 
 ## Table of contents
 
 1. [🔎 Overview](#overview)
-2. [📖 Documentation](#documentation)
+2. [🌐 Architecture](#architecture)
+3. [📖 Documentation](#documentation)
 4. [🤝 Contributing](#contributing)
-6. [💬 Contact Us](#contact-us)
+5. [💬 Contact Us](#contact-us)
 ---
 
 ### 🔎 Overview
-* EigenDB is a light-weight in-memory vector database written in Go. It’s entirely open-source! ❤️
-* Employs the _Hierarchical Navigable Small World_ (HNSW) algorithm to perform similarity search with the highest level of efficiency and speed.⚡
-    * Logic surrounding the HNSW algorithm is handled by our open-source Go library, [_hnswgo_](https://github.com/Eigen-DB/hnswgo)! 🧠
-* Basic database operations can be performed seamlessly through EigenDB's very simple [REST API](https://eigendb.mintlify.app/api-reference/api)! ✨
 
----
+* EigenDB is a light-weight in-memory vector database written in Go. It’s also open-source ❤️
+* Utilizes the _Hierarchical Navigable Small Worlds (HNSW)_ algorithm for efficiency and speed. ⚡
+    * Logic surrounding the HNSW algorithm is handled by our open-source Go library, [_faissgo_](https://github.com/Eigen-DB/eigen-db/tree/main/libs/faissgo)! 🧠
+* Features a simple [REST API](https://eigendb.mintlify.app/api-reference). ✨
+* Can seamlessly be integrated into your Python applications using our [Python SDK](https://eigendb.mintlify.app/sdks/python). 🐍
+
+### 🌐 Architecture
+
+![alt text](.github/assets/architecture.svg)
 
 ### 📖 Documentation
 
 Our official documentation can be found [here](https://eigendb.mintlify.app/)!
 
-If you feel like we missed something, feel free to [contribute](https://github.com/Eigen-DB/docs) to the docs! 
+If you feel like we missed something, feel free to [contribute](https://github.com/Eigen-DB/eigen-db/tree/main/apps/docs) to the docs! 
 
 ---
 
