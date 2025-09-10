@@ -4,17 +4,25 @@ description: How it's done!
 icon: diagram-project
 ---
 
-## Similarity search algorithm
+## How do we store your vectors?
 
-EigenDB employs the [_Hierarchical Navigable Small World (HNSW)_](https://arxiv.org/abs/1603.09320) algorithm to perform similarity search with the highest level of efficiency and speed.&#x20;
+EigenDB stores your vectors in a [_Hierarchical Navigable Small World (HNSW)_](https://arxiv.org/abs/1603.09320) graph to perform similarity search with the highest level of efficiency and speed.
 
+## Under the hood
 
+Algorithms to store and query vectors in an HNSW graph is implemented in EigenDB through our open-source Go library [faissgo](https://github.com/Eigen-DB/eigen-db/tree/main/libs/faissgo). This library offers lightweight Go bindings for Meta's [Faiss](https://engineering.fb.com/2017/03/29/data-infrastructure/faiss-a-library-for-efficient-similarity-search/), a popular C++ library for efficient similarity search and clustering of dense vectors released by [Facebook AI Research (FAIR)](http://ai.meta.com/research/).
 
-## Implementation
+This library allows EigenDB to integrate the power of Faiss inside of its Go ecosystem. In addition, the wrapper was made into an open-source library instead of including it in EigenDB, as this allows other developers to easily integrate Faiss into their Go workflows.
 
-The HNSW algorithm is implemented in EigenDB through our open-source Go library [hnswgo](https://github.com/Eigen-DB/hnswgo). The library is a Go wrapper for [hnswlib](https://github.com/nmslib/hnswlib), the C++ implementation of the HNSW algorithm.
-
-This library allows EigenDB to perform database operations solely using Go while never having to write any C/C++ code. In addition, the wrapper was made into an open-source library instead of including it in EigenDB, as this allows other developers to easily utilize the HNSW algorithm purely with Go. This means developers won't have to write their own wrappers, mess around in C/C++, or even implement the HNSW algorithm from scratch in Go. &#x20;
-
-
-
+```mermaid
+graph TD
+    App(🚀 Your Apps) --> SDK(🐍 Python SDK)
+    SDK --> |Documents| Model(🧠 Model Provider\n e.g. OpenAI, Ollama)
+    Model --> |"[0.1, -0.3, ...]"| SDK
+    SDK --> |Store the embeddings| REST(🌐 EigenDB REST API)
+    subgraph "📦 EigenDB Instance"
+    REST --> EigenDB(⚙️ EigenDB Logic)
+    EigenDB --> Faissgo(⚡faissgo)
+    Faissgo --> Faiss(♾️ Faiss C++ Library)
+    end
+```

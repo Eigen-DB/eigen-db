@@ -1,7 +1,7 @@
 # this Dockerfile defines the base image for the eigendb monorepo
 
 # setting up faissgo deps
-FROM debian:latest AS faissgo-builder
+FROM debian:bookworm-slim AS faissgo-builder
 
 SHELL ["/bin/bash", "-c"]
 
@@ -33,8 +33,6 @@ RUN make -C build -j
 
 FROM golang:1.23
 
-RUN go env -w GOFLAGS='-buildvcs=false'
-
 # installing golangci-lint
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.5
 
@@ -53,8 +51,19 @@ COPY --from=faissgo-builder /faissgo/faiss /usr/include/faiss
 RUN echo "source /opt/intel/oneapi/mkl/latest/env/vars.sh" >> ~/.bashrc
 RUN echo "export PATH=/usr/local/go/bin:/go/bin:$PATH" >> ~/.bashrc
 
-# creating user for CI and installing Moonrepo
+# installing moon in global location
+RUN curl -fsSL https://moonrepo.dev/install/moon.sh | bash
+RUN mv /root/.moon/bin/moon /usr/local/bin/moon
+RUN chmod +x /usr/local/bin/moon
+
+# creating user for CI
 RUN useradd -m ci_user -s /bin/bash
-RUN su ci_user -c "curl -fsSL https://moonrepo.dev/install/moon.sh | bash"
+
+# Configure git safe directory for the mounted volume
+RUN go env -w GOFLAGS='-buildvcs=false'
+RUN git config --global --add safe.directory /src
+RUN git config --global --add safe.directory /src/*
+RUN git config --global --add safe.directory /src/libs/faissgo/lib/faiss
+RUN git config --global --add safe.directory /src/libs/faissgo/lib/faiss/*
 
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]

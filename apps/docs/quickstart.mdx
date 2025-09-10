@@ -1,7 +1,7 @@
 ---
 title: 'Quickstart'
-description: 'Host your own EigenDB instance'
-icon: rocket
+description: 'Getting started'
+icon: terminal
 ---
 
 1. Clone the [repo](https://github.com/Eigen-DB/eigen-db) from GitHub:
@@ -10,13 +10,28 @@ icon: rocket
 git clone https://github.com/Eigen-DB/eigen-db
 ```
 
-2. Inside the repo, build and run EigenDB:
+2. Inside the repo, run:
 
 ```sh
-docker-compose up --build
+./apps/eigendb/setup_index.py
 ```
+This will provide you with a menu, allowing you to choose from a set of supported embedding models to use for the vectorization of your data. 
+Based on your choice, a configuration file at `/apps/eigendb/eigen/config.yml` will be created with the appropriate configurations.
 
-Your EigenDB instance should now be running on port `:8080`.
+3. To finally start the EigenDB, run:
+
+```sh
+docker compose up -d
+```
+Omit the `-d` flag if you don't want to run the it in the background.
+
+**Your EigenDB instance should now be running on port `:8080`**
+
+You can test the connection to your instance by running:
+
+```sh
+curl http://localhost:8080/health
+```
 
 {/*
 <Info>
