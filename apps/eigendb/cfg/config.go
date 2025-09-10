@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"eigen_db/constants"
+	"eigen_db/types"
 	t "eigen_db/types"
 
 	"gopkg.in/yaml.v3"
@@ -68,6 +69,15 @@ func (c *Config) populateConfig(configPath string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (c *Config) populateE2EConfig() error {
+	_ = c.SetPersistenceTimeInterval(3 * time.Second)
+	_ = c.SetAPIPort(8080)
+	_ = c.SetAPIAddress("0.0.0.0") // wouldn't 127.0.0.1 be better ?
+	_ = c.SetDimensions(2)
+	_ = c.SetSimilarityMetric(types.MetricL2)
 	return nil
 }
 

@@ -16,24 +16,17 @@ import (
 //
 // Returns an error if one occured.
 func SetupConfig(configPath string) error {
-	instantiateConfig()   // creates a empty Config struct in memory
-	config := GetConfig() // get pointer to Config in memory
-	if os.Getenv("E2E_TEST_MODE") == "1" {
+	instantiateConfig()                    // creates a empty Config struct in memory
+	config := GetConfig()                  // get pointer to Config in memory
+	if os.Getenv("E2E_TEST_MODE") == "1" { // if in E2E test mode, populate config with E2E test values
 		fmt.Println("Making E2E test config")
-		_ = config.SetPersistenceTimeInterval(3 * time.Second)
-		_ = config.SetAPIPort(8080)
-		_ = config.SetAPIAddress("0.0.0.0") // wouldn't 127.0.0.1 be better ?
-		_ = config.SetDimensions(2)
-		_ = config.SetSimilarityMetric(types.MetricL2)
-		if err := config.WriteToDisk(constants.CONFIG_PATH); err != nil {
-			return err
-		}
-		return nil
+		return config.populateE2EConfig()
 	}
-
-	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) { // if config file does not exist -> choose your config values
-		fmt.Println("No existing config file found. Please select your configuration values.")
+	if os.Getenv("EIGENDB_INTERACTIVE_MENU") == "1" { // if the user wants to use the interactive menu, start it (does not work very well with docker compose, only useful for local development)
 		return startConfigMenu()
+	}
+	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) { // if config file does not exist
+		return errors.New("config file does not exist, please create one at " + configPath + " or run EigenDB with EIGENDB_INTERACTIVE_MENU=1 to create one using the interactive menu")
 	}
 	if err := config.populateConfig(configPath); err != nil { // populate config in memory with values from config.yml
 		return err
@@ -42,6 +35,7 @@ func SetupConfig(configPath string) error {
 }
 
 func startConfigMenu() error {
+	fmt.Println("Please select your configuration values.")
 	config := GetConfig()
 
 	// setting persistence time interval
@@ -140,7 +134,7 @@ func startConfigMenu() error {
 		return err
 	}
 
-	return config.WriteToDisk(constants.CONFIG_PATH) // persisting config values to disk
+	return config.WriteToDisk(constants.CONFIG_PATH)
 }
 
 func validateInt32(input string) (int, error) {

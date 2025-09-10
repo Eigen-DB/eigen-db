@@ -2,8 +2,10 @@ services:
   eigendb:
     image: ghcr.io/eigen-db/eigendb-base:latest
     working_dir: /src
-    stdin_open: true
-    tty: true
+    ports:
+      - "8080:8080"
+    environment:
+      - GIN_MODE=release
     volumes:
       - .:/src
     command: 
