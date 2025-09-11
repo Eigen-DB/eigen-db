@@ -24,7 +24,8 @@
 ![C++](https://img.shields.io/badge/C++-%2300599C.svg?style=flat&logo=c%2B%2B&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3670A0?style=flat&logo=python&logoColor=ffdd54)
 ![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI-fff?style=flat&logo=openai&logoColor=black) [![Ollama](https://img.shields.io/badge/Ollama-fff?logo=ollama&style=flat&logoColor=000)](#)
+![OpenAI](https://img.shields.io/badge/OpenAI-fff?style=flat&logo=openai&logoColor=black) 
+[![Ollama](https://img.shields.io/badge/Ollama-fff?logo=ollama&style=flat&logoColor=000)](#)
 
 </div>
 
