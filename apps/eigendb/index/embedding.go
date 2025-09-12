@@ -1,4 +1,4 @@
-package vector_io
+package index
 
 import (
 	"eigen_db/cfg"
@@ -6,18 +6,18 @@ import (
 	"fmt"
 )
 
-// A representation of a vector.
+// A representation of an embedding.
 //
-// Each vector has an ID and an embedding.
+// Each embedding has an ID and an embedding.
 type Embedding struct {
 	Id       t.EmbId         `json:"id" binding:"required"`
 	Data     t.EmbeddingData `json:"data" binding:"required"`
 	Metadata t.Metadata      `json:"metadata" binding:"required"`
 }
 
-// Creates a new vector with the specified embedding.
+// Creates a new embedding with the specified embedding.
 //
-// Returns a pointer to the new Vector, or an error if one occured.
+// Returns a pointer to the new Embedding, or an error if one occured.
 func EmbeddingFactory(data t.EmbeddingData, metadata t.Metadata, id t.EmbId) (*Embedding, error) {
 	dimensions := cfg.GetConfig().GetDimensions()
 	if len(data) == dimensions {

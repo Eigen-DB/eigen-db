@@ -1,4 +1,4 @@
-package vector_io
+package index
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ import (
 	"github.com/Eigen-DB/eigen-db/libs/faissgo"
 )
 
-// the actual vector memIdx living in memory at runtime
+// the actual index memIdx living in memory at runtime
 var memIdx *memoryIndex
 
 const INDEX_TYPE string = "HNSW32,IDMap2"

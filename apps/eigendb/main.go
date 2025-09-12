@@ -5,9 +5,9 @@ import (
 	"eigen_db/auth"
 	"eigen_db/cfg"
 	"eigen_db/constants"
+	"eigen_db/index"
 	"eigen_db/metrics"
 	"eigen_db/types"
-	"eigen_db/vector_io"
 	"flag"
 	"fmt"
 	"os"
@@ -81,7 +81,7 @@ func main() {
 	}
 
 	// setting up the in-memory vector store
-	if err := vector_io.MemoryIndexInit(
+	if err := index.MemoryIndexInit(
 		config.GetDimensions(),
 		config.GetSimilarityMetric(),
 	); err != nil {
@@ -97,7 +97,7 @@ func main() {
 	fmt.Printf("API KEY: %s\n", apiKey)
 
 	// starting the persistence loop
-	if err := vector_io.GetMemoryIndex().StartPersistenceLoop(config); err != nil {
+	if err := index.GetMemoryIndex().StartPersistenceLoop(config); err != nil {
 		panic(err)
 	}
 

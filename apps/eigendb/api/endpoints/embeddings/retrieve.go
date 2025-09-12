@@ -2,8 +2,8 @@ package embeddings
 
 import (
 	"eigen_db/api/utils"
+	"eigen_db/index"
 	"eigen_db/types"
-	"eigen_db/vector_io"
 	"fmt"
 	"net/http"
 
@@ -23,7 +23,7 @@ func Retrieve(c *gin.Context) {
 	embeddings := make([]map[string]any, 0, len(body.Ids))
 	errors := make([]string, 0)
 	for _, id := range body.Ids {
-		embedding, err := vector_io.GetMemoryIndex().Get(id)
+		embedding, err := index.GetMemoryIndex().Get(id)
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("embedding with ID %d was not retrieved - %s", id, err.Error()))
 			continue

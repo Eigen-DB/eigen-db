@@ -2,8 +2,8 @@ package embeddings
 
 import (
 	"eigen_db/api/utils"
+	"eigen_db/index"
 	"eigen_db/types"
-	"eigen_db/vector_io"
 	"fmt"
 	"net/http"
 
@@ -23,7 +23,7 @@ func Delete(c *gin.Context) {
 	embeddingsDeleted := 0
 	errors := make([]string, 0)
 	for _, id := range body.Ids {
-		if err := vector_io.GetMemoryIndex().Delete(id); err != nil {
+		if err := index.GetMemoryIndex().Delete(id); err != nil {
 			errors = append(errors, fmt.Sprintf("embedding with ID %d was not deleted - %s", id, err.Error()))
 		} else {
 			embeddingsDeleted++

@@ -2,8 +2,8 @@ package embeddings
 
 import (
 	"eigen_db/api/utils"
+	"eigen_db/index"
 	"eigen_db/types"
-	"eigen_db/vector_io"
 	"fmt"
 	"net/http"
 
@@ -21,7 +21,7 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	nn, err := vector_io.GetMemoryIndex().Search(body.QueryVector, body.K)
+	nn, err := index.GetMemoryIndex().Search(body.QueryVector, body.K)
 	if err != nil {
 		utils.SendResponse(
 			c,

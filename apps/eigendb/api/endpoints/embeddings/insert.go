@@ -2,7 +2,7 @@ package embeddings
 
 import (
 	"eigen_db/api/utils"
-	"eigen_db/vector_io"
+	"eigen_db/index"
 	"fmt"
 	"net/http"
 
@@ -10,7 +10,7 @@ import (
 )
 
 type insertRequestBody struct {
-	Embeddings []vector_io.Embedding `json:"embeddings" binding:"required"`
+	Embeddings []index.Embedding `json:"embeddings" binding:"required"`
 }
 
 func Insert(c *gin.Context) {
@@ -22,13 +22,13 @@ func Insert(c *gin.Context) {
 	embeddingsInserted := 0
 	errors := make([]string, 0)
 	for _, embedding := range body.Embeddings {
-		v, err := vector_io.EmbeddingFactory(embedding.Data, embedding.Metadata, embedding.Id)
+		v, err := index.EmbeddingFactory(embedding.Data, embedding.Metadata, embedding.Id)
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("embedding with ID %d was not inserted - %s", embedding.Id, err.Error()))
 			continue
 		}
 
-		if err := vector_io.GetMemoryIndex().Insert(v); err != nil {
+		if err := index.GetMemoryIndex().Insert(v); err != nil {
 			errors = append(errors, fmt.Sprintf("embedding with ID %d was not inserted - %s", embedding.Id, err.Error()))
 		} else {
 			embeddingsInserted++
