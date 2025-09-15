@@ -9,7 +9,7 @@ import (
 type EmbId = int64
 type EmbeddingData = []float32
 type Metadata = map[string]string
-type Index = faissgo.Index
+type FaissIndex = faissgo.Index
 
 // Config types
 type SimMetric string

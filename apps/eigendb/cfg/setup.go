@@ -2,7 +2,6 @@ package cfg
 
 import (
 	"eigen_db/constants"
-	"eigen_db/types"
 	"errors"
 	"fmt"
 	"os"
@@ -93,44 +92,6 @@ func startConfigMenu() error {
 		return err
 	}
 	if err := config.SetAPIAddress(result); err != nil {
-		return err
-	}
-
-	// setting dimensions
-	result, err = (&promptui.Prompt{
-		Label: "Dimensions (>= 2)",
-		Validate: func(input string) error {
-			val, err := validateInt32(input)
-			if err != nil {
-				return err
-			}
-			if val < 2 {
-				return errors.New("dimensions must be >= 2")
-			}
-			return nil
-		},
-	}).Run()
-	if err != nil {
-		return err
-	}
-	dim, _ := strconv.ParseInt(result, 10, 32)
-	if err := config.SetDimensions(int(dim)); err != nil {
-		return err
-	}
-
-	// setting similarity metric
-	_, result, err = (&promptui.Select{
-		Label: "Similarity metric",
-		Items: []string{
-			types.MetricCosine.String(),
-			types.MetricInnerProduct.String(),
-			types.MetricL2.String(),
-		},
-	}).Run()
-	if err != nil {
-		return err
-	}
-	if err := config.SetSimilarityMetric(types.SimMetric(result)); err != nil {
 		return err
 	}
 

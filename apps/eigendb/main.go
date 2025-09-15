@@ -5,9 +5,8 @@ import (
 	"eigen_db/auth"
 	"eigen_db/cfg"
 	"eigen_db/constants"
-	"eigen_db/index"
+	"eigen_db/index_mgr"
 	"eigen_db/metrics"
-	"eigen_db/types"
 	"flag"
 	"fmt"
 	"os"
@@ -26,8 +25,6 @@ func main() {
 	var persistenceTimeInterval time.Duration
 	var apiPort int
 	var apiAddress string
-	var indexDimensions int
-	var indexSimilarityMetric string
 
 	flag.StringVar(&apiKey, "api-key", "", "EigenDB API key")
 	flag.BoolVar(&regenApiKey, "regen-api-key", false, "Regenerate the API key")
@@ -35,8 +32,6 @@ func main() {
 	flag.DurationVar(&persistenceTimeInterval, "persistence-time-interval", time.Duration(0), "How often should data be persisted to disk (secs)")
 	flag.IntVar(&apiPort, "api-port", 0, "API port")
 	flag.StringVar(&apiAddress, "api-address", "", "API address")
-	flag.IntVar(&indexDimensions, "dimensions", 0, "Dimensions")
-	flag.StringVar(&indexSimilarityMetric, "similarity-metric", "", "Similarity metric")
 	flag.Parse()
 
 	// checking if EigenDB is running in E2E_TEST_MODE
@@ -55,16 +50,8 @@ func main() {
 	// create a map of config setters
 	configSetters := map[bool]func() error{
 		persistenceTimeInterval != time.Duration(0): func() error { return config.SetPersistenceTimeInterval(persistenceTimeInterval) },
-		apiPort != 0:         func() error { return config.SetAPIPort(apiPort) },
-		apiAddress != "":     func() error { return config.SetAPIAddress(apiAddress) },
-		indexDimensions != 0: func() error { return config.SetDimensions(indexDimensions) },
-		indexSimilarityMetric != "": func() error {
-			metric := types.SimMetric(indexSimilarityMetric)
-			if err := metric.Validate(); err != nil {
-				return err
-			}
-			return config.SetSimilarityMetric(metric)
-		},
+		apiPort != 0:     func() error { return config.SetAPIPort(apiPort) },
+		apiAddress != "": func() error { return config.SetAPIAddress(apiAddress) },
 	}
 
 	for condition, setter := range configSetters {
@@ -80,14 +67,6 @@ func main() {
 		panic(err)
 	}
 
-	// setting up the in-memory vector store
-	if err := index.MemoryIndexInit(
-		config.GetDimensions(),
-		config.GetSimilarityMetric(),
-	); err != nil {
-		panic(err)
-	}
-
 	// setting up the API key
 	apiKey, err := auth.SetupAPIKey(apiKey, regenApiKey, constants.API_KEY_FILE_PATH)
 	if err != nil {
@@ -96,8 +75,14 @@ func main() {
 	fmt.Printf("IMPORTANT: API key has been generated and saved to %s\n", constants.API_KEY_FILE_PATH)
 	fmt.Printf("API KEY: %s\n", apiKey)
 
-	// starting the persistence loop
-	if err := index.GetMemoryIndex().StartPersistenceLoop(config); err != nil {
+	// initialize the index manager in memory
+	if err := index_mgr.IndexMgrInit(); err != nil {
+		panic(err)
+	}
+
+	// load any persisted indexes from the disk into memory
+	mgr := index_mgr.GetIndexMgr()
+	if err := mgr.LoadIndexes(); err != nil {
 		panic(err)
 	}
 

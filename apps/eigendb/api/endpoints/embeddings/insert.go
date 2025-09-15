@@ -3,6 +3,7 @@ package embeddings
 import (
 	"eigen_db/api/utils"
 	"eigen_db/index"
+	"eigen_db/index_mgr"
 	"fmt"
 	"net/http"
 
@@ -19,16 +20,24 @@ func Insert(c *gin.Context) {
 		return
 	}
 
+	indexName := c.Param("index")
+	idx, err := index_mgr.GetIndexMgr().GetIndex(indexName)
+	if err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"An error occured while fetching the index.",
+			nil,
+			utils.CreateError("INDEX_NOT_FETCHED", err.Error()),
+		)
+		return
+	}
+
 	embeddingsInserted := 0
 	errors := make([]string, 0)
 	for _, embedding := range body.Embeddings {
-		v, err := index.EmbeddingFactory(embedding.Data, embedding.Metadata, embedding.Id)
-		if err != nil {
-			errors = append(errors, fmt.Sprintf("embedding with ID %d was not inserted - %s", embedding.Id, err.Error()))
-			continue
-		}
-
-		if err := index.GetMemoryIndex().Insert(v); err != nil {
+		v := index.EmbeddingFactory(embedding.Data, embedding.Metadata, embedding.Id)
+		if err := idx.Insert(v); err != nil {
 			errors = append(errors, fmt.Sprintf("embedding with ID %d was not inserted - %s", embedding.Id, err.Error()))
 		} else {
 			embeddingsInserted++

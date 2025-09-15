@@ -2,7 +2,7 @@ package embeddings
 
 import (
 	"eigen_db/api/utils"
-	"eigen_db/index"
+	"eigen_db/index_mgr"
 	"eigen_db/types"
 	"fmt"
 	"net/http"
@@ -21,7 +21,20 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	nn, err := index.GetMemoryIndex().Search(body.QueryVector, body.K)
+	indexName := c.Param("index")
+	idx, err := index_mgr.GetIndexMgr().GetIndex(indexName)
+	if err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"An error occured while fetching the index.",
+			nil,
+			utils.CreateError("INDEX_NOT_FETCHED", err.Error()),
+		)
+		return
+	}
+
+	nn, err := idx.Search(body.QueryVector, body.K)
 	if err != nil {
 		utils.SendResponse(
 			c,

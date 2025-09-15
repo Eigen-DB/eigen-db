@@ -3,6 +3,7 @@ package api
 import (
 	"eigen_db/api/endpoints/embeddings"
 	"eigen_db/api/endpoints/health_check"
+	"eigen_db/api/endpoints/indexes"
 	"eigen_db/api/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,9 @@ import (
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	vectors := r.Group("/embeddings", middleware.AuthMiddleware())
+	embeddingsEndpoints := r.Group("/embeddings", middleware.AuthMiddleware())
+	indexesEndpoints := r.Group("/indexes", middleware.AuthMiddleware())
+
 	// updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware())
 
 	// updatePersistence := updateConfigRoot.Group("/persistence")
@@ -25,12 +28,19 @@ func setupRouter() *gin.Engine {
 	r.GET("/health", health_check.Health)
 	r.GET("/test-auth", middleware.AuthMiddleware(), health_check.TestAuth)
 
-	// vector operation endpoints
-	vectors.PUT("/insert", embeddings.Insert)
-	vectors.PUT("/upsert", embeddings.Upsert)
-	vectors.DELETE("/delete", embeddings.Delete)
-	vectors.POST("/retrieve", embeddings.Retrieve)
-	vectors.POST("/search", embeddings.Search)
+	// embedding management endpoints
+	embeddingsEndpoints.PUT("/:index/insert", embeddings.Insert)
+	embeddingsEndpoints.PUT("/:index/upsert", embeddings.Upsert)
+	embeddingsEndpoints.DELETE("/:index/delete", embeddings.Delete)
+	embeddingsEndpoints.POST("/:index/retrieve", embeddings.Retrieve)
+	embeddingsEndpoints.POST("/:index/search", embeddings.Search)
+
+	// index management endpoints
+	indexesEndpoints.PUT("/:index/create", indexes.Create)
+	indexesEndpoints.DELETE("/:index/delete", indexes.Delete)
+	indexesEndpoints.GET("/:index/stats", indexes.Stats)
+	indexesEndpoints.GET("/list", indexes.List)
+
 	// config setter endpoints
 	// updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
 	// updateApi.POST("/port", api.UpdatePort)

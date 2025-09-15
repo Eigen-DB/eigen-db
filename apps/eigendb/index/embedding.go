@@ -1,9 +1,7 @@
 package index
 
 import (
-	"eigen_db/cfg"
 	t "eigen_db/types"
-	"fmt"
 )
 
 // A representation of an embedding.
@@ -17,15 +15,11 @@ type Embedding struct {
 
 // Creates a new embedding with the specified embedding.
 //
-// Returns a pointer to the new Embedding, or an error if one occured.
-func EmbeddingFactory(data t.EmbeddingData, metadata t.Metadata, id t.EmbId) (*Embedding, error) {
-	dimensions := cfg.GetConfig().GetDimensions()
-	if len(data) == dimensions {
-		return &Embedding{
-			Id:       id,
-			Data:     data,
-			Metadata: metadata,
-		}, nil
+// Returns a pointer to the new Embedding
+func EmbeddingFactory(data t.EmbeddingData, metadata t.Metadata, id t.EmbId) *Embedding {
+	return &Embedding{
+		Id:       id,
+		Data:     data,
+		Metadata: metadata,
 	}
-	return nil, fmt.Errorf("provided a %d-dimensional embedding while the index is %d-dimensional", len(data), dimensions)
 }

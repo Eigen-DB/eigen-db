@@ -2,7 +2,7 @@ package embeddings
 
 import (
 	"eigen_db/api/utils"
-	"eigen_db/index"
+	"eigen_db/index_mgr"
 	"eigen_db/types"
 	"fmt"
 	"net/http"
@@ -20,10 +20,23 @@ func Delete(c *gin.Context) {
 		return
 	}
 
+	indexName := c.Param("index")
+	idx, err := index_mgr.GetIndexMgr().GetIndex(indexName)
+	if err != nil {
+		utils.SendResponse(
+			c,
+			http.StatusInternalServerError,
+			"An error occured while fetching the index.",
+			nil,
+			utils.CreateError("INDEX_NOT_FETCHED", err.Error()),
+		)
+		return
+	}
+
 	embeddingsDeleted := 0
 	errors := make([]string, 0)
 	for _, id := range body.Ids {
-		if err := index.GetMemoryIndex().Delete(id); err != nil {
+		if err := idx.Delete(id); err != nil {
 			errors = append(errors, fmt.Sprintf("embedding with ID %d was not deleted - %s", id, err.Error()))
 		} else {
 			embeddingsDeleted++
