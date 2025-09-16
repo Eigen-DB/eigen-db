@@ -231,3 +231,7 @@ func (idx *Index) Search(queryVector t.EmbeddingData, k int64) (map[t.EmbId]map[
 func (idx *Index) GetFaissIndex() t.FaissIndex {
 	return idx.faissIndex
 }
+
+func (idx *Index) SetFaissIndex(faissIndex t.FaissIndex) {
+	idx.faissIndex = faissIndex
+}

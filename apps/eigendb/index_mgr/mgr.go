@@ -12,7 +12,11 @@ import (
 	"path"
 	"regexp"
 	"time"
+
+	"github.com/Eigen-DB/eigen-db/libs/faissgo"
 )
+
+// why not have a single persistence loop that persists all indexes every n seconds instead of N persistence loops running concurrently?
 
 type IndexMgr struct {
 	indexes map[string]*index.Index
@@ -76,7 +80,10 @@ func (mgr *IndexMgr) CreateIndex(name string, dim int, metric types.SimMetric) e
 		return err
 	}
 	mgr.indexes[name] = idx
-	mgr.startPersistenceLoop(idx, cfg.GetConfig())
+	if err := os.MkdirAll(path.Join(constants.EIGEN_DIR, name), constants.DB_PERSIST_CHMOD); err != nil {
+		return err
+	}
+	mgr.startPersistenceLoop(idx)
 	return nil
 }
 
@@ -114,7 +121,7 @@ func (mgr *IndexMgr) LoadIndexes() error {
 	for _, name := range indexNames {
 		idx, _ := mgr.GetIndex(name)
 		fmt.Println("Starting persistence loop for index '" + name + "'...") // for testing
-		if err := mgr.startPersistenceLoop(idx, cfg.GetConfig()); err != nil {
+		if err := mgr.startPersistenceLoop(idx); err != nil {
 			return err
 		}
 	}
@@ -142,6 +149,19 @@ func (mgr *IndexMgr) loadIndexFromDisk(indexPath string, indexName string) error
 	}
 
 	// load Faiss index (contains the embedding data)
+	faissMetric, err := idx.Metric.ToFaissMetricType()
+	if err != nil {
+		return err
+	}
+	faissIdx, err := faissgo.IndexFactory(
+		idx.Dimensions,
+		constants.INDEX_TYPE_FAISS, // add more index types
+		faissMetric,
+	)
+	if err != nil {
+		return err
+	}
+	idx.SetFaissIndex(faissIdx)
 	if err := mgr.loadFaissgoIndex(idx, faissgoDatafilePath); err != nil {
 		return err
 	}
@@ -191,7 +211,7 @@ func (mgr *IndexMgr) persistIndex(index *index.Index) error {
 // in the "config" at persistence.timeInterval.
 //
 // Returns an error if one occured.
-func (mgr *IndexMgr) startPersistenceLoop(index *index.Index, config *cfg.Config) error {
+func (mgr *IndexMgr) startPersistenceLoop(index *index.Index) error {
 	go func() {
 		for {
 			err := mgr.persistIndex(index)
