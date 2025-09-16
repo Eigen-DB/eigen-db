@@ -7,7 +7,8 @@ import tiktoken
 
 from eigen_client.response import ResponseParser
 from eigen_client.data_types import Embedding, Document
-from eigen_client.supported_models import SUPPORTED_MODEL_PROVIDERS, SUPPORTED_MODELS
+from eigen_client.supported_models import SUPPORTED_MODEL_PROVIDERS
+from eigen_client.utils import validate_embedding_model
 
 #logging.set_verbosity_error()
 
@@ -25,50 +26,26 @@ class Index:
     def __init__(self, 
         url: str,
         api_key: str,
+        index_name: str,
         model_provider: Literal["openai", "ollama", "none"] = "openai",
         model_name: str = "text-embedding-3-small",
         model_provider_api_key: str = None,
     ) -> None:
-        # checking model params
-        model_names = [model['name'] for model in SUPPORTED_MODELS if model_provider == model['supported_provider']]
-        if model_provider not in SUPPORTED_MODEL_PROVIDERS:
-            raise ValueError(f"Invalid model provider: {model_provider}. Supported providers are: {', '.join(SUPPORTED_MODEL_PROVIDERS)}.")
-        if model_name not in model_names:
-            raise ValueError(f"Invalid model name: {model_name} for provider {model_provider}. Supported models for this provider are: {', '.join(model_names)}.")
-
         self.url = url
         self.api_key = api_key
-        self.model = [model for model in SUPPORTED_MODELS if model['name'] == model_name][0]
+        self.index_name = index_name
+        self.model = validate_embedding_model(model_name, model_provider)
         self.model_provider = model_provider
         self.model_provider_api_key = model_provider_api_key
+        self.headers = {
+            "X-Eigen-API-Key": self.api_key,
+            "Content-Type": "application/json"
+        }
         
-        self._test_auth()
         if self.model_provider == "openai":
             self.openai_client = openai.Client(api_key=self.model_provider_api_key)
         elif self.model_provider == "ollama":
             self.ollama_client = ollama
-
-    def _test_auth(self) -> bool:
-        '''
-        Test the provided API key against the EigenDB instance.
-        Returns:
-            True if the API key is valid, False otherwise.
-        '''
-        res = get(
-            url=self.url + '/test-auth',
-            headers={
-                'X-Eigen-API-Key': self.api_key
-            }
-        )
-        try:
-            parser = ResponseParser(res)
-            parser.parse()
-        except Exception as e:
-            print(f"Authentication failed: {e}")
-            return False
-        
-        print("Authentication successful:", parser.message)
-        return True
     
     def _vectorize_docs(self, docs: list[Document]) -> list[Embedding]:
         '''
@@ -130,10 +107,8 @@ class Index:
             embeddings: A list of Embedding objects to be inserted.
         '''
         res = put(
-            url=self.url + '/embeddings/insert',
-            headers={
-                'X-Eigen-API-Key': self.api_key
-            },
+            url=self.url + f'/embeddings/{self.index_name}/insert',
+            headers=self.headers,
             data=json.dumps({
                 "embeddings": [e.to_dict() for e in embeddings]
             })
@@ -159,10 +134,8 @@ class Index:
             embeddings: A list of Embedding objects to be upserted.
         '''
         res = put(
-            url=self.url + '/embeddings/upsert',
-            headers={
-                'X-Eigen-API-Key': self.api_key
-            },
+            url=self.url + f'/embeddings/{self.index_name}/upsert',
+            headers=self.headers,
             data=json.dumps({
                 "embeddings": [e.to_dict() for e in embeddings]
             })
@@ -191,10 +164,8 @@ class Index:
             A dictionary mapping embedding IDs to their corresponding nearest neighbor information.
         '''
         res = post(
-            url=self.url + '/embeddings/search',
-            headers={
-                'X-Eigen-API-Key': self.api_key
-            },
+            url=self.url + f'/embeddings/{self.index_name}/search',
+            headers=self.headers,
             data=json.dumps({
                 "queryVector": query.data,
                 "k": k,
@@ -234,10 +205,8 @@ class Index:
             A dictionary mapping embedding IDs to their corresponding Embedding objects.
         '''
         res = post(
-            url=self.url + '/embeddings/retrieve',
-            headers={
-                'X-Eigen-API-Key': self.api_key
-            },
+            url=self.url + f'/embeddings/{self.index_name}/retrieve',
+            headers=self.headers,
             data=json.dumps({
                 "ids": ids
             })
@@ -262,10 +231,8 @@ class Index:
             ids: A list of embedding IDs to delete.
         '''
         res = delete(
-            url=self.url + '/embeddings/delete',
-            headers={
-                'X-Eigen-API-Key': self.api_key
-            },
+            url=self.url + f'/embeddings/{self.index_name}/delete',
+            headers=self.headers,
             data=json.dumps({
                 "ids": ids
             })
@@ -274,4 +241,4 @@ class Index:
         parser.parse()
 
     def __repr__(self) -> str:
-        return f"EigenDB_Index(url={self.url})"
+        return f"Index(name={self.index_name})"
