@@ -116,11 +116,173 @@ paths:
                 error:
                   code: INVALID_API_KEY
                   description: The API key you provided is invalid.
-  /embeddings/insert:
+  /indexes/list:
+    get:
+      summary: List all index names
+      operationId: listIndexes
+      description: List the names of all indexes that currently exist.
+      responses:
+        '200':
+          description: Stats fetched successfully. 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: Indexes listed successfully
+                data:
+                  indexes: 
+                    - "hello-world"
+                    - "fubar"
+                    - "some-thing"
+        '500':
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: An error occured while listing indexes.
+                error:
+                  code: INDEXES_NOT_LISTED
+                  description: detailed description of the error...
+  /indexes/{indexName}/stats:
+    get:
+      summary: Get stats of an index
+      operationId: getIndexStats
+      description: Get stats of an index containing its information. 
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stats fetched successfully. 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: Stats for index 'my-index' fetched successfully.
+                data:
+                  index_name: 'my-index'
+                  dimensions: 1536
+                  metric: 'cosine'
+        '500':
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: An error occured while fetching the index.
+                error:
+                  code: INDEX_NOT_FETCHED
+                  description: detailed description of the error...
+  /indexes/{indexName}/create:
+    put:
+      summary: Create an index
+      operationId: createIndex
+      description: Create an index with given specifications.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dimensions
+                - metric
+              properties:
+                dimensions:
+                  type: number
+                  format: integer
+                  description: Dimensions of the index
+                metric:
+                  type: string
+                  description: The similarity metric for the index
+      responses:
+        '200':
+          description: Index created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: Index '<indexName>' created successfully.
+        '500':
+          description: Invalid similarity metric (currently supporting cosine, l2, ip)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: An error occured while creating the index.
+                error:
+                  code: INVALID_SIMILARITY_METRIC
+                  description: detailed description of the error...
+  /indexes/{indexName}/delete:
+    delete:
+      summary: Delete an index
+      operationId: deleteIndex
+      description: Delete an index given its name.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Index successfully deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: Index '<indexName>' successfully deleted.
+        '500':
+          description: An error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: An error occured while deleting the index.
+                error:
+                  code: INDEX_NOT_DELETED
+                  description: detailed description of the error...
+  /embeddings/{indexName}/insert:
     put:
       summary: Insert embeddings
       operationId: insertEmbeddings
       description: Inserts a set of embeddings into the database.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -158,11 +320,18 @@ paths:
                 error:
                   code: EMBEDDINGS_SKIPPED
                   description: detailed description of the error...
-  /embeddings/upsert:
+  /embeddings/{indexName}/upsert:
     put:
       summary: Upsert embeddings
       operationId: upsertEmbeddings
       description: Upserts a set of embeddings into the database (insert and update embedding if it already exists).
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -200,11 +369,18 @@ paths:
                 error:
                   code: EMBEDDINGS_SKIPPED
                   description: detailed description of the error...
-  /embeddings/delete:
+  /embeddings/{indexName}/delete:
     delete:
       summary: Delete embeddings
       operationId: deleteEmbeddings
       description: Delete a set of embeddings using IDs.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -243,11 +419,18 @@ paths:
                   code: EMBEDDINGS_SKIPPED
                   description: 
                     - embedding with ID 87 was not deleted - embedding with ID 87 does not exist
-  /embeddings/retrieve:
+  /embeddings/{indexName}/retrieve:
     post:
       summary: Retrieve embeddings
       operationId: retrieveEmbeddings
       description: Retrieve a set of embeddings using IDs.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -301,11 +484,18 @@ paths:
                   code: EMBEDDINGS_SKIPPED
                   description: 
                     - embedding with ID 87 was not retrieved - embedding with ID 87 does not exist
-  /embeddings/search:
+  /embeddings/{indexName}/search:
     post:
       summary: Search for embeddings
       operationId: searchEmbedding
       description: Search for embeddings using vector similarity search
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
