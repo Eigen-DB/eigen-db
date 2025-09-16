@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -75,14 +76,15 @@ func main() {
 	fmt.Printf("IMPORTANT: API key has been generated and saved to %s\n", constants.API_KEY_FILE_PATH)
 	fmt.Printf("API KEY: %s\n", apiKey)
 
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
 	// initialize the index manager in memory
-	if err := index_mgr.IndexMgrInit(); err != nil {
+	if err := index_mgr.IndexMgrInit(wg); err != nil {
 		panic(err)
 	}
-
 	// load any persisted indexes from the disk into memory
 	mgr := index_mgr.GetIndexMgr()
-	if err := mgr.LoadIndexes(); err != nil {
+	if err := mgr.LoadIndexes(wg); err != nil {
 		panic(err)
 	}
 

@@ -11,12 +11,11 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/Eigen-DB/eigen-db/libs/faissgo"
 )
-
-// why not have a single persistence loop that persists all indexes every n seconds instead of N persistence loops running concurrently?
 
 type IndexMgr struct {
 	indexes map[string]*index.Index
@@ -24,11 +23,13 @@ type IndexMgr struct {
 
 var memIdxMgr *IndexMgr
 
-func IndexMgrInit() error {
+func IndexMgrInit(wg *sync.WaitGroup) error {
+	// instantiate the singleton index manager
 	memIdxMgr = &IndexMgr{
 		indexes: make(map[string]*index.Index),
 	}
-	return nil
+	// start persistence loop
+	return memIdxMgr.startPersistenceLoop(wg)
 }
 
 func GetIndexMgr() *IndexMgr {
@@ -83,7 +84,6 @@ func (mgr *IndexMgr) CreateIndex(name string, dim int, metric types.SimMetric) e
 	if err := os.MkdirAll(path.Join(constants.EIGEN_DIR, name), constants.DB_PERSIST_CHMOD); err != nil {
 		return err
 	}
-	mgr.startPersistenceLoop(idx)
 	return nil
 }
 
@@ -104,7 +104,8 @@ func (mgr *IndexMgr) ListIndexes() ([]string, error) {
 	return indexNames, nil
 }
 
-func (mgr *IndexMgr) LoadIndexes() error {
+func (mgr *IndexMgr) LoadIndexes(wg *sync.WaitGroup) error {
+	defer wg.Done()
 	// get persisted index data
 	savedIndexesPaths, indexNames, err := listPersistedIndexes()
 	if err != nil {
@@ -116,16 +117,6 @@ func (mgr *IndexMgr) LoadIndexes() error {
 			return err
 		}
 	}
-
-	// start the persistence loop on each index to continue persisting them to the disk
-	for _, name := range indexNames {
-		idx, _ := mgr.GetIndex(name)
-		fmt.Println("Starting persistence loop for index '" + name + "'...") // for testing
-		if err := mgr.startPersistenceLoop(idx); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -194,7 +185,7 @@ func (mgr *IndexMgr) persistIndex(index *index.Index) error {
 		return err
 	}
 
-	// persist the index struct
+	// serialize the index struct
 	buf := new(bytes.Buffer)
 	encoder := gob.NewEncoder(buf)
 	err := encoder.Encode(index)
@@ -205,18 +196,29 @@ func (mgr *IndexMgr) persistIndex(index *index.Index) error {
 	return os.WriteFile(indexDatafilePath, serializedData, constants.DB_PERSIST_CHMOD)
 }
 
-// Creates a Goroutine that periodically persists an index to disk.
+// Starts a Goroutine that periodically persists all indexes to disk.
 //
 // The time interval at which data is persisted on disk is set
 // in the "config" at persistence.timeInterval.
 //
 // Returns an error if one occured.
-func (mgr *IndexMgr) startPersistenceLoop(index *index.Index) error {
+func (mgr *IndexMgr) startPersistenceLoop(wg *sync.WaitGroup) error {
 	go func() {
+		wg.Wait() // wait for all indexes to be loaded in memory before starting the persistence loop
 		for {
-			err := mgr.persistIndex(index)
+			_, indexNames, err := listPersistedIndexes()
 			if err != nil {
-				fmt.Printf("Failed to persist data to disk for index '%s': %s\n", index.Name, err.Error())
+				fmt.Printf("Failed to list persisted indexes: %s\n", err.Error())
+			}
+			for _, indexName := range indexNames {
+				idx, err := mgr.GetIndex(indexName)
+				if err != nil {
+					fmt.Printf("Index '%s' does not exist in memory, skipping persistence...\n", indexName)
+					continue
+				}
+				if err := mgr.persistIndex(idx); err != nil {
+					fmt.Printf("Failed to persist data to disk for index '%s': %s\n", indexName, err.Error())
+				}
 			}
 
 			time.Sleep(cfg.GetConfig().GetPersistenceTimeInterval())
