@@ -23,10 +23,13 @@ type IndexMgr struct {
 
 var memIdxMgr *IndexMgr
 
-func IndexMgrInit(wg *sync.WaitGroup) error {
+func IndexMgrInit(wg *sync.WaitGroup, e2eTestMode bool) error {
 	// instantiate the singleton index manager
 	memIdxMgr = &IndexMgr{
 		indexes: make(map[string]*index.Index),
+	}
+	if e2eTestMode { // skipping the persistence loop in E2E test mode
+		return nil
 	}
 	// start persistence loop
 	return memIdxMgr.startPersistenceLoop(wg)
@@ -69,7 +72,7 @@ func (mgr *IndexMgr) CreateIndex(name string, dim int, metric types.SimMetric) e
 		return err
 	}
 	if !valid {
-		return fmt.Errorf("index name '%s' is invalid: must be between 3-32 characters long and only contain lowercase letters, numbers, and/or dashes", name)
+		return fmt.Errorf("index name '%s' is invalid - must be between 3-32 characters long and only contain lowercase letters, numbers, and/or dashes", name)
 	}
 
 	_, exists := mgr.indexes[name]
@@ -104,8 +107,13 @@ func (mgr *IndexMgr) ListIndexes() ([]string, error) {
 	return indexNames, nil
 }
 
-func (mgr *IndexMgr) LoadIndexes(wg *sync.WaitGroup) error {
+func (mgr *IndexMgr) LoadIndexes(wg *sync.WaitGroup, e2eTestMode bool) error {
 	defer wg.Done()
+	if e2eTestMode { // skipping loading persisted indexes in E2E test mode, creating a test index instead
+		fmt.Println("E2E test mode - skipping loading persisted indexes from disk.\nCreating E2E test index")
+		return mgr.CreateIndex("e2e-test-index", 2, types.MetricL2)
+	}
+
 	// get persisted index data
 	savedIndexesPaths, indexNames, err := listPersistedIndexes()
 	if err != nil {

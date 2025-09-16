@@ -137,7 +137,7 @@ func (idx *Index) Delete(id t.EmbId) error {
 // Returns an error if one occured.
 func (idx *Index) Insert(v *Embedding) error {
 	if len(v.Data) != idx.Dimensions {
-		return fmt.Errorf("embedding has %d dimensions while the index is %d-dimensional", len(v.Data), idx.Dimensions)
+		return fmt.Errorf("provided a %d-dimensional embedding while the index is %d-dimensional", len(v.Data), idx.Dimensions)
 	}
 
 	// check if the embedding already exists in the index
@@ -161,7 +161,7 @@ func (idx *Index) Insert(v *Embedding) error {
 
 func (idx *Index) Upsert(v *Embedding) error {
 	if len(v.Data) != idx.Dimensions {
-		return fmt.Errorf("embedding has %d dimensions while the index is %d-dimensional", len(v.Data), idx.Dimensions)
+		return fmt.Errorf("provided a %d-dimensional embedding while the index is %d-dimensional", len(v.Data), idx.Dimensions)
 	}
 
 	// if the index is normalized, normalize the embedding

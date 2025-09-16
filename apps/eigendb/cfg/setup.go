@@ -15,12 +15,8 @@ import (
 //
 // Returns an error if one occured.
 func SetupConfig(configPath string) error {
-	instantiateConfig()                    // creates a empty Config struct in memory
-	config := GetConfig()                  // get pointer to Config in memory
-	if os.Getenv("E2E_TEST_MODE") == "1" { // if in E2E test mode, populate config with E2E test values
-		fmt.Println("Making E2E test config")
-		return config.populateE2EConfig()
-	}
+	instantiateConfig()                               // creates a empty Config struct in memory
+	config := GetConfig()                             // get pointer to Config in memory
 	if os.Getenv("EIGENDB_INTERACTIVE_MENU") == "1" { // if the user wants to use the interactive menu, start it (does not work very well with docker compose, only useful for local development)
 		return startConfigMenu()
 	}

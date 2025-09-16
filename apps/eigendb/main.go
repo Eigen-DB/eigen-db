@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	e2e_test_mode := os.Getenv("E2E_TEST_MODE") == "1"
+	e2eTestMode := os.Getenv("E2E_TEST_MODE") == "1"
 
 	// initialize the metrics
 	metrics.Init()
@@ -36,7 +36,7 @@ func main() {
 	flag.Parse()
 
 	// checking if EigenDB is running in E2E_TEST_MODE
-	if e2e_test_mode {
+	if e2eTestMode {
 		fmt.Println("*** EigenDB running in E2E_TEST_MODE, if this was not intentional, please run EigenDB in standard mode. ***\nSetting the API key = \"test\"")
 		apiKey = "test"
 	}
@@ -79,12 +79,12 @@ func main() {
 	wg := new(sync.WaitGroup)
 	wg.Add(1)
 	// initialize the index manager in memory
-	if err := index_mgr.IndexMgrInit(wg); err != nil {
+	if err := index_mgr.IndexMgrInit(wg, e2eTestMode); err != nil {
 		panic(err)
 	}
 	// load any persisted indexes from the disk into memory
 	mgr := index_mgr.GetIndexMgr()
-	if err := mgr.LoadIndexes(wg); err != nil {
+	if err := mgr.LoadIndexes(wg, e2eTestMode); err != nil {
 		panic(err)
 	}
 
