@@ -1,4 +1,4 @@
-#include "lib/hnswlib/hnswlib.h"
+#include "lib/hnswlib/hnswlib/hnswlib.h"
 #include "hnsw_wrapper.h"
 #include <stdlib.h>
 
