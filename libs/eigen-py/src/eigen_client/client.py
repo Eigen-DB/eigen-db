@@ -1,6 +1,7 @@
 from requests import put, delete, post, get
 import json
 
+from eigen_client import API_VERSION
 from eigen_client.index import Index
 from eigen_client.response import ResponseParser
 from eigen_client.utils import validate_embedding_model
@@ -11,6 +12,7 @@ class Client:
         api_key: str
     ) -> None:
         self.url = url
+        self.base_url = f'{url}/api/{API_VERSION}'
         self.api_key = api_key
         self.headers = {
             "X-Eigen-API-Key": self.api_key,
@@ -24,7 +26,7 @@ class Client:
         Returns:
             True if the API key is valid, False otherwise.
         '''
-        res = get(url=self.url + '/test-auth', headers=self.headers)
+        res = get(url=self.base_url + '/test-auth', headers=self.headers)
         try:
             parser = ResponseParser(res)
             parser.parse()
@@ -74,7 +76,7 @@ class Client:
         Returns:
             Index: An instance of the Index class.
         """
-        url = f"{self.url}/indexes/{index_name}/create"
+        url = f"{self.base_url}/indexes/{index_name}/create"
         body = {
             "dimensions": dimensions,
             "metric": metric
@@ -84,7 +86,7 @@ class Client:
         parser.parse()
         return Index(
             api_key=self.api_key,
-            url=self.url,
+            url=self.base_url,
             index_name=index_name,
             model_provider="none",
         )
@@ -96,7 +98,7 @@ class Client:
         Args:
             index_name (str): The name of the index to delete.
         """
-        url = f"{self.url}/indexes/{index_name}/delete"
+        url = f"{self.base_url}/indexes/{index_name}/delete"
         response = delete(url, headers=self.headers)
         parser = ResponseParser(response)
         parser.parse()
@@ -108,7 +110,7 @@ class Client:
         Returns:
             list[str]: A list of index names.
         """
-        url = f"{self.url}/indexes/list"
+        url = f"{self.base_url}/indexes/list"
         response = get(url, headers=self.headers)
         parser = ResponseParser(response)
         parser.parse()
@@ -123,11 +125,11 @@ class Client:
         Returns:
             dict: A dictionary containing index statistics.
         """
-        url = f"{self.url}/indexes/{index_name}/stats"
+        url = f"{self.base_url}/indexes/{index_name}/stats"
         response = get(url, headers=self.headers)
         parser = ResponseParser(response)
         parser.parse()
         return parser.data
     
     def __repr__(self) -> str:
-        return f"Client(url={self.url})"
+        return f"Client(url={self.base_url})"

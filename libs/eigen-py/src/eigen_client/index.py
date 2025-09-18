@@ -5,6 +5,7 @@ import ollama
 import openai
 import tiktoken
 
+from eigen_client import API_VERSION
 from eigen_client.response import ResponseParser
 from eigen_client.data_types import Embedding, Document
 from eigen_client.supported_models import SUPPORTED_MODEL_PROVIDERS
@@ -31,7 +32,7 @@ class Index:
         model_name: str = "text-embedding-3-small",
         model_provider_api_key: str = None,
     ) -> None:
-        self.url = url
+        self.base_url = f'{url}/api/{API_VERSION}'
         self.api_key = api_key
         self.index_name = index_name
         self.model = validate_embedding_model(model_name, model_provider)
@@ -107,7 +108,7 @@ class Index:
             embeddings: A list of Embedding objects to be inserted.
         '''
         res = put(
-            url=self.url + f'/embeddings/{self.index_name}/insert',
+            url=self.base_url + f'/embeddings/{self.index_name}/insert',
             headers=self.headers,
             data=json.dumps({
                 "embeddings": [e.to_dict() for e in embeddings]
@@ -134,7 +135,7 @@ class Index:
             embeddings: A list of Embedding objects to be upserted.
         '''
         res = put(
-            url=self.url + f'/embeddings/{self.index_name}/upsert',
+            url=self.base_url + f'/embeddings/{self.index_name}/upsert',
             headers=self.headers,
             data=json.dumps({
                 "embeddings": [e.to_dict() for e in embeddings]
@@ -164,7 +165,7 @@ class Index:
             A dictionary mapping embedding IDs to their corresponding nearest neighbor information.
         '''
         res = post(
-            url=self.url + f'/embeddings/{self.index_name}/search',
+            url=self.base_url + f'/embeddings/{self.index_name}/search',
             headers=self.headers,
             data=json.dumps({
                 "queryVector": query.data,
@@ -205,7 +206,7 @@ class Index:
             A dictionary mapping embedding IDs to their corresponding Embedding objects.
         '''
         res = post(
-            url=self.url + f'/embeddings/{self.index_name}/retrieve',
+            url=self.base_url + f'/embeddings/{self.index_name}/retrieve',
             headers=self.headers,
             data=json.dumps({
                 "ids": ids
@@ -231,7 +232,7 @@ class Index:
             ids: A list of embedding IDs to delete.
         '''
         res = delete(
-            url=self.url + f'/embeddings/{self.index_name}/delete',
+            url=self.base_url + f'/embeddings/{self.index_name}/delete',
             headers=self.headers,
             data=json.dumps({
                 "ids": ids
