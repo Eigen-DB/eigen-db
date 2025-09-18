@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='eigen-client',
-    version='1.0.3',
+    version='1.0.4',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     install_requires=[
