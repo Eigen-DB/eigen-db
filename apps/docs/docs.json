@@ -42,18 +42,35 @@
           }
         ]
       },
-      {
+      { 
         "tab": "API Reference",
-        "openapi": {
-          "source": "/api-reference/openapi.yaml",
-          "directory": "api-reference"
-        },
         "groups": [
           {
             "group": "Getting started",
             "pages": [
               "api-reference/auth"
             ]
+          },
+          {
+            "group": "Health Checks",
+            "openapi": {
+              "source": "/api-reference/specs/health_checks.yaml",
+              "directory": "api-reference"
+            }
+          },
+          {
+            "group": "Indexes",
+            "openapi": {
+              "source": "/api-reference/specs/indexes.yaml",
+              "directory": "api-reference"
+            }
+          },
+          {
+            "group": "Embeddings",
+            "openapi": {
+              "source": "/api-reference/specs/embeddings.yaml",
+              "directory": "api-reference"
+            }
           }
         ]
       },

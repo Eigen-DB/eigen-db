@@ -1,4 +1,4 @@
-# EigenDB's Official Python API 🐍
+# EigenDB's Official Python SDK 🐍
 
 ![](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white) [![](https://img.shields.io/pypi/v/eigen-client)](https://pypi.org/project/eigen-client/)
 
@@ -15,12 +15,16 @@ pip install eigen-client
 ### Example usage:
 ```py
 import os
-from eigen_client.index import Index
+from eigen_client.client import Client
 from eigen_client.data_types import Document
 
-index = Index(
+client = Client(
     url="http://localhost:8080",
-    api_key="your eigendb api key...",
+    api_key="eigendb-***",
+)
+
+index = client.create_index_from_model(
+    index_name="food-facts",
     model_name="text-embedding-3-small",
     model_provider="openai",
     model_provider_api_key="your openai api key..."
@@ -43,5 +47,9 @@ results = index.search_docs(
 
 print(results)
 ```
+
+### Documentation
+
+Documentation can be found [here](https://eigendb.mintlify.app/sdks/python)!
 
 Made with ❤️ by developers, for developers.

@@ -1,9 +1,10 @@
 package api
 
 import (
-	"eigen_db/api/endpoints/embeddings"
-	"eigen_db/api/endpoints/health_check"
 	"eigen_db/api/middleware"
+	v1_embeddings "eigen_db/api/v1/embeddings"
+	v1_health_check "eigen_db/api/v1/health_check"
+	v1_indexes "eigen_db/api/v1/indexes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,28 +15,26 @@ import (
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
-	vectors := r.Group("/embeddings", middleware.AuthMiddleware())
-	// updateConfigRoot := r.Group("/update-config", middleware.AuthMiddleware())
+	v1 := r.Group("/api/v1")
 
-	// updatePersistence := updateConfigRoot.Group("/persistence")
-	// updateApi := updateConfigRoot.Group("/api")
-	// indexConfig := updateConfigRoot.Group("/hnsw-params")
+	// ***** START OF V1 ENDPOINTS *****
+	embeddingsEndpoints := v1.Group("/embeddings", middleware.AuthMiddleware())
+	indexesEndpoints := v1.Group("/indexes", middleware.AuthMiddleware())
 
-	// health check endpoints
-	r.GET("/health", health_check.Health)
-	r.GET("/test-auth", middleware.AuthMiddleware(), health_check.TestAuth)
+	v1.GET("/health", v1_health_check.Health)
+	v1.GET("/test-auth", middleware.AuthMiddleware(), v1_health_check.TestAuth)
 
-	// vector operation endpoints
-	vectors.PUT("/insert", embeddings.Insert)
-	vectors.PUT("/upsert", embeddings.Upsert)
-	vectors.DELETE("/delete", embeddings.Delete)
-	vectors.POST("/retrieve", embeddings.Retrieve)
-	vectors.POST("/search", embeddings.Search)
-	// config setter endpoints
-	// updatePersistence.POST("/time-interval", persistence.UpdateTimeInterval)
-	// updateApi.POST("/port", api.UpdatePort)
-	// updateApi.POST("/address", api.UpdateAddress)
-	// indexConfig.POST("/similarity-metric", index_config.UpdateSimilarityMetric)
+	embeddingsEndpoints.PUT("/:index/insert", v1_embeddings.Insert)
+	embeddingsEndpoints.PUT("/:index/upsert", v1_embeddings.Upsert)
+	embeddingsEndpoints.DELETE("/:index/delete", v1_embeddings.Delete)
+	embeddingsEndpoints.POST("/:index/retrieve", v1_embeddings.Retrieve)
+	embeddingsEndpoints.POST("/:index/search", v1_embeddings.Search)
+
+	indexesEndpoints.PUT("/:index/create", v1_indexes.Create)
+	indexesEndpoints.DELETE("/:index/delete", v1_indexes.Delete)
+	indexesEndpoints.GET("/:index/stats", v1_indexes.Stats)
+	indexesEndpoints.GET("/list", v1_indexes.List)
+	// ***** END OF V1 ENDPOINTS *****
 
 	return r
 }

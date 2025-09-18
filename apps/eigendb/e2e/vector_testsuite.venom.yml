@@ -1,14 +1,15 @@
 name: Vector Test Suite
 
 vars:
-  url: http://localhost:8080
+  url: http://localhost:8080/api/v1
+  test_index_name: e2e-test-index
 
 testcases:
 - name: Test vector insertion (successful)
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/embeddings/insert"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/insert"
     body: > 
       {
         "embeddings": [
@@ -75,7 +76,7 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/embeddings/search"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/search"
     body: >
       {
         "queryVector": [1.0, 2.0],
@@ -94,7 +95,7 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/embeddings/upsert"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/upsert"
     body: > 
       {
         "embeddings": [
@@ -161,7 +162,7 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/embeddings/search"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/search"
     body: >
       {
         "queryVector": [1.0, 2.0],
@@ -180,7 +181,7 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/embeddings/search"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/search"
     body: >
       {
         "data": "test",
@@ -200,7 +201,7 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/embeddings/search"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/search"
     body: "{\"hello\": \"world\"}"
     headers:
       X-Eigen-API-Key: test
@@ -216,7 +217,7 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/embeddings/insert"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/insert"
     body: >
       {
         "embeddings": [
@@ -239,7 +240,7 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/embeddings/insert"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/insert"
     body: "{\"hello\": \"world\"}"
     headers:
       X-Eigen-API-Key: test
@@ -255,7 +256,7 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/embeddings/insert"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/insert"
     body: >
       {
         "embeddings": [
@@ -279,7 +280,7 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/embeddings/upsert"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/upsert"
     body: "{\"hello\": \"world\"}"
     headers:
       X-Eigen-API-Key: test
@@ -295,7 +296,7 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: "{{.url}}/embeddings/upsert"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/upsert"
     body: >
       {
         "embeddings": [
@@ -319,7 +320,7 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/embeddings/retrieve"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/retrieve"
     body: >
       {
         "ids": [1, 2, 3, 4, 5]
@@ -336,7 +337,7 @@ testcases:
   steps:
   - type: http
     method: POST
-    url: "{{.url}}/embeddings/retrieve"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/retrieve"
     body: >
       {
         "ids": [1, 2, 3, 4, 5, 8394279]
@@ -354,7 +355,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: "{{.url}}/embeddings/delete"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/delete"
     body: >
       {
         "ids": [1, 2, 3, 4, 5]
@@ -371,7 +372,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: "{{.url}}/embeddings/delete"
+    url: "{{.url}}/embeddings/{{.test_index_name}}/delete"
     body: >
       {
         "ids": [6, 7, 8, 9, 10, 8394279]

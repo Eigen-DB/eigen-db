@@ -1,0 +1,128 @@
+name: Indexes Test Suite
+
+vars:
+  url: http://localhost:8080/api/v1
+
+testcases:
+- name: Test create index
+  steps:
+  - type: http
+    method: PUT
+    url: "{{.url}}/indexes/test/create"
+    body: >
+      {
+        "dimensions": 1536,
+        "metric": "cosine"
+      }
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.status ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "Index 'test' created successfully."
+
+- name: Test create index (invalid name regex)
+  steps:
+  - type: http
+    method: PUT
+    url: "{{.url}}/indexes/InVaLiD_$name!/create"
+    body: >
+      {
+        "dimensions": 1536,
+        "metric": "cosine"
+      }
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "An error occured while creating the index."
+    - result.bodyjson.error.code ShouldEqual "INDEX_NOT_CREATED"
+    - result.bodyjson.error.description ShouldEqual "index name 'InVaLiD_$name!' is invalid - must be between 3-32 characters long and only contain lowercase letters, numbers, and/or dashes"
+
+- name: Test create index (index name already exists)
+  steps:
+  - type: http
+    method: PUT
+    url: "{{.url}}/indexes/test/create"
+    body: >
+      {
+        "dimensions": 1536,
+        "metric": "cosine"
+      }
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "An error occured while creating the index."
+    - result.bodyjson.error.code ShouldEqual "INDEX_NOT_CREATED"
+    - result.bodyjson.error.description ShouldEqual "index 'test' already exists"
+
+- name: Test index stats
+  steps:
+  - type: http
+    method: GET
+    url: "{{.url}}/indexes/test/stats"
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.status ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "Stats for index 'test' fetched successfully."
+    - result.bodyjson.data.dimensions ShouldEqual 1536
+    - result.bodyjson.data.metric ShouldEqual "cosine"
+
+- name: Test index stats (index does not exist)
+  steps:
+  - type: http
+    method: GET
+    url: "{{.url}}/indexes/doesnotexist/stats"
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "An error occured while fetching the index."
+    - result.bodyjson.error.code ShouldEqual "INDEX_NOT_FETCHED"
+    - result.bodyjson.error.description ShouldEqual "index 'doesnotexist' does not exist"
+
+- name: Test list indexes
+  steps:
+  - type: http
+    method: GET
+    url: "{{.url}}/indexes/list"
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.status ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "Indexes listed successfully."
+    - result.bodyjson.data.indexes ShouldEqual [e2e-test-index test]
+
+- name: Test delete index
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/indexes/test/delete"
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.status ShouldEqual 200
+    - result.bodyjson.message ShouldEqual "Index 'test' successfully deleted."
+
+- name: Test delete index (index does not exist)
+  steps:
+  - type: http
+    method: DELETE
+    url: "{{.url}}/indexes/doesnotexist/delete"
+    headers:
+      X-Eigen-API-Key: test
+    assertions:
+    - result.statuscode ShouldEqual 500
+    - result.bodyjson.status ShouldEqual 500
+    - result.bodyjson.message ShouldEqual "An error occured while deleting the index."
+    - result.bodyjson.error.code ShouldEqual "INDEX_NOT_DELETED"
+    - result.bodyjson.error.description ShouldEqual "index 'doesnotexist' does not exist"
+

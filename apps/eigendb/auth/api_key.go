@@ -24,11 +24,11 @@ func storeApiKey(key string, apiKeyFilePath string) error {
 //
 // Returns the key or an error if one occured.
 func generateApiKey() (string, error) {
-	keyBytes := make([]byte, 16)
+	keyBytes := make([]byte, 32)
 	if _, err := rand.Read(keyBytes); err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(keyBytes), nil
+	return "eigendb-" + hex.EncodeToString(keyBytes), nil
 }
 
 // Generates/fetches API key and loads it into the environment variables
