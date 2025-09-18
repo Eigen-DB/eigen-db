@@ -1,0 +1,350 @@
+openapi: 3.0.3
+info:
+  title: EigenDB REST API
+  description: REST API for EigenDB.
+  version: 1.0.0
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Eigen-API-Key
+  schemas:
+    embeddingSchema:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: number
+            format: float
+          description: The embedding's data
+        id:
+          type: integer
+          description: The embedding's ID
+        metadata:
+          type: object
+          description: The embedding's metadata (set to {} for empty metadata)
+      required:
+        - data
+        - id
+        - metadata
+    responseSchema:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Status code of the response
+        message:
+          type: string
+          description: Message giving basic information on the response
+        data:
+          type: object
+          description: Important data to be given to the caller
+        error:
+          type: object
+          description: An error that has occured
+          properties:
+            code:
+              type: string
+              description: An error code unique to this type of error
+            description:
+              type: string
+              description: A detailed description of the error
+      required:
+        - status
+        - message
+paths:
+  /api/v1/embeddings/{indexName}/insert:
+    put:
+      summary: Insert embeddings
+      operationId: insertEmbeddings
+      description: Inserts a set of embeddings into the database.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - embeddings
+              properties:
+                embeddings:
+                  type: array
+                  items:
+                    type: object
+                    $ref: '#/components/schemas/embeddingSchema'
+                  description: Embeddings to be inserted.
+      responses:
+        '200':
+          description: Embedding successfully inserted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: 50/50 embeddings successfully inserted.
+        '500':
+          description: An internal server error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: 49/50 embeddings successfully inserted.
+                error:
+                  code: EMBEDDINGS_SKIPPED
+                  description: detailed description of the error...
+  /api/v1/embeddings/{indexName}/upsert:
+    put:
+      summary: Upsert embeddings
+      operationId: upsertEmbeddings
+      description: Upserts a set of embeddings into the database (insert and update embedding if it already exists).
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - embeddings
+              properties:
+                embeddings:
+                  type: array
+                  items:
+                    type: object
+                    $ref: '#/components/schemas/embeddingSchema'
+                  description: Embeddings to be upserted.
+      responses:
+        '200':
+          description: Embedding successfully upserted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: 50/50 embeddings successfully upserted.
+        '500':
+          description: An internal server error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: 49/50 embeddings successfully upserted.
+                error:
+                  code: EMBEDDINGS_SKIPPED
+                  description: detailed description of the error...
+  /api/v1/embeddings/{indexName}/delete:
+    delete:
+      summary: Delete embeddings
+      operationId: deleteEmbeddings
+      description: Delete a set of embeddings using IDs.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ids
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: number
+                    format: integer
+                  description: IDs of embedding to delete
+      responses:
+        '200':
+          description: Embeddings successfully deleted..
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: 2/2 embeddings successfully deleted.
+        '500':
+          description: An internal server error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: 1/2 embeddings successfully deleted.
+                error:
+                  code: EMBEDDINGS_SKIPPED
+                  description: 
+                    - embedding with ID 87 was not deleted - embedding with ID 87 does not exist
+  /api/v1/embeddings/{indexName}/retrieve:
+    post:
+      summary: Retrieve embeddings
+      operationId: retrieveEmbeddings
+      description: Retrieve a set of embeddings using IDs.
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ids
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: number
+                    format: integer
+                  description: IDs of embedding to retrieve
+      responses:
+        '200':
+          description: Embeddings successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: 2/2 embeddings successfully retrieved.
+                data:
+                  embeddings:
+                    - data: [0.1, -0.2, 0.45]
+                      id: 23
+                      metadata:
+                        foo: bar
+                    - data: [0.2, -0.7, 0.32]
+                      id: 67
+                      metadata: {}
+        '500':
+          description: An internal server error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: 1/2 embeddings successfully retrieved.
+                data:
+                  embeddings:
+                    - data: [0.1, -0.2, 0.45] 
+                      id: 23
+                      metadata:
+                        foo: bar
+                error:
+                  code: EMBEDDINGS_SKIPPED
+                  description: 
+                    - embedding with ID 87 was not retrieved - embedding with ID 87 does not exist
+  /api/v1/embeddings/{indexName}/search:
+    post:
+      summary: Search for embeddings
+      operationId: searchEmbedding
+      description: Search for embeddings using vector similarity search
+      parameters:
+        - name: indexName
+          in: path
+          description: Name of the index
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - queryVector
+                - k
+              properties:
+                queryVector:
+                  type: array
+                  items:
+                    type: number
+                    format: float
+                  description: ID of the query vector
+                k:
+                  type: number
+                  format: int
+                  description: Number of retrieved embedding desired. 
+      responses:
+        '200':
+          description: The k-nearest embeddings returned in an array along with their rank (0 is nearest).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: Similarity search successfully performed.
+                data:
+                  nearest_neighbors:
+                    54:
+                      metadata:
+                        foo: bar
+                      rank: 0
+                    98:
+                      metadata:
+                        foo1: bar2
+                        bar: baz
+                      rank: 1
+                    21:
+                      metadata:
+                        foo3: bar4
+                      rank: 2
+                    63:
+                      metadata:
+                        foo5: bar6
+                        hello: world
+                      rank: 3
+                    45:
+                      metadata:
+                        foo7: bar8
+                      rank: 4
+        '400':
+          description: An error occured when performing similarity search.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 400
+                message: An error occured during the similarity search.
+                error:
+                  code: SIMILARITY_SEARCH_ERROR
+                  description: detailed description of the error...

@@ -1,0 +1,118 @@
+openapi: 3.0.3
+info:
+  title: EigenDB REST API
+  description: REST API for EigenDB.
+  version: 1.0.0
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Eigen-API-Key
+  schemas:
+    embeddingSchema:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: number
+            format: float
+          description: The embedding's data
+        id:
+          type: integer
+          description: The embedding's ID
+        metadata:
+          type: object
+          description: The embedding's metadata (set to {} for empty metadata)
+      required:
+        - data
+        - id
+        - metadata
+    responseSchema:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Status code of the response
+        message:
+          type: string
+          description: Message giving basic information on the response
+        data:
+          type: object
+          description: Important data to be given to the caller
+        error:
+          type: object
+          description: An error that has occured
+          properties:
+            code:
+              type: string
+              description: An error code unique to this type of error
+            description:
+              type: string
+              description: A detailed description of the error
+      required:
+        - status
+        - message
+paths:
+  /api/v1/health:
+    get:
+      summary: Database health check
+      operationId: healthCheck
+      description: Perform a health check on the database.
+      security: []
+      responses:
+        '200':
+          description: Database is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: healthy
+                data:
+                  cpu_usage_percent: 0.06
+                  mem_usage_percent: 1.31
+                  uptime: 72h3m0.5s
+        '500':
+          description: Database is unhealthy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 500
+                message: unhealthy
+                error:
+                  code: ERROR_GETTING_CPU_USAGE
+                  description: detailed description of the error...
+  /api/v1/test-auth:
+    get:
+      summary: Test your authentication
+      operationId: testAuth
+      description: Test your authentication using your API key.
+      responses:
+        '200':
+          description: Authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 200
+                message: Authenticated.
+        '401':
+          description: Invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseSchema'
+              example:
+                status: 401
+                message: Invalid API key.
+                error:
+                  code: INVALID_API_KEY
+                  description: The API key you provided is invalid.
