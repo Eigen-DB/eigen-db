@@ -37,7 +37,7 @@ class Client:
         print("Authentication successful:", parser.message)
         return True
     
-    def create_index_from_model(self, index_name: str, model_name: str, model_provider: str, model_provider_api_key: str) -> Index:
+    def create_index_from_model(self, index_name: str, model_name: str, model_provider: str, model_provider_api_key: str = None) -> Index:
         """
         Create a new index using a supported embedding model. 
         If the model is not supported, use create_index instead with the desired dimensions and metric.
@@ -86,7 +86,7 @@ class Client:
         parser.parse()
         return Index(
             api_key=self.api_key,
-            url=self.base_url,
+            url=self.url,
             index_name=index_name,
             model_provider="none",
         )
