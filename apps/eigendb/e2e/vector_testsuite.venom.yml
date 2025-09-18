@@ -1,7 +1,7 @@
 name: Vector Test Suite
 
 vars:
-  url: http://localhost:8080
+  url: http://localhost:8080/api/v1
   test_index_name: e2e-test-index
 
 testcases:
