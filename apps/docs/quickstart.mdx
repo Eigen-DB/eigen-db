@@ -4,6 +4,8 @@ description: 'Getting started'
 icon: terminal
 ---
 
+## Getting it up and running
+
 1. Clone the [repo](https://github.com/Eigen-DB/eigen-db) from GitHub:
 
 ```sh
@@ -24,6 +26,101 @@ You can test the connection to your instance by running:
 ```sh
 curl http://localhost:8080/api/v1/health
 ```
+
+## Creating your first index
+
+EigenDB can be interfaced with through our Python SDK or its robust REST API. 
+
+<AccordionGroup>
+  <Accordion title="Python SDK">
+    <Info>
+      To install the Python SDK, check out this [page](/sdks/python).
+    </Info>
+
+    ```python python
+    import os
+    from eigen_client.client import Client
+    from eigen_client.data_types import Document
+
+    client = Client(
+        url="http://localhost:8080",
+        api_key="eigendb-***",
+    )
+
+    index = client.create_index_from_model(
+        index_name="food-facts",
+        model_name="text-embedding-3-small",
+        model_provider="openai",
+        model_provider_api_key="your openai api key..."
+    )
+
+    documents = [
+        Document(id=1, data="Fresh herbs boost flavor.", metadata={"recipe_id": "123"}),
+        Document(id=2, data="Slow simmer blends soup.", metadata={"recipe_id": "456"}),
+        Document(id=3, data="Homemade bread smells great.", metadata={"recipe_id": "789"}),
+        Document(id=4, data="Grilled veggies taste sweeter.", metadata={"recipe_id": "987"}),
+        Document(id=5, data="Cast iron sears steak well.", metadata={"recipe_id": "654"})
+    ]
+
+    index.upsert_docs(documents)
+
+    results = index.search_docs(
+        string="Baking",
+        k=3
+    )
+
+    print(results)
+    ```
+  </Accordion>
+  <Accordion title="REST API">
+    To first create an index:
+
+    ```bash curl
+    curl -X PUT http://localhost:8080/api/v1/indexes/[INDEX-NAME]/create \
+      -H "Content-Type: application/json" \
+      -H "X-Eigen-API-Key: eigendb-***" \
+      -d '{
+        "dimensions": 1536,
+        "metric": "cosine"
+      }'
+    ```
+
+    To upsert your embeddings:
+
+    ```bash curl
+    curl -X PUT http://localhost:8080/api/v1/embeddings/[INDEX-NAME]/upsert \ 
+      -H "Content-Type: application/json" \
+      -H "X-Eigen-API-Key: eigendb-***" \
+      -d '{
+        "embeddings": [
+          {
+            "id": 1,
+            "data": [0.1, 0.2, 0.3, ..., 0.384],
+            "metadata": {"recipe_id": "123"}
+          },
+          {
+            "id": 2,
+            "data": [0.2, 0.1, 0.4, ..., 0.385],
+            "metadata": {"recipe_id": "456"}
+          },
+          ...
+        ]
+      }'
+    ```
+
+    To search for similar embeddings:
+
+    ```bash curl
+    curl -X POST http://localhost:8080/api/v1/embeddings/[INDEX-NAME]/search \
+      -H "Content-Type: application/json" \
+      -H "X-Eigen-API-Key: eigendb-***" \
+      -d '{
+        "queryVector": [0.1, 0.2, 0.3, ..., 0.384],
+        "k": 3
+      }'
+    ```
+  </Accordion>
+</AccordionGroup>
 
 {/*
 <Info>
