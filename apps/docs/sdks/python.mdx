@@ -4,7 +4,7 @@ description: Seamlessly integrate EigenDB into your Python applications
 icon: python
 ---
 
-## Installation
+## Installation 
 
 <CodeGroup>
     ```bash pip
@@ -12,11 +12,28 @@ icon: python
     ```
 </CodeGroup>
 
+## Supported embedding models
+
+If you desire to use a model that is not listed here, you can simply create the index with `client.create_index(...)` and provide the desired dimensions and similarity metric. 
+
+| Model Name                     | Provider  | Dimensions | Similarity Metric |
+|--------------------------------|-----------|------------|-------------------|
+| text-embedding-3-small         | OpenAI    | 1536       | cosine            |
+| text-embedding-3-large         | OpenAI    | 3072       | cosine            |
+| text-embedding-ada-002         | OpenAI    | 1536       | cosine            |
+| all-minilm:22m                 | Ollama    | 384        | cosine            |
+| nomic-embed-text:v1.5          | Ollama    | 768        | cosine            |
+| mxbai-embed-large:335m         | Ollama    | 1024       | cosine            |
+| snowflake-arctic-embed2:568m   | Ollama    | 1024       | cosine            |
+| snowflake-arctic-embed:335m    | Ollama    | 1024       | cosine            |
+| bge-m3:567m                    | Ollama    | 1024       | cosine            |
+| bge-large:335m                 | Ollama    | 1024       | cosine            |
+
 ## Usage
 
 ### Creating an index
 
-```py
+```py python
 import os
 from eigen_client.client import Client
 from eigen_client.data_types import Document
@@ -53,7 +70,7 @@ print(results)
 
 ### Using an existing index
 
-```py
+```py python
 import os
 from eigen_client.index import Index
 from eigen_client.data_types import Document
@@ -84,18 +101,3 @@ results = index.search_docs(
 
 print(results)
 ```
-
-## Supported embedding models
-
-| Model Name                     | Provider  | Dimensions | Similarity Metric |
-|--------------------------------|-----------|------------|-------------------|
-| text-embedding-3-small         | OpenAI    | 1536       | cosine            |
-| text-embedding-3-large         | OpenAI    | 3072       | cosine            |
-| text-embedding-ada-002         | OpenAI    | 1536       | cosine            |
-| all-minilm:22m                 | Ollama    | 384        | cosine            |
-| nomic-embed-text:v1.5          | Ollama    | 768        | cosine            |
-| mxbai-embed-large:335m         | Ollama    | 1024       | cosine            |
-| snowflake-arctic-embed2:568m   | Ollama    | 1024       | cosine            |
-| snowflake-arctic-embed:335m    | Ollama    | 1024       | cosine            |
-| bge-m3:567m                    | Ollama    | 1024       | cosine            |
-| bge-large:335m                 | Ollama    | 1024       | cosine            |
