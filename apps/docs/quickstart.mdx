@@ -9,7 +9,7 @@ icon: terminal
 1. Clone the [repo](https://github.com/Eigen-DB/eigen-db) from GitHub:
 
 ```sh
-git clone --recurse-submodules https://github.com/Eigen-DB/eigen-db
+git clone https://github.com/Eigen-DB/eigen-db
 ```
 
 2. To start EigenDB, run:
@@ -25,6 +25,12 @@ You can test the connection to your instance by running:
 
 ```sh
 curl http://localhost:8080/api/v1/health
+```
+
+3. Get your API key either from `apps/eigendb/eigen/api_key.txt` or from the container logs:
+
+```sh
+docker logs CONTAINER_NAME
 ```
 
 ## Creating your first index
