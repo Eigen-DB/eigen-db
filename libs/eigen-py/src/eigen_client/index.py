@@ -22,15 +22,17 @@ class Index:
         model_provider: The embedding model provider to use for vectorization.
         model_name: The name of the embedding model to use for vectorization (disregard if model_provider = "none").
         model_provider_api_key: The API key for the embedding model provider (if required).
+        ollama_remote_host: The host URL and port for the remote Ollama instance (only applicable if using "ollama_remote" as model_provider).
     '''
 
     def __init__(self, 
         url: str,
         api_key: str,
         index_name: str,
-        model_provider: Literal["openai", "ollama", "none"] = "openai",
+        model_provider: Literal["openai", "ollama_local", "ollama_remote", "none"] = "ollama_local",
         model_name: str = "text-embedding-3-small",
         model_provider_api_key: str = None,
+        ollama_remote_host: str = None
     ) -> None:
         self.base_url = f'{url}/api/{API_VERSION}'
         self.api_key = api_key
@@ -45,8 +47,10 @@ class Index:
         
         if self.model_provider == "openai":
             self.openai_client = openai.Client(api_key=self.model_provider_api_key)
-        elif self.model_provider == "ollama":
+        elif self.model_provider == "ollama_local":
             self.ollama_client = ollama
+        elif self.model_provider == "ollama_remote":
+            self.ollama_client = ollama.Client(host=ollama_remote_host)
     
     def _vectorize_docs(self, docs: list[Document]) -> list[Embedding]:
         '''
@@ -57,7 +61,7 @@ class Index:
             A list of Embedding objects containing the vectorized representations of the input documents.
         '''
         output_embeddings: list[Embedding] = []
-        if self.model_provider == "ollama":
+        if "ollama" in self.model_provider:
             response = self.ollama_client.embed(
                 model=self.model['name'],
                 input=[doc.data for doc in docs],

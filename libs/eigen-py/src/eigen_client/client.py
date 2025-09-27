@@ -37,7 +37,7 @@ class Client:
         print("Authentication successful:", parser.message)
         return True
     
-    def create_index_from_model(self, index_name: str, model_name: str, model_provider: str, model_provider_api_key: str = None) -> Index:
+    def create_index_from_model(self, index_name: str, model_name: str, model_provider: str, model_provider_api_key: str = None, ollama_remote_host: str = None) -> Index:
         """
         Create a new index using a supported embedding model. 
         If the model is not supported, use create_index instead with the desired dimensions and metric.
@@ -61,7 +61,8 @@ class Client:
             index_name=index_name,
             model_provider=model_provider,
             model_name=model_name,
-            model_provider_api_key=model_provider_api_key
+            model_provider_api_key=model_provider_api_key,
+            ollama_remote_host=ollama_remote_host
         )
 
     def create_index(self, index_name: str, dimensions: int, metric: str) -> Index:

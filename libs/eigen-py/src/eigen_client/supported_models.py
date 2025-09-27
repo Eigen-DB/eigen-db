@@ -1,57 +1,57 @@
-SUPPORTED_MODEL_PROVIDERS = ["openai", "ollama", "none"]
+SUPPORTED_MODEL_PROVIDERS = ["openai", "ollama_local", "ollama_remote", "none"]
 SUPPORTED_MODELS = [
     {
         "name": "all-minilm:22m",
-        "supported_provider": "ollama",
+        "supported_provider": ["ollama_local", "ollama_remote"],
         "dimensions": 384,
         "metric": "cosine",
         "metadata": {}
     },
     {
         "name": "nomic-embed-text:v1.5",
-        "supported_provider": "ollama",
+        "supported_provider": ["ollama_local", "ollama_remote"],
         "dimensions": 768,
         "metric": "cosine",
         "metadata": {}
     },
     {
         "name": "mxbai-embed-large:335m",
-        "supported_provider": "ollama",
+        "supported_provider": ["ollama_local", "ollama_remote"],
         "dimensions": 1024,
         "metric": "cosine",
         "metadata": {}
     },
     {
         "name": "snowflake-arctic-embed2:568m",
-        "supported_provider": "ollama",
+        "supported_provider": ["ollama_local", "ollama_remote"],
         "dimensions": 1024,
         "metric": "cosine",
         "metadata": {}
     },
     {
         "name": "snowflake-arctic-embed:335m",
-        "supported_provider": "ollama",
+        "supported_provider": ["ollama_local", "ollama_remote"],
         "dimensions": 1024,
         "metric": "cosine",
         "metadata": {}
     },
     {
         "name": "bge-m3:567m",
-        "supported_provider": "ollama",
+        "supported_provider": ["ollama_local", "ollama_remote"],
         "dimensions": 1024,
         "metric": "cosine",
         "metadata": {}
     },
     {
         "name": "bge-large:335m",
-        "supported_provider": "ollama",
+        "supported_provider": ["ollama_local", "ollama_remote"],
         "dimensions": 1024,
         "metric": "cosine",
         "metadata": {}
     },
     {
         "name": "text-embedding-3-small",
-        "supported_provider": "openai",
+        "supported_provider": ["openai"],
         "dimensions": 1536,
         "metric": "cosine",
         "metadata": {
@@ -60,7 +60,7 @@ SUPPORTED_MODELS = [
     },
     {
         "name": "text-embedding-3-large",
-        "supported_provider": "openai",
+        "supported_provider": ["openai"],
         "dimensions": 3072,
         "metric": "cosine",
         "metadata": {
@@ -69,7 +69,7 @@ SUPPORTED_MODELS = [
     },
     {
         "name": "text-embedding-ada-002",
-        "supported_provider": "openai",
+        "supported_provider": ["openai"],
         "dimensions": 1536,
         "metric": "cosine",
         "metadata": {
