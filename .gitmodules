@@ -3,4 +3,4 @@
 	url = https://github.com/facebookresearch/faiss
 [submodule "libs/hnswgo/lib/hnswlib"]
 	path = libs/hnswgo/lib/hnswlib
-	url = git@github.com:nmslib/hnswlib.git
+	url = https://github.com/nmslib/hnswlib.git
