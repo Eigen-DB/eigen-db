@@ -1,0 +1,40 @@
+#!/bin/sh
+
+pkg install \
+    git \
+    lang/gcc \
+    lang/go123 \
+    cmake \
+    gmake \
+    math/openblas
+
+# pull the submodules
+git submodule update --init --recursive
+
+cd libs/faissgo/lib/faiss
+
+# compiling Faiss
+# using OpenBLAS instead of Intel MKL at this time, although I was able to compile Faiss on FreeBSD using Intel MKL (https://www.freshports.org/math/onednn)
+cmake -B build \
+    -DFAISS_ENABLE_GPU=OFF \
+    -DFAISS_ENABLE_C_API=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DFAISS_ENABLE_PYTHON=OFF \
+    -DBUILD_TESTING=OFF \
+    -DFAISS_ENABLE_MKL=OFF \
+    .
+    #-DFAISS_ENABLE_MKL=ON \
+    #-DMKL_LIBRARIES=/usr/local/lib/libdnnl.so \
+gmake -C build -j
+gmake -C build install
+
+mv /usr/local/include/faiss /usr/include/faiss
+
+cp build/c_api/libfaiss_c.so /usr/local/lib
+
+export CGO_LDFLAGS="-L/usr/local/lib -L/usr/lib -lopenblas"
+
+# compiling EigenDB and running the binary
+cd ../../../../apps/eigendb
+go123 build -o dist/eigen_db main.go
+./dist/eigen_db
