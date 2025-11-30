@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# NOTE: this script assumes you've already created a thick BSD jail named "eigendb" with a userland already loaded
 # https://docs.freebsd.org/en/books/handbook/jails/
 
 cp /etc/resolv.conf /usr/local/jails/containers/eigendb/etc/resolv.conf
