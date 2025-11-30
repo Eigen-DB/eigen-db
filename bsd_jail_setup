@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# https://docs.freebsd.org/en/books/handbook/jails/
+
+cp /etc/resolv.conf /usr/local/jails/containers/eigendb/etc/resolv.conf
+cp /etc/localtime /usr/local/jails/containers/eigendb/etc/localtime
+
+# copy the repo into the jail
+cp -r . /usr/local/jails/containers/eigendb/root/eigen-db
+
+freebsd-update -b /usr/local/jails/containers/classic/ fetch install
+
+service jail start eigendb
