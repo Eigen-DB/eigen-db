@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ -f /root/eigen-db/apps/eigendb/SETUP_DONE ]; then
+    cd /root/eigen-db/apps/eigendb && ./dist/eigen_db
+    exit $?
+fi
+
 pkg install \
     git \
     lang/gcc \
@@ -37,4 +42,5 @@ export CGO_LDFLAGS="-L/usr/local/lib -L/usr/lib -lopenblas"
 # compiling EigenDB and running the binary
 cd ../../../../apps/eigendb
 go123 build -o dist/eigen_db main.go
+touch ./SETUP_DONE
 ./dist/eigen_db
