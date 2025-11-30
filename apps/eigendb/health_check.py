@@ -6,7 +6,7 @@ import json
 def health_check() -> None: 
     conn = http.client.HTTPConnection("127.0.0.1:8080")
 
-    conn.request("GET", "/health")
+    conn.request("GET", "/api/v1/health")
     response = conn.getresponse()
     data = json.loads(response.read().decode())
     conn.close()
