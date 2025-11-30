@@ -13,4 +13,4 @@ freebsd-update -b /usr/local/jails/containers/classic/ fetch install
 
 service jail start eigendb
 
-jexec -u root "cd /root/eigen-db && ./bsd_setup"
+jexec eigendb sh -c 'cd /root/eigen-db && ./bsd_setup'
