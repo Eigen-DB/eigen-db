@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# this script creates a new BSD thick jail with FreeBSD 14.3-RELEASE-base as the userland
+# NOTE: the jail created does not have EigenDB set up, yet. To set up EigenDB inside the jail, run `bsd_jail_setup` after creating the jail with this script.
+
+JAIL_NAME=$1
+
+if [ -z "$JAIL_NAME" ]; then
+  echo "Usage: $0 <jail_name>"
+  exit 1
+fi
+
+mkdir -p /usr/local/jails/containers/$JAIL_NAME
+cp ./jails/eigendb.conf /etc/jail.conf.d/$JAIL_NAME.conf
+tar -xf /usr/local/jails/media/14.3-RELEASE-base.txz -C /usr/local/jails/containers/$JAIL_NAME --unlink
+
