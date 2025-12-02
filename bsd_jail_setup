@@ -3,14 +3,16 @@
 # NOTE: this script assumes you've already created a thick BSD jail named "eigendb" with a userland already loaded
 # https://docs.freebsd.org/en/books/handbook/jails/
 
-cp /etc/resolv.conf /usr/local/jails/containers/eigendb/etc/resolv.conf
-cp /etc/localtime /usr/local/jails/containers/eigendb/etc/localtime
+JAIL_NAME=$1
+
+cp /etc/resolv.conf /usr/local/jails/containers/$JAIL_NAME/etc/resolv.conf
+cp /etc/localtime /usr/local/jails/containers/$JAIL_NAME/etc/localtime
 
 # copy the repo into the jail
-cp -r . /usr/local/jails/containers/eigendb/root/eigen-db
+cp -r . /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
 
-freebsd-update -b /usr/local/jails/containers/classic/ fetch install
+freebsd-update -b /usr/local/jails/containers/$JAIL_NAME/ fetch install
 
-service jail start eigendb
+service jail start $JAIL_NAME
 
-jexec eigendb sh -c 'cd /root/eigen-db && ./bsd_setup'
+jexec $JAIL_NAME sh -c 'cd /root/eigen-db && ./bsd_jail_internal_setup'
