@@ -5,6 +5,11 @@
 
 JAIL_NAME=$1
 
+if [ -z "$JAIL_NAME" ]; then
+  echo "Usage: $0 <jail_name>"
+  exit 1
+fi
+
 cp /etc/resolv.conf /usr/local/jails/containers/$JAIL_NAME/etc/resolv.conf
 cp /etc/localtime /usr/local/jails/containers/$JAIL_NAME/etc/localtime
 
