@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# NOTE: this script assumes you've already created a thick BSD jail named "eigendb" with a userland already loaded
+# NOTE: this script assumes you've already created a thick BSD jail with a userland already loaded
 # https://docs.freebsd.org/en/books/handbook/jails/
 
 JAIL_NAME=$1
@@ -9,9 +9,6 @@ if [ -z "$JAIL_NAME" ]; then
   echo "Usage: $0 <jail_name>"
   exit 1
 fi
-
-cp /etc/resolv.conf /usr/local/jails/containers/$JAIL_NAME/etc/resolv.conf
-cp /etc/localtime /usr/local/jails/containers/$JAIL_NAME/etc/localtime
 
 # copy the repo into the jail
 cp -r . /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
