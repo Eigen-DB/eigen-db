@@ -43,4 +43,4 @@ export CGO_LDFLAGS="-L/usr/local/lib -L/usr/lib -lopenblas"
 cd ../../../../apps/eigendb
 go123 build -o dist/eigen_db main.go
 touch ./SETUP_DONE
-./dist/eigen_db
+./dist/eigen_db # look into making this into a service and having it run on startup to not hang the script with EigenDB's stdout
