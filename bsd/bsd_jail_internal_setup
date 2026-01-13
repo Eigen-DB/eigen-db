@@ -4,7 +4,7 @@
 mkdir -p /usr/local/etc/rc.d
 mv ./eigendb /usr/local/etc/rc.d/
 
-pkg install \
+pkg install -y \
     git \
     lang/gcc \
     lang/go123 \
