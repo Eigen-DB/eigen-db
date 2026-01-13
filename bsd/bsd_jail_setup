@@ -15,4 +15,4 @@ cp -r . /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
 
 freebsd-update -b /usr/local/jails/containers/$JAIL_NAME/ fetch install
 service jail start $JAIL_NAME
-jexec $JAIL_NAME sh -c 'cd /root/eigen-db && ./bsd_jail_internal_setup'
+jexec $JAIL_NAME sh -c 'cd /root/eigen-db/bsd && ./bsd_jail_internal_setup'
