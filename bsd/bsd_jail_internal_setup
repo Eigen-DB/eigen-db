@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # defining the service on the BSD system
-mv ./eigendb /usr/local/etc/rc.d
+mkdir -p /usr/local/etc/rc.d
+mv ./eigendb /usr/local/etc/rc.d/
 
 pkg install \
     git \
