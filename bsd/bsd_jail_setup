@@ -11,7 +11,7 @@ if [ -z "$JAIL_NAME" ]; then
 fi
 
 # copy the repo into the jail
-cp -r . /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
+cp -r .. /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
 
 freebsd-update -b /usr/local/jails/containers/$JAIL_NAME/ fetch install
 service jail start $JAIL_NAME
