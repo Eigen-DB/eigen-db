@@ -1,9 +1,7 @@
 #!/bin/sh
 
-if [ -f /root/eigen-db/apps/eigendb/SETUP_DONE ]; then
-    cd /root/eigen-db/apps/eigendb && ./dist/eigen_db
-    exit $?
-fi
+# defining the service on the BSD system
+mv ./eigendb /usr/local/etc/rc.d
 
 pkg install \
     git \
@@ -16,7 +14,7 @@ pkg install \
 # pull the submodules
 git submodule update --init --recursive
 
-cd libs/faissgo/lib/faiss
+cd ../libs/faissgo/lib/faiss
 
 # compiling Faiss
 # using OpenBLAS instead of Intel MKL at this time, although I was able to compile Faiss on FreeBSD using Intel MKL (https://www.freshports.org/math/onednn)
@@ -42,5 +40,7 @@ export CGO_LDFLAGS="-L/usr/local/lib -L/usr/lib -lopenblas"
 # compiling EigenDB and running the binary
 cd ../../../../apps/eigendb
 go123 build -o dist/eigen_db main.go
-touch ./SETUP_DONE
-./dist/eigen_db # look into making this into a service and having it run on startup to not hang the script with EigenDB's stdout
+
+# starting the service
+sysrc eigendb_enable="YES"
+service eigendb start
