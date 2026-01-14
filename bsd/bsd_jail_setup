@@ -13,6 +13,8 @@ fi
 # copy the repo into the jail
 cp -r .. /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
 
-freebsd-update -b /usr/local/jails/containers/$JAIL_NAME/ fetch install
-service jail start $JAIL_NAME
+if ! jls -j "$JAIL_NAME" > /dev/null 2>&1; then
+  service jail start $JAIL_NAME
+fi
+
 jexec $JAIL_NAME sh -c 'cd /root/eigen-db/bsd && ./bsd_jail_internal_setup'
