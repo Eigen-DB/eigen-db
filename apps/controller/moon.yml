@@ -3,7 +3,7 @@ language: 'go'
 
 project:
   name: 'controller'
-  description: 'Kubernetes controller for managing customer instances on Eigen Cloud'
+  description: 'Controller for managing customer instances on Eigen Cloud'
   owner: '@ryan-awad'
   maintainers:
     - '@ryan-awad'

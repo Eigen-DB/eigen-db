@@ -1,22 +1,18 @@
 package main
 
-import (
-	"controller/api"
-	"controller/utils/k8s"
-	"flag"
-	"log"
-)
+import "controller/api"
 
 func main() {
-	var dev bool
+	// customers := []string{"spotify", "apple", "google", "meta"}
+	// for _, c := range customers {
+	// 	j := utils.JailFactory(c)
+	// 	if err := j.Start(); err != nil {
+	// 		panic(err)
+	// 	}
+	// }
 
-	flag.BoolVar(&dev, "dev", false, "Run the controller in development mode. This allows the controller to function OUTSIDE the K8s cluster.")
-	flag.Parse()
-
-	if err := k8s.Init(dev); err != nil {
-		log.Panic(err)
-	}
-	if err := api.StartAPI(dev); err != nil {
-		log.Panic(err)
+	r := api.SetupRouter()
+	if err := r.Run("0.0.0.0:8080"); err != nil {
+		panic(err)
 	}
 }
