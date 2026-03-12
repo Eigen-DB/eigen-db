@@ -20,7 +20,7 @@ func storeApiKey(key string, apiKeyFilePath string) error {
 	return nil
 }
 
-// Generates a secure random 16 byte API key
+// Generates a secure random 32 byte API key
 //
 // Returns the key or an error if one occured.
 func generateApiKey() (string, error) {
