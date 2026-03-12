@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# NOTE: this script assumes you've already created a classic/thick BSD jail with a 
+# userland already loaded, and your desired networking configurations.
+# 
+# This script has only been tested on jails with FreeBSD 14.3-RELEASE as the userland. 
+# https://docs.freebsd.org/en/books/handbook/jails/
+
+JAIL_NAME=$1
+
+if [ -z "$JAIL_NAME" ]; then
+  echo "Usage: $0 <jail_name>"
+  exit 1
+fi
+
+# copy the repo into the jail
+cp -r .. /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
+
+if ! jls -j "$JAIL_NAME" > /dev/null 2>&1; then
+  service jail start $JAIL_NAME
+fi
+
+jexec $JAIL_NAME sh -c 'cd /root/eigen-db/bsd && ./bsd_jail_internal_setup'
