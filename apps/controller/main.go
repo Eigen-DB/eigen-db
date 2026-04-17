@@ -1,18 +1,54 @@
 package main
 
-import "controller/api"
+import (
+	"fmt"
+	"log"
+
+	"controller/utils"
+)
+
+func getStdinStr(prompt string) string {
+	fmt.Print(prompt)
+	var input string
+	_, err := fmt.Scanln(&input)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return input
+}
 
 func main() {
-	// customers := []string{"spotify", "apple", "google", "meta"}
-	// for _, c := range customers {
-	// 	j := utils.JailFactory(c)
-	// 	if err := j.Start(); err != nil {
-	// 		panic(err)
-	// 	}
-	// }
+	fmt.Println("What would you like to do?")
+	fmt.Println("(1) Create a new instance")
+	fmt.Println("(2) Start an instance")
+	fmt.Println("(3) Stop an instance")
+	fmt.Println("(4) List instances")
 
-	r := api.SetupRouter()
-	if err := r.Run("0.0.0.0:8080"); err != nil {
-		panic(err)
+	choice := getStdinStr("\nChoice: ")
+	customerId := getStdinStr("Customer ID: ")
+
+	switch choice {
+	case "1":
+		if err := utils.CreateInstance(customerId); err != nil {
+			log.Fatal(err)
+		}
+	case "2":
+		if err := utils.StartInstance(customerId); err != nil {
+			log.Fatal(err)
+		}
+	case "3":
+		if err := utils.StopInstance(customerId); err != nil {
+			log.Fatal(err)
+		}
+	case "4":
+		jails, err := utils.ListInstances(customerId)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, j := range jails {
+			fmt.Println(j)
+		}
+	default:
+		fmt.Println("Invalid choice, try again.")
 	}
 }

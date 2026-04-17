@@ -13,8 +13,12 @@ if [ -z "$JAIL_NAME" ]; then
   exit 1
 fi
 
-# copy the repo into the jail
-cp -r .. /usr/local/jails/containers/$JAIL_NAME/root/eigen-db
+# clone the repo into the jail from main branch
+cd /usr/local/jails/containers/$JAIL_NAME/root
+git clone https://github.com/Eigen-DB/eigen-db.git && cd eigen-db
+git submodule update \
+  --init \
+  libs/faissgo/lib/faiss
 
 if ! jls -j "$JAIL_NAME" > /dev/null 2>&1; then
   service jail start $JAIL_NAME

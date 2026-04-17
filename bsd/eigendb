@@ -13,13 +13,14 @@ load_rc_config $name
 
 : ${eigendb_enable:="NO"}
 : ${eigendb_user:="root"}
+: ${eigendb_port:="8080"}
 : ${eigendb_chdir:="/root/eigen-db/apps/eigendb"}
 : ${eigendb_pidfile:="/var/run/eigendb.pid"}
 : ${eigendb_logfile:="/var/log/eigendb.log"}
 
 pidfile="${eigendb_pidfile}"
 command="/usr/sbin/daemon"
-command_args="-p ${eigendb_pidfile} -u ${eigendb_user} -o ${eigendb_logfile} -f /root/eigen-db/apps/eigendb/dist/eigen_db"
+command_args="-p ${eigendb_pidfile} -u ${eigendb_user} -o ${eigendb_logfile} -f /root/eigen-db/apps/eigendb/dist/eigen_db -api-port=${eigendb_port}"
 procname="eigen_db"
 
 cd ${eigendb_chdir}
