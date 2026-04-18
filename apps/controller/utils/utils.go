@@ -28,7 +28,11 @@ func StartInstance(customerName string) error {
 }
 
 func StopInstance(customerName string) error {
-	return nil
+	instance, err := jail.InstanceFactory(customerName, true)
+	if err != nil {
+		return err
+	}
+	return instance.Stop()
 }
 
 func ListInstances(customerName string) ([]jail.Instance, error) {

@@ -9,6 +9,8 @@ import (
 	"os/exec"
 )
 
+// maybe look into using BastilleBSD in the future
+
 const TEMPLATE_PATH string = "/usr/local/jails/templates/eigendb.tar"
 
 // add more metadata
@@ -46,7 +48,7 @@ func BsdJailFactory(customerId string) (*BsdJail, error) {
 	return getJailMetadata(customerId)
 }
 
-// use carefully
+// Use carefully!
 func (i *Instance) jailExec(command ...string) ([]byte, error) {
 	command = append([]string{i.customerId}, command...)
 	return exec.Command(
@@ -56,11 +58,15 @@ func (i *Instance) jailExec(command ...string) ([]byte, error) {
 }
 
 func (i *Instance) assignPort(port Port) error {
-	out, err := i.jailExec(fmt.Sprintf("sysrc eigendb_port=%d", port))
-	fmt.Println(string(out))
+	_, err := i.jailExec(
+		"sysrc",
+		fmt.Sprintf("eigendb_port=%d", port),
+	)
 	return err
 }
 
+// this takes a lot of time and CPU usage
+// look into ZFS clones!
 func (i *Instance) decompressUserland() error {
 	if err := os.Mkdir(fmt.Sprintf("/usr/local/jails/containers/%s", i.customerId), 0700); err != nil {
 		return err
@@ -111,8 +117,6 @@ func (i *Instance) Start(port Port) error {
 	if err := i.assignPort(port); err != nil {
 		return err
 	}
-
-	// BUG: race condition -> BsdJailFactory is executed before the jail is done starting
 	// populate i.jail
 	j, err := BsdJailFactory(i.customerId)
 	if err != nil {
@@ -120,9 +124,7 @@ func (i *Instance) Start(port Port) error {
 	}
 	i.jail = j
 
-	// start the EigenDB in the jail?
-	// seems like it starts automatically
-
+	// BUG: the EigenDB service starts automatically inside the jail. start it manually to allow the port assignment to take effect
 	return nil
 }
 
