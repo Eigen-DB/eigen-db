@@ -1,9 +1,7 @@
 package faissgo
 
 /*
-#cgo LDFLAGS: -lfaiss_c -lstdc++
-
-#include <faiss/c_api/error_c.h>
+#include "lib/faiss/c_api/error_c.h"
 */
 import "C"
 import "errors"

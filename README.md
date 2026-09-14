@@ -6,8 +6,6 @@
 ![](https://github.com/eigen-db/eigen-db/actions/workflows/ci.yml/badge.svg)
 ![](https://github.com/eigen-db/eigen-db/actions/workflows/conventional_commits.yml/badge.svg)
 
-
-![Monorepo badge](https://img.shields.io/badge/Monorepo-171c57?style=flat&logo=moonrepo&link=https%3A%2F%2Fnx.dev%2F)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 <a href="https://conventionalcommits.org">
     <img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white" alt="Conventional Commits">

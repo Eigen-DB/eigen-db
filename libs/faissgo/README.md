@@ -21,6 +21,29 @@
 
 ## 📦 Installation
 
+### 1. Install system dependencies:
+
+**Ubuntu/Debian**
+
+```sh
+apt update
+apt install -y libopenblas-dev libgomp1
 ```
+
+**Fedora**
+
+```sh
+dnf install -y openblas-devel libgomp
+```
+
+**Arch Linux**
+
+```sh
+pacman -S openblas
+```
+
+### 2. Install package
+
+```sh
 go get github.com/Eigen-DB/eigen-db/libs/faissgo
 ```

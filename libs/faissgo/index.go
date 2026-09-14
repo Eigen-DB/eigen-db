@@ -1,12 +1,13 @@
 package faissgo
 
 /*
-#cgo LDFLAGS: -lfaiss_c -lstdc++
+#cgo CXXFLAGS: -I${SRCDIR}/lib/faiss/c_api
+#cgo LDFLAGS: -L${SRCDIR}/lib -lfaiss_c -lfaiss -lstdc++ -lm -fopenmp -lopenblas
 
 #include <stdlib.h>
-#include <faiss/c_api/Index_c.h>
-#include <faiss/c_api/impl/AuxIndexStructures_c.h>
-#include <faiss/c_api/index_io_c.h>
+#include "lib/faiss/c_api/Index_c.h"
+#include "lib/faiss/c_api/impl/AuxIndexStructures_c.h"
+#include "lib/faiss/c_api/index_io_c.h"
 */
 import "C"
 import (

@@ -1,7 +1,7 @@
 package faissgo
 
 /*
-#include <faiss/c_api/impl/AuxIndexStructures_c.h>
+#include "lib/faiss/c_api/impl/AuxIndexStructures_c.h"
 */
 import "C"
 

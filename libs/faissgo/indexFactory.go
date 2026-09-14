@@ -1,11 +1,9 @@
 package faissgo
 
 /*
-#cgo LDFLAGS: -lfaiss_c -lstdc++
-
 #include <stdlib.h>
-#include <faiss/c_api/Index_c.h>
-#include <faiss/c_api/index_factory_c.h>
+#include "lib/faiss/c_api/Index_c.h"
+#include "lib/faiss/c_api/index_factory_c.h"
 */
 import "C"
 import (
