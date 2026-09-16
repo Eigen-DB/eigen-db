@@ -7,7 +7,7 @@ import (
 
 	"eigen_db/constants"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // The configuration structure for EigenDB
@@ -56,7 +56,7 @@ func (c *Config) populateConfig(configPath string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	decoder := yaml.NewDecoder(f)
 	err = decoder.Decode(config)

@@ -3,14 +3,14 @@
 TIMESTAMP=$(date +%s%N)
 mkdir -p e2e/logs
 
-which venom
+which venom > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
-    ls ~/venom # checking if i was already installed from a previous run
+    ls /tmp/venom > /dev/null 2>&1 # checking if i was already installed from a previous run
     if [[ $? -ne 0 ]]; then
         echo "Venom is not installed. Installing venom binary."
-        curl https://github.com/ovh/venom/releases/download/v1.2.0/venom.linux-amd64 -L -o ~/venom && chmod +x ~/venom
+        curl https://github.com/ovh/venom/releases/download/v1.2.0/venom.linux-amd64 -L -o /tmp/venom && chmod +x /tmp/venom
     fi
-    VENOM=~/venom
+    VENOM=/tmp/venom
 else
     VENOM=$(which venom)
 fi

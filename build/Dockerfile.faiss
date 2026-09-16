@@ -1,0 +1,40 @@
+# the purpose of this dockerfile is to compile Faiss as a static library using glibc 2.17 to make EigenDB as compatible as possible
+
+FROM quay.io/pypa/manylinux2014_x86_64
+
+SHELL ["/bin/bash", "-c"]
+
+COPY ./libs/faissgo/lib /faissgo
+
+RUN yum install -y epel-release && \
+    yum install -y \
+      cmake3 \
+      ninja-build \
+      wget \
+      git \
+      gcc \
+      gcc-c++ \
+      make \
+      openblas-devel \
+      gflags-devel
+
+WORKDIR /faiss
+
+RUN rm -rf build
+
+# Compiling Faiss with OpenBLAS (static lib, no shared libs, no MKL due to licensing issues)
+RUN cmake3 -B build \
+    -G Ninja \
+    -DFAISS_ENABLE_GPU=OFF \
+    -DFAISS_ENABLE_C_API=ON \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DFAISS_ENABLE_PYTHON=OFF \
+    -DBUILD_TESTING=OFF \
+    -DFAISS_ENABLE_MKL=OFF \
+    -DBLA_VENDOR=OpenBLAS \
+    -DCMAKE_BUILD_TYPE=Release \
+    .
+RUN cmake --build build -j$(nproc)
+
+ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
+

@@ -1,0 +1,28 @@
+name: 'Tests'
+on: 
+  push:
+jobs:
+  tests:
+    name: 'tests'
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 0
+          submodules: 'true'
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull base image
+        run: docker pull ghcr.io/eigen-db/eigendb-ci:1.0.0
+
+      - name: Run unit tests
+        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-ci:1.0.0 "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c 'make test'\""
+
+      - name: Run e2e tests
+        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-ci:1.0.0 "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c 'make e2e'\""
