@@ -1,9 +1,10 @@
-name: 'CI'
+name: 'Linters'
+
 on: 
   push:
 jobs:
   ci:
-    name: 'CI'
+    name: 'Linters'
     runs-on: 'ubuntu-24.04'
     steps:
       - uses: 'actions/checkout@v4'
@@ -19,7 +20,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull base image
-        run: docker pull ghcr.io/eigen-db/eigendb-base:latest
+        run: docker pull ghcr.io/eigen-db/eigendb-ci:latest
 
-      - name: Run `moon ci` in base image
-        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-base:latest "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c 'moon ci'\""
+      - name: Run linters
+        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-ci:latest "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c 'make lint'\""

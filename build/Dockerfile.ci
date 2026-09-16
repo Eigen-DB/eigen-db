@@ -1,0 +1,21 @@
+# This dockerfile is used to create the environment in which the CI is invoked
+
+FROM golang:1.23
+
+# installing golangci-lint
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.5
+
+# choose between MKL or openblas
+RUN apt update -y
+RUN apt install -y libopenblas-dev libgomp1
+
+# creating user to use in the CI (some tests expect lower-level system access)
+RUN useradd -m ci_user -s /bin/bash
+
+# making sure go binary is in the PATH
+RUN echo "PATH=\$PATH:/usr/local/go/bin" >> /root/.bashrc
+RUN echo "PATH=\$PATH:/usr/local/go/bin" >> /home/ci_user/.bashrc
+RUN echo "PATH=\$PATH:/go/bin" >> /root/.bashrc
+RUN echo "PATH=\$PATH:/go/bin" >> /home/ci_user/.bashrc
+
+ENTRYPOINT [ "/bin/bash", "-l", "-c" ]

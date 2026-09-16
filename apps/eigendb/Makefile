@@ -26,7 +26,7 @@ clean:
 test:
 	go test ./... -count=1
 
-# Run end-to-end tests with retry logic
+# Run end-to-end tests
 e2e: clean build
 	./run_e2e.sh
 

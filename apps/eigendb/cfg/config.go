@@ -7,7 +7,7 @@ import (
 
 	"eigen_db/constants"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // The configuration structure for EigenDB
