@@ -3,8 +3,8 @@ name: 'Linters'
 on: 
   push:
 jobs:
-  ci:
-    name: 'Linters'
+  lint:
+    name: 'linters'
     runs-on: 'ubuntu-24.04'
     steps:
       - uses: 'actions/checkout@v4'
