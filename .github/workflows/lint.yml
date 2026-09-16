@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull base image
-        run: docker pull ghcr.io/eigen-db/eigendb-ci:latest
+        run: docker pull ghcr.io/eigen-db/eigendb-ci:1.0.0
 
       - name: Run linters
-        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-ci:latest "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c 'make lint'\""
+        run: docker run -v ${{ github.workspace }}:/src ghcr.io/eigen-db/eigendb-ci "chown -R ci_user:ci_user /src && cd /src && su ci_user -c \"bash -c 'make lint'\""
