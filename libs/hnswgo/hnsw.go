@@ -94,12 +94,13 @@ func New(dim int, m int, efConstruction int, randSeed int, maxElements uint32, s
 	index.spaceType = spaceType
 	index.size = maxElements
 
-	if spaceType == "ip" {
+	switch spaceType {
+	case "ip":
 		index.index = C.initHNSW(C.int(dim), C.ulong(maxElements), C.int(m), C.int(efConstruction), C.int(randSeed), C.char('i'))
-	} else if spaceType == "cosine" {
+	case "cosine":
 		index.normalize = true
 		index.index = C.initHNSW(C.int(dim), C.ulong(maxElements), C.int(m), C.int(efConstruction), C.int(randSeed), C.char('c'))
-	} else {
+	default:
 		index.index = C.initHNSW(C.int(dim), C.ulong(maxElements), C.int(m), C.int(efConstruction), C.int(randSeed), C.char('l'))
 	}
 
@@ -144,12 +145,13 @@ func LoadIndex(location string, dim int, spaceType string, maxElements uint32) (
 	cLocation := C.CString(location)
 	defer C.free(unsafe.Pointer(cLocation))
 
-	if spaceType == "ip" {
+	switch spaceType {
+	case "ip":
 		index.index = C.loadHNSW(cLocation, C.int(dim), C.char('i'), C.ulong(maxElements))
-	} else if spaceType == "cosine" {
+	case "cosine":
 		index.normalize = true
 		index.index = C.loadHNSW(cLocation, C.int(dim), C.char('c'), C.ulong(maxElements))
-	} else {
+	default:
 		index.index = C.loadHNSW(cLocation, C.int(dim), C.char('l'), C.ulong(maxElements))
 	}
 
