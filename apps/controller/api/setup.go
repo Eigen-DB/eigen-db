@@ -8,7 +8,7 @@ import (
 )
 
 func StartAPI(devMode bool) error {
-	var port int = 8080
+	var port = 8080
 	if devMode {
 		port = 1337
 	}
